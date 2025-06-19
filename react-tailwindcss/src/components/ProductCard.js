@@ -20,6 +20,13 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
     }).format(price);
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+  };
+
   const getMinPrice = () => {
     if (product.skus && product.skus.length > 0) {
       return Math.min(...product.skus.map(sku => sku.price));
@@ -66,11 +73,11 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
           {/* Product Image */}
           <Link to={`/product/${product._id}`} className="flex-shrink-0">
             <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-xl overflow-hidden">
-              {product.images?.[0] ? (
+              {product.thumbnail ? (
                 <img
-                  src={product.images[0]}
+                  src={product.thumbnail}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-contain transition-transform duration-300"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -173,11 +180,11 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
       <div className="relative">
         <Link to={`/product/${product._id}`}>
           <div className="aspect-square overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900">
-            {product.images?.[0] ? (
+            {product.thumbnail ? (
               <img
-                src={product.images[0]}
+                src={product.thumbnail}
                 alt={product.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-contain transition-transform duration-300"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -250,6 +257,9 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
           <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 line-clamp-2 min-h-[3.5rem]">
             {product.name}
           </h3>
+          {product.createdAt && (
+            <p className="text-xs text-gray-500 dark:text-gray-400">Ngày thêm: {formatDate(product.createdAt)}</p>
+          )}
         </Link>
 
         {/* Description */}

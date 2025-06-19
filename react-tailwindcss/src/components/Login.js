@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { login, clearError } from '../features/auth/authSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faEye, 
@@ -11,18 +13,48 @@ import {
 import { faGoogle as fabGoogle, faFacebook as fabFacebook, faApple as fabApple } from '@fortawesome/free-brands-svg-icons';
 import Header from './Header';
 import Footer from './Footer';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: 'c@gmail.com', // Pre-filled for testing
+    password: '123456', // Pre-filled for testing
     rememberMe: false
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [localErrors, setLocalErrors] = useState({});
 
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const auth = useSelector(state => state.auth);
+  const user = useSelector(state => state.user);
+
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      // Redirect based on user role
+      console.log('User authenticated with role:', user.role);
+      switch (user.role) {
+        case 'admin':
+          navigate('/dashboard/admin');
+          break;
+        case 'seller':
+          navigate('/dashboard/seller');
+          break;
+        case 'user':
+          navigate('/dashboard/user');
+          break;
+        default:
+          navigate('/');
+      }
+    }
+  }, [auth.isAuthenticated, user.role, navigate]);
+
+  useEffect(() => {
+    if (auth.error) {
+      toast.error(auth.error);
+      dispatch(clearError());
+    }
+  }, [auth.error, dispatch]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -31,8 +63,8 @@ const Login = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
     // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+    if (localErrors[name]) {
+      setLocalErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -51,7 +83,7 @@ const Login = () => {
       newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
     }
     
-    setErrors(newErrors);
+    setLocalErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -60,19 +92,17 @@ const Login = () => {
     
     if (!validateForm()) return;
     
-    setIsLoading(true);
-    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const result = await dispatch(login({
+        email: formData.email,
+        password: formData.password
+      }));
       
-      // Mock successful login
-      console.log('Login successful', formData);
-      navigate('/');
+      if (login.fulfilled.match(result)) {
+        toast.success('Đăng nhập thành công!');
+      }
     } catch (error) {
-      setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' });
-    } finally {
-      setIsLoading(false);
+      console.error('Login error:', error);
     }
   };
 
@@ -86,6 +116,16 @@ const Login = () => {
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
         <div className="max-w-md w-full">
+          {/* Debug Panel */}
+          <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-4 mb-4 text-sm">
+            <h3 className="font-bold mb-2">Debug Info:</h3>
+            <p>Loading: {auth.loading ? 'Yes' : 'No'}</p>
+            <p>Error: {auth.error || 'None'}</p>
+            <p>Authenticated: {auth.isAuthenticated ? 'Yes' : 'No'}</p>
+            <p>User Role: {user.role || 'None'}</p>
+            <p>Token: {auth.token ? 'Present' : 'None'}</p>
+          </div>
+          
           {/* Login Card */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
             {/* Header */}
@@ -141,12 +181,6 @@ const Login = () => {
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {errors.general && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
-                  {errors.general}
-                </div>
-              )}
-
               {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -163,13 +197,13 @@ const Login = () => {
                     value={formData.email}
                     onChange={handleChange}
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
-                      errors.email ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                      localErrors.email ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Nhập email của bạn"
                   />
                 </div>
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
+                {localErrors.email && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{localErrors.email}</p>
                 )}
               </div>
 
@@ -189,7 +223,7 @@ const Login = () => {
                     value={formData.password}
                     onChange={handleChange}
                     className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors ${
-                      errors.password ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                      localErrors.password ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Nhập mật khẩu"
                   />
@@ -201,8 +235,8 @@ const Login = () => {
                     <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                   </button>
                 </div>
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
+                {localErrors.password && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{localErrors.password}</p>
                 )}
               </div>
 
@@ -229,10 +263,10 @@ const Login = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={auth.loading}
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
               >
-                {isLoading ? (
+                {auth.loading ? (
                   <div className="flex items-center justify-center">
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                     Đang đăng nhập...

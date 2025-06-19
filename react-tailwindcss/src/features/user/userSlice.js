@@ -6,9 +6,14 @@ export const fetchUserProfile = createAsyncThunk(
     async (_, thunkAPI) => {
         try {
             const response = await userService.getUserProfile();
-            return response;
+            return response.data; // Return response.data instead of the whole response
         } catch (error) {
-            return thunkAPI.rejectWithValue(error.response?.data?.message);
+            const message = 
+                (error.response && 
+                    error.response.data && 
+                    error.response.data.message) ||
+                error.message;
+            return thunkAPI.rejectWithValue(message);
         }
     }
 );
@@ -40,11 +45,11 @@ export const userSlice = createSlice({
                 state.loading = true;
             })
             .addCase(fetchUserProfile.fulfilled, (state, action) => {
-                state.profile = action.payload;
                 state.loading = false;
+                state.profile = action.payload;
+                state.role = action.payload.user.role; // Set role from profile
             })
             .addCase(fetchUserProfile.rejected, (state, action) => {
-                // state.error = action.payload;
                 state.loading = false;
             });
     }

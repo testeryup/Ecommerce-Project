@@ -15,7 +15,7 @@ import { AdminDashboard, SellerDashboard } from '../containers/System';
 import UserDashboard from '../containers/System/UserDashboard';
 import UserProfile from './Header/User/UserProfile';
 import Loading from '../components/Loading';
-import ProductDetail from './HomePage/ProductDetail';
+import ProductDetail from '../components/ProductDetail';
 import CartPage from './Header/User/Checkout/CartPage';
 import Checkout from './Header/User/Checkout/Checkout';
 import PaymentSuccess from './Header/User/PaymentSuccess';

@@ -1,12 +1,22 @@
 // src/services/authService.js
-import api from '../axios';
+import axios from 'axios';
 
-const login = (email, password) => {
-    return api.post('/api/auth/login', { email, password });
+const api = axios.create({
+    baseURL: process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    withCredentials: true,
+});
+
+const login = async (email, password) => {
+    const response = await api.post('/api/auth/login', { email, password });
+    return response.data;
 }
 
-const register = (email, password, username) => {
-    return api.post('/api/auth/register', { email, password, username });
+const register = async (email, password, username) => {
+    const response = await api.post('/api/auth/register', { email, password, username });
+    return response.data;
 }
 
 const logout = () => {
