@@ -1,8 +1,8 @@
 import { createPortal } from "react-dom"
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import './InventoryModal.scss';
 import { userGetProductById } from "../../../../services/userService";
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { uploadInventory, getInventoryList, deleteInventoryById } from "../../../../services/sellerService";
 
 export default function InventoryModal({ isOpen, onClose, productId }) {

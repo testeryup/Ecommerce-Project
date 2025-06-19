@@ -1,20 +1,19 @@
-import { Routes, Route, Link, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { path } from '../ultils';
 import { useDispatch, useSelector } from 'react-redux';
-import { refreshToken, clearError } from '../features/auth/authSlice';
 import { fetchUserProfile } from '../features/user/userSlice';
 
 import { setAuthToken } from '../axios';
 
 import Application from '../components/Application';
 import Home from '../components/Home';
-import Login from '../features/auth/Login';
+import Login from '../components/Login';
+import Register from '../components/Register';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { AdminDashboard, SellerDashboard } from '../containers/System';
 import UserDashboard from '../containers/System/UserDashboard';
 import UserProfile from './Header/User/UserProfile';
-import SignUp from '../features/auth/SignUp';
 import Loading from '../components/Loading';
 import ProductDetail from './HomePage/ProductDetail';
 import CartPage from './Header/User/Checkout/CartPage';
@@ -26,6 +25,7 @@ import Support from './Header/User/Support';
 import Topup from './HomePage/Topup';
 import About from '../components/About';
 import AllProducts from '../components/AllProducts.js'
+import SearchResults from '../components/SearchResults';
 import { Toaster } from 'react-hot-toast';
 
 import './App.scss';
@@ -93,11 +93,21 @@ export default function App() {
             />
             <Routes>
 
-                <Route path={path.UNAUTHORIZED} element={<h1>Unauthorized Access</h1>} />
+                <Route path={path.UNAUTHORIZED} element={
+                    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                        <div className="text-center">
+                            <h1 className="text-6xl font-bold text-red-600 mb-4">403</h1>
+                            <p className="text-xl text-gray-600 mb-8">Truy cập bị từ chối</p>
+                            <a href="/" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                                Về trang chủ
+                            </a>
+                        </div>
+                    </div>
+                } />
                 <Route path={path.HOME} element={<Home></Home>} />
                 <Route path={path.APP} element={<Application />} />
                 <Route path={path.LOGIN} element={<Login />} />
-                <Route path={path.SIGNUP} element={auth.isAuthenticated ? <Home></Home> : <SignUp></SignUp>}></Route>
+                <Route path={path.SIGNUP} element={auth.isAuthenticated ? <Home></Home> : <Register></Register>}></Route>
                 <Route
                     path={path.PRODUCT}
                     element={<ProductDetail />}
@@ -142,9 +152,20 @@ export default function App() {
                 <Route path={path.SUPPORT} element={<Support></Support>}></Route>
                 <Route path={path.TOPUP} element={<Topup></Topup>}></Route>
                 <Route path="/products" element={<AllProducts />} />
+                <Route path="/search" element={<SearchResults />} />
                 <Route path="/about" element={<About />} />
                 {/* Catch-All Route */}
-                <Route path='*' element={<h1>404 - Page Not Found</h1>} />
+                <Route path='*' element={
+                    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                        <div className="text-center">
+                            <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
+                            <p className="text-xl text-gray-600 mb-8">Trang không tìm thấy</p>
+                            <a href="/" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                                Về trang chủ
+                            </a>
+                        </div>
+                    </div>
+                } />
 
 
             </Routes>

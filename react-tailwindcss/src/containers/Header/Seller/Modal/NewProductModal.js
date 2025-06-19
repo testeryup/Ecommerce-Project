@@ -1,9 +1,8 @@
 import { createPortal } from "react-dom";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import './NewProductModal.scss';
-import { useEffect, useCallback } from "react";
 import { createOrUpdateProduct, getProductById } from '../../../../services/userService';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 export default function NewProductModal({ isOpen, onClose, categoriesList, mode = 'create', productId = null }) {
     const MAX_IMAGES = 5;

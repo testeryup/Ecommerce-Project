@@ -25,7 +25,7 @@ const Support = () => {
     ];
 
     const contactInfo = {
-        email: 'support@octopus.com',
+        email: 'support@octopusstore.vn',
         phone: '1900 1234',
         workingHours: '8:00 - 22:00 (Thứ 2 - Chủ nhật)'
     };
