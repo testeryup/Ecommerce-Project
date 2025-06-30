@@ -76,32 +76,25 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 transition-colors duration-200">
+    <footer className="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 transition-colors duration-200">
       {/* Newsletter Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <div className="bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                  <FontAwesomeIcon icon={faEnvelope} className="text-2xl" />
-                </div>
-                <h3 className="text-2xl font-bold">Đăng ký nhận tin</h3>
-              </div>
-              <p className="text-blue-100 text-lg">
-                Nhận thông báo về ứng dụng mới, khuyến mãi đặc biệt và nhiều ưu đãi hấp dẫn từ OCTOPUS Store
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <input
-                  type="email"
-                  placeholder="Nhập email của bạn"
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50 text-white placeholder-blue-100 transition-all duration-200 backdrop-blur-sm"
-                />
-              </div>
-              <button className="px-8 py-3 bg-white text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-semibold whitespace-nowrap shadow-lg hover:shadow-xl transform hover:scale-105">
-                Đăng ký ngay
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Đăng ký nhận thông tin ưu đãi
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+              Nhận thông báo về các sản phẩm mới, ưu đãi đặc biệt và các tin tức hot nhất từ OCTOPUS Store
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
+              <input
+                type="email"
+                placeholder="Nhập email của bạn"
+                className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              />
+              <button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold transition-colors duration-200">
+                Đăng ký
               </button>
             </div>
           </div>
@@ -114,27 +107,33 @@ const Footer = () => {
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center space-x-3 group mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                <FontAwesomeIcon icon={faStore} className="text-white text-xl" />
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-md">
+                <span className="text-white text-xl font-bold">🐙</span>
               </div>
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">🐙 OCTOPUS</span>
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">OCTOPUS</span>
             </Link>
-            <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg leading-relaxed">
-              Nền tảng ứng dụng và dịch vụ digital hàng đầu Việt Nam. Khám phá hàng ngàn ứng dụng chất lượng cao cho mọi nhu cầu.
+            <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg leading-relaxed">
+              Nền tảng cung cấp dịch vụ digital hàng đầu Việt Nam. Khám phá hàng ngàn sản phẩm chất lượng cao cho mọi nhu cầu của bạn.
             </p>
             
             {/* Contact Info */}
             <div className="space-y-3">
-              <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-400">
-                <FontAwesomeIcon icon={faPhone} className="text-blue-600" />
+              <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-300">
+                <div className="w-8 h-8 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <FontAwesomeIcon icon={faPhone} className="text-blue-600 dark:text-blue-400 text-sm" />
+                </div>
                 <span>1900 1234</span>
               </div>
-              <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-400">
-                <FontAwesomeIcon icon={faEnvelope} className="text-blue-600" />
+              <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-300">
+                <div className="w-8 h-8 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <FontAwesomeIcon icon={faEnvelope} className="text-blue-600 dark:text-blue-400 text-sm" />
+                </div>
                 <span>support@octopus.vn</span>
               </div>
-              <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-400">
-                <FontAwesomeIcon icon={faMapMarkerAlt} className="text-blue-600" />
+              <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-300">
+                <div className="w-8 h-8 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <FontAwesomeIcon icon={faMapMarkerAlt} className="text-blue-600 dark:text-blue-400 text-sm" />
+                </div>
                 <span>TP. Hồ Chí Minh, Việt Nam</span>
               </div>
             </div>
@@ -151,7 +150,7 @@ const Footer = () => {
                   <li key={link.name}>
                     <Link 
                       to={link.href}
-                      className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 flex items-center space-x-2 group"
+                      className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 flex items-center space-x-2 group"
                     >
                       {link.icon && (
                         <FontAwesomeIcon 
@@ -170,11 +169,11 @@ const Footer = () => {
       </div>
 
       {/* Bottom Footer */}
-      <div className="border-t border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             {/* Copyright */}
-            <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+            <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
               <span>© {currentYear} OCTOPUS Store. Made with</span>
               <FontAwesomeIcon icon={faHeart} className="text-red-500 animate-pulse" />
               <span>in Vietnam</span>
@@ -182,14 +181,14 @@ const Footer = () => {
 
             {/* Social Links */}
             <div className="flex items-center space-x-4">
-              <span className="text-gray-600 dark:text-gray-400 mr-2">Theo dõi chúng tôi:</span>
+              <span className="text-gray-600 dark:text-gray-300 mr-2">Theo dõi:</span>
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center text-gray-600 dark:text-gray-400 ${social.color} transition-all duration-200 transform hover:scale-110 hover:shadow-lg`}
+                  className={`w-10 h-10 bg-white dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 ${social.color} transition-all duration-200 transform hover:scale-110 shadow-sm border border-gray-200 dark:border-gray-600 hover:shadow-md`}
                   aria-label={social.label}
                 >
                   <FontAwesomeIcon icon={social.icon} />

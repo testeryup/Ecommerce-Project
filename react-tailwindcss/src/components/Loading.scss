@@ -1,5 +1,5 @@
 .loading-container{
-    background: rgba(255, 255, 255, 0.8); // Optional: semi-transparent background
+    background: transparent; // Loại bỏ background tĩnh, để TailwindCSS quản lý
 
     .shapes-1 {
         width: 40px;

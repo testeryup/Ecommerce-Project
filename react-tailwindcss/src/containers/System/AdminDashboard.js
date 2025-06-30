@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
-import UserHeader from '../Header/UserHeader';
+import AdminHeader from '../Header/AdminHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+    faChartLine,
+    faUsers,
+    faBox,
+    faMoneyBillWave,
+    faFlag,
+    faCog,
+    faAngleLeft,
+    faAngleRight
+} from '@fortawesome/free-solid-svg-icons';
 import './AdminDashboard.scss';
 
 const AdminMenu = {
@@ -17,12 +27,12 @@ export default function AdminDashboard() {
     const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     const menuItems = [
-        { id: 'overview', label: 'Tổng quan', icon: 'chart-line' },
-        { id: 'users', label: 'Người dùng', icon: 'users' },
-        { id: 'products', label: 'Sản phẩm', icon: 'box' },
-        { id: 'transactions', label: 'Giao dịch', icon: 'money-bill-wave' },
-        { id: 'reports', label: 'Báo cáo', icon: 'flag' },
-        { id: 'settings', label: 'Cài đặt', icon: 'cog' }
+        { id: 'overview', label: 'Tổng quan', icon: faChartLine },
+        { id: 'users', label: 'Người dùng', icon: faUsers },
+        { id: 'products', label: 'Sản phẩm', icon: faBox },
+        { id: 'transactions', label: 'Giao dịch', icon: faMoneyBillWave },
+        { id: 'reports', label: 'Báo cáo', icon: faFlag },
+        { id: 'settings', label: 'Cài đặt', icon: faCog }
     ];
 
     const handleMenuClick = (menuId) => {
@@ -37,13 +47,16 @@ export default function AdminDashboard() {
 
     return (
         <div className="admin-dashboard">
-            <UserHeader />
+            <AdminHeader 
+                onToggleSidebar={toggleSidebar}
+                isSidebarCollapsed={isSidebarCollapsed}
+            />
             <div className="dashboard-container">
                 <aside className={`sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
                     <div className="sidebar-header">
-                        <h2>{isSidebarCollapsed ? 'A' : 'Admin'}</h2>
+                        <h2>{isSidebarCollapsed ? 'A' : 'Admin Panel'}</h2>
                         <button className="toggle-btn" onClick={toggleSidebar}>
-                            <FontAwesomeIcon icon={isSidebarCollapsed ? 'angle-right' : 'angle-left'} />
+                            <FontAwesomeIcon icon={isSidebarCollapsed ? faAngleRight : faAngleLeft} />
                         </button>
                     </div>
                     <nav className="sidebar-nav">
@@ -61,7 +74,12 @@ export default function AdminDashboard() {
                 </aside>
 
                 <main className="dashboard-main">
-                    <React.Suspense fallback={<div className="loading">Loading...</div>}>
+                    <React.Suspense fallback={
+                        <div className="loading-container">
+                            <div className="loading-spinner"></div>
+                            <p>Đang tải...</p>
+                        </div>
+                    }>
                         <SelectedComponent />
                     </React.Suspense>
                 </main>

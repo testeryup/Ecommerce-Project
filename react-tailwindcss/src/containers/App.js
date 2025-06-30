@@ -15,7 +15,7 @@ import { AdminDashboard, SellerDashboard } from '../containers/System';
 import UserDashboard from '../containers/System/UserDashboard';
 import UserProfile from './Header/User/UserProfile';
 import Loading from '../components/Loading';
-import ProductDetail from '../components/ProductDetail';
+import ProductDetail from '../components/ProductDetailV2';
 import CartPage from './Header/User/Checkout/CartPage';
 import Checkout from './Header/User/Checkout/Checkout';
 import PaymentSuccess from './Header/User/PaymentSuccess';
@@ -94,10 +94,10 @@ export default function App() {
             <Routes>
 
                 <Route path={path.UNAUTHORIZED} element={
-                    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
                         <div className="text-center">
                             <h1 className="text-6xl font-bold text-red-600 mb-4">403</h1>
-                            <p className="text-xl text-gray-600 mb-8">Truy cập bị từ chối</p>
+                            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">Truy cập bị từ chối</p>
                             <a href="/" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
                                 Về trang chủ
                             </a>

@@ -5,6 +5,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 
 import App from "./containers/App";
 import store, { persistor } from "./store";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import './ultils/fontawesome';
 import './index.css';
 
@@ -12,9 +13,11 @@ const root = createRoot(document.getElementById("root"));
 root.render(
     <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-            <BrowserRouter>
-                <App />
-            </BrowserRouter>
+            <ThemeProvider>
+                <BrowserRouter>
+                    <App />
+                </BrowserRouter>
+            </ThemeProvider>
         </PersistGate>
     </Provider>
 );

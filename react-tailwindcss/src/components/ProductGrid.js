@@ -26,14 +26,14 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Categories based on subscription services
+  // Categories based on subscription services - Clean design
   const categories = [
-    { id: 'all', name: 'Tất cả danh mục', icon: faCrown, color: 'bg-gradient-to-r from-purple-500 to-blue-500' },
-    { id: 'entertainment', name: 'Giải trí', icon: faPlay, color: 'bg-gradient-to-r from-red-500 to-pink-500' },
-    { id: 'productivity', name: 'Năng suất', icon: faDesktop, color: 'bg-gradient-to-r from-blue-500 to-cyan-500' },
-    { id: 'music', name: 'Âm nhạc', icon: faMusic, color: 'bg-gradient-to-r from-green-500 to-emerald-500' },
-    { id: 'creative', name: 'Công cụ sáng tạo', icon: faBolt, color: 'bg-gradient-to-r from-yellow-500 to-orange-500' },
-    { id: 'gaming', name: 'Trò chơi', icon: faGamepad, color: 'bg-gradient-to-r from-pink-500 to-purple-500' }
+    { id: 'all', name: 'Tất cả', icon: faCrown, color: 'bg-blue-600' },
+    { id: 'entertainment', name: 'Giải trí', icon: faPlay, color: 'bg-red-500' },
+    { id: 'productivity', name: 'Năng suất', icon: faDesktop, color: 'bg-blue-500' },
+    { id: 'music', name: 'Âm nhạc', icon: faMusic, color: 'bg-green-500' },
+    { id: 'creative', name: 'Sáng tạo', icon: faBolt, color: 'bg-yellow-500' },
+    { id: 'gaming', name: 'Trò chơi', icon: faGamepad, color: 'bg-purple-500' }
   ];
 
   // Updated sample products for subscription services
@@ -368,11 +368,11 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-900 min-h-screen py-8">
+      <div className="bg-white min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <LoadingSpinner size="large" />
-            <p className="text-gray-600 dark:text-gray-400 mt-4">Đang tải các dịch vụ đăng ký tuyệt vời...</p>
+            <p className="text-gray-600 mt-4">Đang tải sản phẩm...</p>
           </div>
         </div>
       </div>
@@ -381,40 +381,23 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen transition-colors duration-200">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 text-white py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in">
-            🐙 OCTOPUS Store
-          </h1>
-          <p className="text-xl md:text-2xl mb-12 text-blue-100 max-w-3xl mx-auto animate-slide-in">
-            Dịch vụ đăng ký cao cấp và tài khoản số với giá không thể cạnh tranh
-          </p>
-          <div className="flex flex-wrap justify-center gap-6 text-sm">
-            <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 border border-white/30">
-              <FontAwesomeIcon icon={faShield} className="mr-2" />
-              Tài khoản đã xác minh
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 border border-white/30">
-              <FontAwesomeIcon icon={faBolt} className="mr-2" />
-              Giao hàng tức thì
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 border border-white/30">
-              <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
-              Hỗ trợ 24/7
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {/* Products Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Section Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Sản phẩm nổi bật
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Khám phá các dịch vụ và tài khoản premium được yêu thích nhất
+          </p>
+        </div>
+
         {/* Filters and Sort */}
         <div className="mb-8">
           {/* Category Filter */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Danh mục</h3>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 justify-center">
               {categories.map((category) => (
                 <button
                   key={category.id}
@@ -422,7 +405,7 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
                   className={`group relative flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                     activeFilter === category.id
                       ? `${category.color} text-white shadow-lg scale-105`
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:scale-105 hover:shadow-md'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:scale-105 hover:shadow-md hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}
                 >
                   <FontAwesomeIcon 
@@ -430,9 +413,6 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
                     className="mr-2 text-sm" 
                   />
                   {category.name}
-                  {activeFilter === category.id && (
-                    <div className="absolute inset-0 bg-white/20 rounded-xl"></div>
-                  )}
                 </button>
               ))}
             </div>
@@ -442,7 +422,7 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <span className="text-gray-700 dark:text-gray-300 font-medium">
-                Tìm thấy {sortedProducts.length} dịch vụ
+                Tìm thấy {sortedProducts.length} sản phẩm
               </span>
               {activeFilter !== 'all' && (
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -456,7 +436,7 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="featured">Nổi bật</option>
                 <option value="bestseller">Bán chạy nhất</option>
@@ -478,7 +458,7 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
             return (
               <div
                 key={product._id}
-                className="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 dark:border-gray-700 overflow-hidden cursor-pointer"
+                className="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg dark:hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700 overflow-hidden cursor-pointer"
                 onClick={() => onProductClick && onProductClick(product)}
               >
                 {/* Product Image */}
@@ -486,25 +466,25 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
                   <img
                     src={product.images[0]}
                     alt={product.name}
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   
                   {/* Badges */}
                   <div className="absolute top-4 left-4 flex flex-col gap-2">
                     {product.bestseller && (
-                      <span className="bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center">
+                      <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center shadow-sm">
                         <FontAwesomeIcon icon={faFire} className="mr-1" />
                         BÁN CHẠY
                       </span>
                     )}
                     {product.featured && (
-                      <span className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center">
+                      <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center shadow-sm">
                         <FontAwesomeIcon icon={faCrown} className="mr-1" />
                         NỔI BẬT
                       </span>
                     )}
                     {discountPercentage > 0 && (
-                      <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center">
+                      <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center shadow-sm">
                         <FontAwesomeIcon icon={faPercent} className="mr-1" />
                         {discountPercentage}% GIẢM
                       </span>
@@ -513,10 +493,10 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
 
                   {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <button className="bg-white/90 hover:bg-white text-gray-700 p-2 rounded-full shadow-lg hover:scale-110 transition-all duration-200">
+                    <button className="bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 p-2 rounded-full shadow-lg hover:scale-110 transition-all duration-200">
                       <FontAwesomeIcon icon={faHeart} className="text-sm" />
                     </button>
-                    <button className="bg-white/90 hover:bg-white text-gray-700 p-2 rounded-full shadow-lg hover:scale-110 transition-all duration-200">
+                    <button className="bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 p-2 rounded-full shadow-lg hover:scale-110 transition-all duration-200">
                       <FontAwesomeIcon icon={faEye} className="text-sm" />
                     </button>
                   </div>
@@ -524,7 +504,7 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
                   {/* Verified Badge */}
                   {product.verified && (
                     <div className="absolute bottom-4 left-4">
-                      <span className="bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center">
+                      <span className="bg-white/90 backdrop-blur-sm text-blue-600 text-xs font-semibold px-3 py-1 rounded-full flex items-center shadow-sm">
                         <FontAwesomeIcon icon={faCheckCircle} className="mr-1" />
                         Đã xác minh
                       </span>
@@ -538,7 +518,7 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       {product.name}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
+                    <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
                       {product.description}
                     </p>
                   </div>
@@ -558,11 +538,11 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
 
                   {/* Features */}
                   <div className="mb-4">
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-2">
                       {product.features.slice(0, 2).map((feature, index) => (
                         <span
                           key={index}
-                          className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded-full"
+                          className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs px-2 py-1 rounded-full font-medium"
                         >
                           {feature}
                         </span>
@@ -593,9 +573,9 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
                       </span>
                     </div>
                     
-                    <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-semibold hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2">
+                    <button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2">
                       <FontAwesomeIcon icon={faShoppingCart} className="text-sm" />
-                      Thêm vào giỏ
+                      Thêm
                     </button>
                   </div>
 
@@ -621,16 +601,16 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Không tìm thấy dịch vụ
+              Không tìm thấy sản phẩm
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               Thử điều chỉnh bộ lọc hoặc tìm kiếm điều khác
             </p>
             <button
               onClick={() => setActiveFilter('all')}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200"
+              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200"
             >
-              Hiện tất cả dịch vụ
+              Hiện tất cả sản phẩm
             </button>
           </div>
         )}
