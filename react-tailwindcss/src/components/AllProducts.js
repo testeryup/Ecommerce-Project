@@ -5,7 +5,6 @@ import Header from "./Header";
 import Footer from "./Footer";
 import { getProducts, getCategory } from '../services/userService';
 import { addToCart } from '../features/cart/cartSlice';
-import Loading from './Loading';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faSearch, 
@@ -28,7 +27,6 @@ import {
     faCrown
 } from '@fortawesome/free-solid-svg-icons';
 import toast from 'react-hot-toast';
-import './ProductDetail.css'; // Import animations CSS
 
 const Products = () => {
     const navigate = useNavigate();
@@ -45,17 +43,6 @@ const Products = () => {
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [activeSubcategories, setActiveSubcategories] = useState([]);
     const [viewMode, setViewMode] = useState('grid'); // grid or list
-
-    // Category icons mapping
-    const categoryIcons = {
-        'all': faSearch,
-        'entertainment': faPlay,
-        'productivity': faDesktop,
-        'music': faMusic,
-        'security': faShield,
-        'education': faGraduationCap,
-        'gaming': faGamepad
-    };
 
     // Helper function to get category icons
     const getCategoryIcon = (categoryName) => {

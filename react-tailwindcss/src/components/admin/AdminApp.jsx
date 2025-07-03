@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
-import AdminDashboard from './AdminDashboardNew';
+import AdminDashboard from './AdminDashboard';
 import UsersManagement from './UsersManagement';
 import ProductsManagement from './ProductsManagement';
 import TransactionsManagement from './TransactionsManagement';
 import OrdersManagement from './OrdersManagement';
 import AdminSettings from './AdminSettings';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Settings, BarChart3, ShoppingCart } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 
 // Placeholder components for remaining routes
 const ReportsManagement = () => (

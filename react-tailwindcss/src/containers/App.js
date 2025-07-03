@@ -30,8 +30,6 @@ import AllProducts from '../components/AllProducts.js'
 import SearchResults from '../components/SearchResults';
 import { Toaster } from 'react-hot-toast';
 
-import './App.scss';
-
 export default function App() {
     const dispatch = useDispatch();
     const auth = useSelector(state => state.auth);
