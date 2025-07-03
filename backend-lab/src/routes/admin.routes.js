@@ -34,6 +34,7 @@ router.get('/products', verifyToken, requireRole(['admin']), adminController.get
 router.put('/products/:productId/status', verifyToken, requireRole(['admin']), adminController.changeProductStatus);
 router.get('/products/stats', verifyToken, requireRole(['admin']), adminController.getProductStats);
 
+router.get('/transactions', verifyToken, requireRole(['admin']), adminController.getTransactions);
 router.get('/transactions/stats', verifyToken, requireRole(['admin']), adminController.getTransactionStats);
 router.put('/transactions/:transactionId/approve', verifyToken, requireRole(['admin']), adminController.approveWithdraw);
 router.put('/transactions/:transactionId/reject', verifyToken, requireRole(['admin']), adminController.rejectWithdraw);

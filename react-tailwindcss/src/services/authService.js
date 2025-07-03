@@ -9,9 +9,9 @@ const api = axios.create({
     withCredentials: true,
 });
 
-const login = async (email, password) => {
+const loginUser = async (email, password) => {
     const response = await api.post('/api/auth/login', { email, password });
-    return response.data;
+    return response;
 }
 
 const register = async (email, password, username) => {
@@ -29,7 +29,12 @@ const refresh = () => {
 }
 
 const authService = {
-    login, register, logout, refresh
+    login: loginUser, 
+    loginUser,
+    register, 
+    logout, 
+    refresh
 };
 
+export { loginUser };
 export default authService;
