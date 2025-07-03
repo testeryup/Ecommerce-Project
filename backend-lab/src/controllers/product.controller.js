@@ -6,8 +6,11 @@ import mongoose from 'mongoose';
 
 export const upsertProduct = async (req, res) => {
     try {
-        const { name, images, description, category, subcategory, skus } = req.body;
-        let id = req.body.id
+        // remove sku from req.body
+        const { name, images, description, category, subcategory} = req.body;
+        // console.log("check req:", name,  category, subcategory, skus);
+        // return;
+        let id = req.body.id;
         console.log("check update:", id);
         // Validate image size
         const MAX_SIZE = 5 * 1024 * 1024;
@@ -43,35 +46,35 @@ export const upsertProduct = async (req, res) => {
         );
 
         // Handle SKUs
-        if (existingProduct) {
-            // Update: Remove old SKUs first
-            await SKU.deleteMany({ product: product._id });
-        }
+        // if (existingProduct) {
+        //     // Update: Remove old SKUs first
+        //     await SKU.deleteMany({ product: product._id });
+        // }
 
-        // Validate new SKUs
-        const skuValidationPromises = skus.map(sku => {
-            const newSku = new SKU({
-                ...sku,
-                product: product._id
-            });
-            return newSku.validate();
-        });
-        await Promise.all(skuValidationPromises);
+        // // Validate new SKUs
+        // const skuValidationPromises = skus.map(sku => {
+        //     const newSku = new SKU({
+        //         ...sku,
+        //         product: product._id
+        //     });
+        //     return newSku.validate();
+        // });
+        // await Promise.all(skuValidationPromises);
 
-        // Create new SKUs
-        const skusCreated = await SKU.insertMany(
-            skus.map(sku => ({
-                ...sku,
-                product: product._id
-            }))
-        );
+        // // Create new SKUs
+        // const skusCreated = await SKU.insertMany(
+        //     skus.map(sku => ({
+        //         ...sku,
+        //         product: product._id
+        //     }))
+        // );
 
         return res.status(existingProduct ? 200 : 201).json({
             errCode: 0,
             message: `Successfully ${existingProduct ? 'updated' : 'created'} product with SKUs`,
             data: {
                 product,
-                skus: skusCreated
+                // skus: skusCreated
             }
         });
 
@@ -89,7 +92,8 @@ export const getProducts = async (req, res) => {
         const products = await Product.aggregate([
             {
                 $match: {
-                    category: { $exists: true }
+                    category: { $exists: true },
+                    isDeleted: false
                 }
             },
             {
@@ -100,7 +104,8 @@ export const getProducts = async (req, res) => {
                         {
                             $match: {
                                 $expr: { $eq: ['$product', '$$productId'] },
-                                status: 'available'
+                                status: 'available',
+                                isDeleted: false
                             }
                         },
                         {

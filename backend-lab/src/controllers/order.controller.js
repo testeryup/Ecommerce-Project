@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 import SKU from "../models/sku.js";
 import User from "../models/user.js";
 import Order from "../models/order.js";
@@ -7,139 +7,319 @@ import Inventory from "../models/inventory.js";
 //
 // Be careful with this controller because we already changed the structure of sku and product!
 //
-export const createOrder = async (req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
+// export const createOrder = async (req, res) => {
+//     const session = await mongoose.startSession();
+//     session.startTransaction();
 
-    try {
-        const { items } = req.body; // [{skuId, quantity}] from frontend cart
-        if (!items) {
-            throw new Error("Missing input parameters")
-        }
-        const userId = req.user.id;
+//     try {
+//         const { items } = req.body; // [{skuId, quantity}] from frontend cart
+//         if (!items) {
+//             throw new Error("Missing input parameters")
+//         };
+//         const userId = req.user.id;
 
-        // 1. Validate stock and calculate total
-        let total = 0;
-        const orderItems = [];
-        const credentialsList = [];
-        for (const item of items) {
-            const sku = await SKU.findOne({
-                _id: item.skuId,
-                stock: { $gte: item.quantity }
-            }).session(session);
+//         // 1. Validate stock and calculate total
+//         let total = 0;
+//         const orderItems = [];
+//         const credentialsList = [];
+//         for (const item of items) {
+//             const sku = await SKU.findOne({
+//                 _id: item.skuId,
+//                 stock: { $gte: item.quantity }
+//             }).session(session);
 
-            if (!sku) {
-                throw new Error(`Insufficient stock for SKU: ${item.skuId}`);
+//             if (!sku) {
+//                 throw new Error(`Không đủ hàng cho SKU: ${item.skuId}`);
+//             }
+
+//             total += sku.price * item.quantity;
+//             orderItems.push({
+//                 sku: sku._id,
+//                 // skuName: sku.name,
+//                 quantity: item.quantity,
+//                 price: sku.price
+//             });
+//         }
+
+//         // 2. Check user balance
+//         const user = await User.findById(userId).session(session);
+//         if (user.balance < total) {
+//             throw new Error('Insufficient balance');
+//         }
+
+//         // 3. Create order
+//         const order = await Order.collection.insertOne({
+//             buyer: new mongoose.Types.ObjectId(userId),
+//             items: orderItems,
+//             total,
+//             status: 'processing',
+//             paymentStatus: 'completed',
+//             createdAt: new Date()
+//         }, { session });
+
+//         if (!order.insertedId) {
+//             throw new Error('Order creation failed - no ID returned');
+//         }
+//         // 4. Process payment and update stock
+//         await User.findByIdAndUpdate(userId, {
+//             $inc: { balance: -total }
+//         }).session(session);
+
+//         // 5. Update SKU stock and assign credentials
+//         for (const item of orderItems) {
+//             // Update SKU
+//             const updatedSku = await SKU.findOneAndUpdate({
+//                 _id: item.sku,
+//                 stock: { $gte: item.quantity }
+//             }, {
+//                 $inc: {
+//                     stock: -item.quantity,
+//                     'sales.count': item.quantity,
+//                     'sales.revenue': item.quantity * item.price
+//                 }
+//             }, {
+//                 new: true,
+//                 session: session
+//             });
+
+//             if (!updatedSku) {
+//                 throw new Error('Không đủ hàng cho sku:', item.sku);
+//             }
+
+//             // Get and assign credentials
+//             const inventories = await Inventory.find({
+//                 sku: item.sku,
+//                 status: 'available'
+//             }).limit(item.quantity).session(session);
+
+//             if (inventories.length < item.quantity) {
+//                 throw new Error("Kho hàng không đủ cho sku:", item.sku);
+//             }
+//             await Inventory.updateMany(
+//                 { _id: { $in: inventories.map(c => c._id) } },
+//                 {
+//                     status: 'sold',
+//                     order: order.insertedId
+//                 },
+//                 {
+//                     session: session
+//                 }
+//             );
+//             await User.findByIdAndUpdate(inventories[0].seller, {
+//                 $inc: { balance: +(item.quantity * item.price) }
+//             }).session(session);
+
+//             credentialsList.push({
+//                 skuId: item.sku,
+//                 accounts: inventories.map(c => c.credentials)
+//             })
+
+
+
+
+//         }
+
+//         await Order.findOneAndUpdate({
+//             _id: order.insertedId
+//         }, {
+//             status: 'completed'
+//         }).session(session)
+//         const [transaction] = await Transaction.create([{
+//             user: userId,
+//             order: order.insertedId,
+//             amount: total,
+//             type: 'purchase',
+//             status: 'completed'
+//         }], { session });
+
+//         await session.commitTransaction();
+
+//         return res.status(200).json({
+//             errCode: 0,
+//             message: 'Order created successfully',
+//             data: {
+//                 orderId: order.insertedId,
+//                 total,
+//                 credentials: credentialsList ?? 'not found',
+//                 transactionId: transaction._id
+//             }
+
+//         });
+
+//     } catch (error) {
+//         console.log("check error", error)
+//         await session.abortTransaction();
+//         return res.status(500).json({
+//             errCode: 1,
+//             message: error.message
+//         });
+//     } finally {
+//         session.endSession();
+//     }
+// };
+
+export const createOrderWithOptimisticLocking = async (req, res) => {
+    const MAX_RETRIES = 3;
+    let retryCount = 0;
+    while (retryCount < MAX_RETRIES) {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        try {
+            const { items } = req.body;
+            const userId = req.user.id;
+            const skuIds = items.map(item => item.skuId);
+            const skus = await SKU.find({
+                _id: { $in: skuIds }
+            }).select('_id name price stock __v').session(session);
+
+            const skuMap = new Map(skus.map(sku => [sku._id.toString(), sku]));
+            let total = 0;
+            const orderItems = [];
+            const skuUpdates = [];
+
+            for (const item of items) {
+                const sku = skuMap.get(item.skuId);
+                if (!sku) {
+                    throw new Error(`Không tìm thấy SKU:${item.skuId}`);
+                }
+
+                if (sku.stock < item.quantity) {
+                    throw new Error(`Không đủ hàng cho SKU: ${item.skuId}`);
+                }
+
+                total += sku.price * item.quantity;
+                orderItems.push({
+                    sku: sku._id,
+                    quantity: item.quantity,
+                    price: sku.price
+                });
+
+                skuUpdates.push({
+                    filter: {
+                        _id: sku._id,
+                        __v: sku.__v
+                    },
+                    update: {
+                        $inc: {
+                            stock: -item.quantity,
+                            'sales.count': item.quantity,
+                            'sales.revenue': item.quantity * sku.price,
+                            __v: 1
+                        }
+                    }
+                });
+            }
+            const user = await User.findById(userId).session(session);
+            if (user.balance < total) {
+                throw new Error("Người dùng không đủ số dư để thực hiện giao dịch");
             }
 
-            total += sku.price * item.quantity;
-            orderItems.push({
-                sku: sku._id,
-                // skuName: sku.name,
-                quantity: item.quantity,
-                price: sku.price
-            });
-        }
+            const updateResults = await Promise.all(
+                skuUpdates.map(update => SKU.updateOne(update.filter, update.update).session(session))
+            );
 
-        // 2. Check user balance
-        const user = await User.findById(userId).session(session);
-        if (user.balance < total) {
-            throw new Error('Insufficient balance');
-        }
+            const failedUpdates = updateResults.filter(result => result.modifiedCount === 0);
+            if (failedUpdates.length > 0) {
+                throw new Error("OPTIMISTIC_LOCK_CONFLICT");
+            }
 
-        // 3. Create order
-        const order = await Order.collection.insertOne({
-            buyer: new mongoose.Types.ObjectId(userId),
-            items: orderItems,
-            total,
-            status: 'processing',
-            paymentStatus: 'completed',
-            createdAt: new Date()
-        }, { session });
-
-        if (!order.insertedId) {
-            throw new Error('Order creation failed - no ID returned');
-        }
-        // 4. Process payment and update stock
-        await User.findByIdAndUpdate(userId, {
-            $inc: { balance: -total }
-        }).session(session);
-
-        // 5. Update SKU stock and assign credentials
-        for (const item of orderItems) {
-            // Update SKU
-            await SKU.findByIdAndUpdate(item.sku, {
-                $inc: {
-                    stock: -item.quantity,
-                    'sales.count': item.quantity,
-                    'sales.revenue': item.quantity * item.price
-                }
-            }).session(session);
-
-            // Get and assign credentials
-            const inventory = await Inventory.find({
-                sku: item.sku,
-                status: 'available'
-            }).limit(item.quantity).session(session);
-
-            await User.findByIdAndUpdate(inventory.seller, {
-                $inc: {balance: +(item.quantity * item.price)}
-            })
-            credentialsList.push({
-                skuId: item.sku,
-                accounts: inventory.map(c => c.credentials)
-            })
-
-            await Inventory.updateMany(
-                { _id: { $in: inventory.map(c => c._id) } },
-                {
-                    status: 'sold',
-                    order: order.insertedId
-                }
-            ).session(session);
-
-
-        }
-
-        await Order.findOneAndUpdate({
-            _id: order.insertedId
-        }, {
-            status: 'completed'
-        }).session(session)
-        const [transaction] = await Transaction.create([{
-            user: userId,
-            order: order.insertedId,
-            amount: total,
-            type: 'purchase',
-            status: 'completed'
-        }], { session });
-
-        await session.commitTransaction();
-
-        return res.status(200).json({
-            errCode: 0,
-            message: 'Order created successfully',
-            data: {
-                orderId: order.insertedId,
+            const [order] = await Order.create([{
+                buyer: new mongoose.Types.ObjectId(userId),
+                items: orderItems,
                 total,
-                credentials: credentialsList ?? 'not found',
-                transactionId: transaction._id
+                status: 'processing',
+                paymentStatus: 'completed'
+            }], { session });
+
+            await User.findByIdAndUpdate(userId, {
+                $inc: { balance: -total }
+            }).session(session);
+
+            const credentialsList = [];
+            const sellerBalanceMap = new Map();
+
+            // need further check
+            for (const item of orderItems) {
+                const inventories = await Inventory.find({
+                    sku: item.sku,
+                    status: 'available'
+                }).limit(item.quantity).session(session);
+
+                if (inventories.length < item.quantity) {
+                    throw new Error(`Not enough inventory for SKU: ${item.sku}`);
+                }
+
+                // Calculate per-seller revenue
+                inventories.forEach(inv => {
+                    const sellerId = inv.seller.toString();
+                    const currentBalance = sellerBalanceMap.get(sellerId) || 0;
+                    sellerBalanceMap.set(sellerId, currentBalance + item.price);
+                });
+
+                credentialsList.push({
+                    skuId: item.sku,
+                    accounts: inventories.map(inv => inv.credentials)
+                });
+
+                await Inventory.updateMany(
+                    { _id: { $in: inventories.map(inv => inv._id) } },
+                    { status: 'sold', order: order._id }
+                ).session(session);
             }
+            // 9. Update all seller balances
+            const sellerUpdatePromises = Array.from(sellerBalanceMap.entries()).map(
+                ([sellerId, revenue]) =>
+                    User.findByIdAndUpdate(sellerId, {
+                        $inc: { balance: revenue }
+                    }).session(session)
+            );
+            await Promise.all(sellerUpdatePromises);
 
-        });
+            await Order.findByIdAndUpdate(order._id, {
+                status: 'completed'
+            }).session(session);
 
-    } catch (error) {
-        console.log("check error", error)
-        await session.abortTransaction();
-        return res.status(500).json({
-            errCode: 1,
-            message: error.message
-        });
-    } finally {
-        session.endSession();
+            await Transaction.create([{
+                user: userId,
+                order: order._id,
+                amount: total,
+                type: 'purchase',
+                status: 'completed'
+            }], { session });
+
+            await session.commitTransaction();
+
+            return res.status(200).json({
+                errCode: 0,
+                message: 'Order created successfully',
+                data: {
+                    orderId: order._id,
+                    total,
+                    credentials: credentialsList
+                }
+            });
+        } catch (error) {
+            await session.abortTransaction();
+            if (error.message === 'OPTIMISTIC_LOCK_CONFLICT' && retryCount < MAX_RETRIES - 1) {
+                ++retryCount
+                console.log(`Optimistic lock conflict, retrying (${retryCount}/${MAX_RETRIES})`);
+                const delay = Math.pow(2, retryCount) * 100 + Math.floor(Math.random() * 100);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                continue;
+            }
+            return res.status(500).json({
+                errCode: 1,
+                message: error.message || 'Order creation failed'
+            });
+        } finally {
+            session.endSession();
+        }
     }
+    return res.status(500).json({
+        errCode: 1,
+        message: 'Maximum retry attempts exceeded due to high contention'
+    });
 };
-
 export const getOrderById = async (req, res) => {
     try {
         const orderId = new mongoose.Types.ObjectId(req.params.orderId);

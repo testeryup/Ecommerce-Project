@@ -4,6 +4,8 @@ import { verifyToken, requireRole } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.post('/', skuController.getSkuNames)
+router.get('/', skuController.getSkuNames);
+router.post('/', skuController.createNewSku);
+router.delete('/:skuId', skuController.deleteSku);
 
 export default router;

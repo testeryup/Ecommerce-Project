@@ -75,46 +75,52 @@ export const uploadInventory = async (req, res) => {
 };
 
 export const deleteInventoryById = async (req, res) => {
+    const { skuId, inventoryId } = req.body;
+    const sellerId = req.user.id;
+    // Debugging log removed before production
+    if (!skuId || !inventoryId) {
+        return res.status(400).json({ errCode: 1, message: "Missing input parameters" });
+    }
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
-        const { skuId, inventoryId } = req.body;
-        const sellerId = req.user.id;
-        console.log("check data:", skuId, inventoryId)
-        if (!skuId || !inventoryId) {
-            throw new Error("Missing input parameters");
-        }
         const skuObjectId = new mongoose.Types.ObjectId(skuId);
         const sellerObjectId = new mongoose.Types.ObjectId(sellerId);
         const inventoryObjectId = new mongoose.Types.ObjectId(inventoryId);
         // Verify that the product belongs to the seller
-        const session = await mongoose.startSession();
-        session.startTransaction();
-        try {
-            await Inventory.findByIdAndDelete({
-                _id: inventoryObjectId,
-                seller: sellerObjectId
-            });
+
+        const inventory = await Inventory.findOneAndUpdate({
+            _id: inventoryObjectId,
+            seller: sellerObjectId,
+            isDeleted: false
+        }, {
+            isDeleted: true
+        }, { new: true, session: session });
+        if (!inventory) {
+            throw new Error("Không tồn tại trong kho hàng");
+        }
+        if (inventory?.isDeleted === true) {
             await SKU.updateOne(
                 { _id: skuObjectId },
                 { $inc: { stock: -1 } }
-            )
-            await session.commitTransaction();
-        } catch (error) {
-            await session.abortTransaction();
-            throw error;
+            ).session(session)
         }
-        finally {
-            session.endSession();
-        }
+        await session.commitTransaction();
 
-        return res.status(201).json({ errCode: 0, message: "Successfully deleted an inventory" });
+        return res.status(200).json({ errCode: 0, message: "Successfully deleted an inventory" });
     } catch (error) {
+        await session.abortTransaction();
         return res.status(500).json({ message: error.message });
     }
-}
+    finally {
+        session.endSession();
+    }
+};
+
 export const getSellerInventory = async (req, res) => {
     try {
         const sellerId = req.user.id;
-        const inventory = await Inventory.find({ seller: sellerId })
+        const inventory = await Inventory.find({ seller: sellerId, isDeleted: false, status: 'available' })
             .populate('product', 'name category sku');
 
         res.status(200).json(inventory);
@@ -127,7 +133,7 @@ export const getInventoryBySkuId = async (req, res) => {
     try {
         const sellerId = new mongoose.Types.ObjectId(req.user.id);
         const skuObjectId = new mongoose.Types.ObjectId(req.params?.skuId);
-        const inventory = await Inventory.find({ sku: skuObjectId, seller: sellerId })
+        const inventory = await Inventory.find({ sku: skuObjectId, seller: sellerId, isDeleted: false, status: 'available' })
         res.status(200).json({
             errCode: 0,
             data: inventory

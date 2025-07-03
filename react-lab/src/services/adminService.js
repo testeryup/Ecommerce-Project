@@ -32,11 +32,11 @@ export const getAdminProducts = (params) => {
     
     return api.get(`/api/admin/products?${queryString}`);
 };
-
+// hallucination ?
 export const changeProductStatus = (productId, status) => {
     return api.put(`/api/admin/products/${productId}/status`, { status });
 };
-
+// hallucination ?
 export const getProductStats = () => {
     return api.get('/api/admin/products/stats');
 };

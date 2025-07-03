@@ -4,6 +4,7 @@ import SKU from '../models/sku.js';
 import Order from '../models/order.js';
 import User from '../models/user.js';
 import Transaction from '../models/transaction.js';
+import Inventory from '../models/inventory.js';
 
 export const getAllProductWithAllImages = async (req, res) => {
     try {
@@ -29,7 +30,8 @@ export const getAllProducts = async (req, res) => {
         const products = await Product.aggregate([
             {
                 $match: {
-                    seller: new mongoose.Types.ObjectId(req.user.id)
+                    seller: new mongoose.Types.ObjectId(req.user.id),
+                    isDeleted: false
                 }
             },
             {
@@ -86,29 +88,37 @@ export const getAllProducts = async (req, res) => {
         });
     }
 };
-export const deleteProduct = async (req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
 
+export const deleteProduct = async (req, res) => {
+    let session;
     try {
+        session = await mongoose.startSession();
+        session.startTransaction();
         const productId = req.params.id;
         const sellerId = req.user.id;
 
         // Delete product
-        const product = await Product.findOneAndDelete({
+        const product = await Product.findOneAndUpdate({
             _id: new mongoose.Types.ObjectId(productId),
-            seller: new mongoose.Types.ObjectId(sellerId)
-        }).session(session);
+            seller: new mongoose.Types.ObjectId(sellerId),
+            isDeleted: false
+        }, { isDeleted: true }).session(session);
 
         if (!product) {
             throw new Error('Product not found or unauthorized');
         }
 
         // Delete associated SKUs
-        await SKU.deleteMany({
-            product: product._id
-        }).session(session);
+        await SKU.updateMany({
+            product: product._id,
+            isDeleted: false
+        }, { isDeleted: true }).session(session);
 
+        await Inventory.updateMany({
+            seller: new mongoose.Types.ObjectId(String(sellerId)),
+            product: new mongoose.Types.ObjectId(String(productId)),
+            isDeleted: false
+        }, { isDeleted: true }).session(session);
         await session.commitTransaction();
 
         return res.status(200).json({
@@ -154,6 +164,7 @@ export const getProductById = async (req, res) => {
                     category: 1,
                     subcategory: 1,
                     images: 1,
+                    'skus._id': 1,
                     'skus.name': 1,
                     'skus.price': 1,
                     'skus.stock': 1
@@ -1085,11 +1096,11 @@ export const createWithdrawalRequest = async (req, res) => {
     try {
         const userId = req.user.id;
         const user = await User.findById(userId);
-        if(!user || user.status !== 'active'){
+        if (!user || user.status !== 'active') {
             throw new Error("User not found or suspended")
         }
         const amount = req.body.amount;
-        if(!amount){
+        if (!amount) {
             return res.status(401).json({
                 errCode: 1,
                 message: 'Missing input parameter'
@@ -1097,7 +1108,7 @@ export const createWithdrawalRequest = async (req, res) => {
         }
 
 
-        if(amount > user.amount){
+        if (amount > user.amount) {
             throw new Error("Amount must be below the balance")
         }
 
@@ -1107,14 +1118,14 @@ export const createWithdrawalRequest = async (req, res) => {
             type: 'withdrawal',
             status: 'pending'
         });
-        if(transaction){
+        if (transaction) {
             return res.status(200).json({
                 errCode: 0,
                 message: 'Created withdrawal successfully',
                 transaction
             })
         }
-        else{
+        else {
             console.log("transaction error:", transaction);
             throw new Error("Something went wrong...");
         }
@@ -1155,8 +1166,8 @@ export const getWidthdrawlRequests = async (req, res) => {
             },
             {
                 $addFields: {
-                    createdAtDate: { 
-                        $dateToString: { 
+                    createdAtDate: {
+                        $dateToString: {
                             format: "%Y-%m-%d %H:%M:%S",
                             date: "$createdAt"
                         }
