@@ -352,6 +352,12 @@ const UserDashboard = () => {
                       Cập nhật hồ sơ
                     </Button>
                   </Link>
+                  <Link to="/transactions" className="w-full">
+                    <Button variant="outline" className="w-full justify-start">
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Lịch sử giao dịch
+                    </Button>
+                  </Link>
                   <Link to="/support" className="w-full">
                     <Button variant="outline" className="w-full justify-start">
                       <Bell className="h-4 w-4 mr-2" />

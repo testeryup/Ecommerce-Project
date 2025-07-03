@@ -23,7 +23,7 @@ import {
     faHeart,
     faShare
 } from '@fortawesome/free-solid-svg-icons';
-import UserHeader from '../Header/UserHeader';
+import Header from '../../components/Header';
 
 export default function ProductDetail() {
     const [selectedImage, setSelectedImage] = useState(0);
@@ -91,7 +91,7 @@ export default function ProductDetail() {
 
     if (loading) return (
         <>
-            <UserHeader />
+            <Header />
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
                 <Loading />
             </div>
@@ -100,7 +100,7 @@ export default function ProductDetail() {
 
     if (error) return (
         <>
-            <UserHeader />
+            <Header />
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
                 <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
                     <FontAwesomeIcon icon={faTimesCircle} className="text-red-500 text-6xl mb-4" />
@@ -119,7 +119,7 @@ export default function ProductDetail() {
 
     if (!product) return (
         <>
-            <UserHeader />
+            <Header />
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
                 <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
                     <FontAwesomeIcon icon={faStore} className="text-gray-400 text-6xl mb-4" />
@@ -140,7 +140,7 @@ export default function ProductDetail() {
 
     return (
         <>
-            <UserHeader />
+            <Header />
             <div className="min-h-screen bg-gray-50">
                 {/* Breadcrumb */}
                 <div className="bg-white border-b">

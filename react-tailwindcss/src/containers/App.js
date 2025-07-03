@@ -11,7 +11,7 @@ import Home from '../components/Home';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import ProtectedRoute from '../components/ProtectedRoute';
-import { AdminDashboard, SellerDashboard } from '../containers/System';
+import { SellerDashboard } from '../containers/System';
 import UserDashboard from '../containers/System/UserDashboard';
 import AdminApp from '../components/admin/AdminApp';
 import AdminDemo from '../components/admin/AdminDemo';
@@ -24,10 +24,11 @@ import PaymentSuccess from './Header/User/PaymentSuccess';
 import MyOrders from './Header/User/MyOrders';
 import OrderDetail from './Header/User/OrderDetail';
 import Support from './Header/User/Support';
+import TransactionHistory from './Header/User/TransactionHistory';
 import Topup from './HomePage/Topup';
 import About from '../components/About';
 import AllProducts from '../components/AllProducts.js'
-import SearchResults from '../components/SearchResults';
+import SearchResults from './Search/SearchResults';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
@@ -146,10 +147,31 @@ export default function App() {
                 <Route path={path.CHECKOUT} element={<Checkout></Checkout>}></Route>
                 <Route path={path.CART} element={<CartPage />} />
                 <Route path={path.CHECKOUT_SUCCESS} element={<PaymentSuccess></PaymentSuccess>}></Route>
-                <Route path={path.VIEWORDER} element={<OrderDetail></OrderDetail>}></Route>
-                <Route path={path.ORDERS} element={<MyOrders></MyOrders>}></Route>
-                <Route path={path.SUPPORT} element={<Support></Support>}></Route>
-                <Route path={path.TOPUP} element={<Topup></Topup>}></Route>
+                <Route path={path.VIEWORDER} element={
+                    <ProtectedRoute allowedRoles={['user', 'seller', 'admin']}>
+                        <OrderDetail />
+                    </ProtectedRoute>
+                }></Route>
+                <Route path={path.ORDERS} element={
+                    <ProtectedRoute allowedRoles={['user', 'seller', 'admin']}>
+                        <MyOrders />
+                    </ProtectedRoute>
+                }></Route>
+                <Route path={path.SUPPORT} element={
+                    <ProtectedRoute allowedRoles={['user', 'seller', 'admin']}>
+                        <Support />
+                    </ProtectedRoute>
+                }></Route>
+                <Route path={path.TRANSACTIONS} element={
+                    <ProtectedRoute allowedRoles={['user', 'seller', 'admin']}>
+                        <TransactionHistory />
+                    </ProtectedRoute>
+                }></Route>
+                <Route path={path.TOPUP} element={
+                    <ProtectedRoute allowedRoles={['user', 'seller', 'admin']}>
+                        <Topup />
+                    </ProtectedRoute>
+                }></Route>
                 <Route path="/products" element={<AllProducts />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/about" element={<About />} />

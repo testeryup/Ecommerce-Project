@@ -1,9 +1,8 @@
 import { path } from "../../../ultils";
-import "./PaymentSuccess.scss"
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import UserHeader from "../UserHeader";
+import Header from "../../../components/Header";
 
 const PaymentSuccess = () => {
     const [url, setUrl] = useState('');
@@ -28,7 +27,7 @@ const PaymentSuccess = () => {
     }
     return (
         <>
-            <UserHeader></UserHeader>
+            <Header />
             <div className="payment-success">
                 <div className="payment-success__card">
                     <div className="payment-success__icon">

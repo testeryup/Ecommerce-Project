@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import './CartPreview.scss';
 
 const CartPreview = ({ items = [] }) => {
     const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);

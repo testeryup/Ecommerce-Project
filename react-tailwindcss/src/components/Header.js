@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,14 +11,22 @@ import {
   faStore,
   faGamepad,
   faDownload,
-  faHeart
+  faHeart,
+  faChevronDown,
+  faSignOutAlt,
+  faReceipt,
+  faCreditCard,
+  faHeadset,
+  faTachometerAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { logout } from '../features/auth/authSlice';
 import DarkModeToggle from './DarkModeToggle';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const userMenuRef = useRef(null);
   
   // Add safe selectors with default values
   const auth = useSelector(state => state.auth || {});
@@ -29,6 +37,20 @@ const Header = () => {
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -154,13 +176,91 @@ const Header = () => {
 
             {/* User Menu */}
             {isAuthenticated ? (
-              <div className="relative">
-                <Link 
-                  to="/profile"
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center space-x-2 p-3 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 group"
                 >
                   <FontAwesomeIcon icon={faUser} className="text-xl group-hover:scale-110 transition-transform duration-200" />
-                </Link>
+                  <span className="hidden md:inline text-sm font-medium">Tài khoản</span>
+                  <FontAwesomeIcon icon={faChevronDown} className={`text-sm transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* User Dropdown Menu */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50">
+                    {/* User Info */}
+                    <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        Xin chào, {user?.firstName || user?.username}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {user?.email}
+                      </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="py-2">
+                      <Link
+                        to="/dashboard/user"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FontAwesomeIcon icon={faTachometerAlt} className="w-4 h-4 mr-3" />
+                        Dashboard
+                      </Link>
+                      
+                      <Link
+                        to="/profile"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FontAwesomeIcon icon={faUser} className="w-4 h-4 mr-3" />
+                        Thông tin cá nhân
+                      </Link>
+
+                      <Link
+                        to="/orders"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FontAwesomeIcon icon={faReceipt} className="w-4 h-4 mr-3" />
+                        Đơn hàng của tôi
+                      </Link>
+
+                      <Link
+                        to="/transactions"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FontAwesomeIcon icon={faCreditCard} className="w-4 h-4 mr-3" />
+                        Lịch sử giao dịch
+                      </Link>
+
+                      <Link
+                        to="/support"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FontAwesomeIcon icon={faHeadset} className="w-4 h-4 mr-3" />
+                        Hỗ trợ
+                      </Link>
+
+                      <div className="border-t border-gray-100 dark:border-gray-700 my-2"></div>
+
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faSignOutAlt} className="w-4 h-4 mr-3" />
+                        Đăng xuất
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <Link 

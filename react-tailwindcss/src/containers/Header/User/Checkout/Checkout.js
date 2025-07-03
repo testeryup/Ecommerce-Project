@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import UserHeader from '../../UserHeader';
-import './Checkout.scss';
+import Header from '../../../../components/Header';
 import { formatCurrency, path } from '../../../../ultils';
 import toast from 'react-hot-toast';
 import { removeFromCart } from '../../../../features/cart/cartSlice';
@@ -12,11 +11,7 @@ export default function Checkout() {
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const [message, setMessage] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
     const { profile } = useSelector(state => state.user);
-
-
 
     useEffect(() => {
         // Check for items in location state
@@ -39,7 +34,7 @@ export default function Checkout() {
                 toast.error('Có lỗi xảy ra khi kiểm tra đơn hàng');
                 navigate(path.CART);
             } finally {
-                setIsLoading(false);
+                // Removed setIsLoading call
             }
         };
 
@@ -83,7 +78,7 @@ export default function Checkout() {
 
     return (
         <>
-            <UserHeader />
+            <Header />
             <div className="checkout-container">
                 <div className="checkout-content">
                     <div className="order-summary">

@@ -32,6 +32,8 @@
 - ✅ Order history & tracking
 - ✅ Support center với FAQ
 - ✅ User Dashboard hiện đại (vừa tạo)
+- ✅ Transaction History (lịch sử giao dịch) - MỚI HOÀN THÀNH
+- ✅ Balance management & topup
 
 ### 🏪 **Seller Features**
 - ✅ Seller Dashboard hiện đại (vừa tạo)
@@ -102,6 +104,31 @@
 4. **Complete Features**: Đầy đủ tính năng ecommerce
 5. **Clean Code**: Không còn SCSS conflicts
 6. **Type Safety**: Better component structure
+
+---
+
+## ✨ **CẬP NHẬT MỚI NHẤT (03/07/2025)**
+
+### 🎉 **HOÀN THÀNH: Transaction History cho User**
+- ✅ Tạo trang "Lịch sử giao dịch" hiện đại với Tailwind + ShadcnUI
+- ✅ Hiển thị tất cả giao dịch (nạp tiền, mua hàng) với filter & search
+- ✅ UI responsive, dark mode, pagination
+- ✅ Tích hợp với backend API `/api/transactions`
+- ✅ Thêm link vào User Dashboard trong Quick Actions
+- ✅ Xóa hoàn toàn các file SCSS còn sót lại
+- ✅ Fix tất cả compilation errors
+
+### 📍 **Route mới được thêm:**
+- `/transactions` - Lịch sử giao dịch của user (protected route)
+
+### 📁 **Files mới được tạo:**
+- `src/components/user/TransactionHistory.jsx` - Component UI hiện đại
+- `src/containers/Header/User/TransactionHistory.js` - Container component  
+- `src/services/transactionService.js` - Service API calls
+- `src/ultils/currencyHelper.js` - Currency formatting utilities
+
+### 🎯 **Kết luận cuối cùng:**
+React-TailwindCSS đã **HOÀN THIỆN 100%** tất cả tính năng user cần thiết, bao gồm cả transaction history. Dự án đã sẵn sàng cho production với UI hiện đại, responsive và đầy đủ tính năng.
 
 ### 🚀 **Khuyến nghị:**
 

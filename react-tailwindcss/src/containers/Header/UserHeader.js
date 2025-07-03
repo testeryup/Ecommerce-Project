@@ -1,4 +1,3 @@
-import './UserHeader.scss';
 import { useEffect } from 'react';
 import { useState } from 'react';
 
@@ -13,7 +12,7 @@ export default function UserHeader() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const auth = useSelector(state => state.auth);
-    const { profile, loading, error, role } = useSelector(state => state.user);
+    const { profile, role } = useSelector(state => state.user);
     const [showCart, setShowCart] = useState(false);
     const { items } = useSelector(state => state.cart);
 
