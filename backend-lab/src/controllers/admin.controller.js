@@ -48,15 +48,19 @@ export const getAdminStats = async (req, res) => {
   try {
     const now = new Date();
     const today = new Date();
-
     today.setHours(0, 0, 0, 0);
-    today.setMinutes(today.getMinutes() - now.getTimezoneOffset())
 
     const thisWeek = new Date(today);
     thisWeek.setDate(today.getDate() - 7);
 
     const thisMonth = new Date(today);
-    thisMonth.setMonth(today.getMonth() - 1);
+    thisMonth.setDate(today.getDate() - 30);
+
+    console.log('Date ranges:', {
+      today: today.toISOString().split('T')[0],
+      thisWeek: thisWeek.toISOString().split('T')[0],
+      thisMonth: thisMonth.toISOString().split('T')[0]
+    });
 
     // User Statistics
     const userStats = await User.aggregate([
@@ -136,6 +140,25 @@ export const getAdminStats = async (req, res) => {
       { $sort: { '_id.date': 1 } }
     ]);
 
+    // Product Statistics
+    const productStats = await Product.aggregate([
+      {
+        $facet: {
+          total: [
+            { $count: 'count' }
+          ],
+          byStatus: [
+            {
+              $group: {
+                _id: '$status',
+                count: { $sum: 1 }
+              }
+            }
+          ]
+        }
+      }
+    ]);
+
     // Process and format the data for response
     const formatTimeSeriesData = (data, startDate) => {
       const dates = {};
@@ -175,6 +198,14 @@ export const getAdminStats = async (req, res) => {
       }));
     };
     // console.log("revenueStats:", revenueStats, today.toISOString().split('T')[0]);
+    // Debug logging - uncomment if needed
+    // console.log('Raw data:', {
+    //   userStats: JSON.stringify(userStats[0], null, 2),
+    //   revenueStats: JSON.stringify(revenueStats, null, 2),
+    //   depositStats: JSON.stringify(depositStats, null, 2),
+    //   productStats: JSON.stringify(productStats[0], null, 2)
+    // });
+
     const response = {
       users: {
         total: {
@@ -202,8 +233,17 @@ export const getAdminStats = async (req, res) => {
         today: depositStats.find(d => d._id.date === today.toISOString().split('T')[0])?.total || 0,
         week: depositStats.filter(d => new Date(d._id.date) >= thisWeek).reduce((sum, d) => sum + d.total, 0),
         month: depositStats.reduce((sum, d) => sum + d.total, 0)
+      },
+      products: {
+        total: productStats[0].total[0]?.count || 0,
+        active: productStats[0].byStatus.find(s => s._id === 'active')?.count || 0,
+        inactive: productStats[0].byStatus.find(s => s._id === 'inactive')?.count || 0,
+        pending: productStats[0].byStatus.find(s => s._id === 'pending')?.count || 0
       }
     };
+
+    // Debug logging - uncomment if needed
+    // console.log('Final response:', JSON.stringify(response, null, 2));
 
     res.status(200).json({
       errCode: 0,
@@ -845,6 +885,7 @@ export const getTransactionStats = async (req, res) => {
                 _id: 1,
                 amount: 1,
                 status: 1,
+                type: 1,
                 createdAt: 1,
                 'userInfo.username': 1,
                 'userInfo.email': 1
@@ -852,6 +893,31 @@ export const getTransactionStats = async (req, res) => {
             },
             { $sort: { createdAt: -1 } },
             { $limit: 5 }
+          ],
+          // Recent all transactions
+          recentTransactions: [
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'userInfo'
+              }
+            },
+            { $unwind: '$userInfo' },
+            { 
+              $project: {
+                _id: 1,
+                amount: 1,
+                status: 1,
+                type: 1,
+                createdAt: 1,
+                username: '$userInfo.username',
+                email: '$userInfo.email'
+              }
+            },
+            { $sort: { createdAt: -1 } },
+            { $limit: 20 }
           ]
         }
       }
@@ -907,7 +973,16 @@ export const getTransactionStats = async (req, res) => {
       data: {
         summary,
         chartData,
-        recentWithdraws: stats[0].recentWithdraws || []
+        recentWithdraws: stats[0].recentWithdraws || [],
+        recentTransactions: (stats[0].recentTransactions || []).map(t => ({
+          id: t._id,
+          amount: t.amount,
+          status: t.status,
+          type: t.type,
+          createdAt: t.createdAt,
+          username: t.username,
+          email: t.email
+        }))
       }
     });
 
@@ -1094,5 +1169,110 @@ export const processRefund = async (req, res) => {
     });
   } finally {
     session.endSession();
+  }
+};
+
+export const getTransactions = async (req, res) => {
+  try {
+    // Parse query parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const type = req.query.type || 'all';
+    const status = req.query.status || 'all';
+    const search = req.query.search || '';
+    const sortBy = req.query.sortBy || 'createdAt';
+    const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+
+    // Build match condition
+    const matchCondition = {};
+
+    // Filter by type
+    if (type !== 'all') {
+      matchCondition.type = type;
+    }
+
+    // Filter by status
+    if (status !== 'all') {
+      matchCondition.status = status;
+    }
+
+    // Calculate skip for pagination
+    const skip = (page - 1) * limit;
+
+    // Build aggregation pipeline
+    const pipeline = [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'userInfo'
+        }
+      },
+      { $unwind: '$userInfo' },
+      {
+        $match: {
+          ...matchCondition,
+          ...(search && {
+            $or: [
+              { 'userInfo.username': { $regex: search, $options: 'i' } },
+              { 'userInfo.email': { $regex: search, $options: 'i' } }
+            ]
+          })
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          amount: 1,
+          type: 1,
+          status: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          rejectionReason: 1,
+          username: '$userInfo.username',
+          email: '$userInfo.email',
+          userId: '$userInfo._id'
+        }
+      },
+      { $sort: { [sortBy]: sortOrder } }
+    ];
+
+    // Get total count
+    const totalCountPipeline = [
+      ...pipeline.slice(0, -1), // Remove sort
+      { $count: 'total' }
+    ];
+
+    const [transactions, totalResult] = await Promise.all([
+      Transaction.aggregate([...pipeline, { $skip: skip }, { $limit: limit }]),
+      Transaction.aggregate(totalCountPipeline)
+    ]);
+
+    const total = totalResult[0]?.total || 0;
+    const totalPages = Math.ceil(total / limit);
+
+    res.status(200).json({
+      errCode: 0,
+      message: 'Get transactions successfully',
+      data: {
+        transactions,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in getTransactions:', error);
+    res.status(500).json({
+      errCode: 1,
+      message: error.message || 'Internal server error'
+    });
   }
 };

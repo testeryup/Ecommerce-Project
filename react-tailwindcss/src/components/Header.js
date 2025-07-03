@@ -55,7 +55,7 @@ const Header = () => {
                 <span className="text-lg">🐙</span>
                 <span>OCTOPUS Store</span>
               </Link>
-              <div className="hidden md:flex items-center space-x-6">
+              {/* <div className="hidden md:flex items-center space-x-6">
                 <Link to="/subscriptions" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200">
                   Gói dịch vụ
                 </Link>
@@ -65,7 +65,7 @@ const Header = () => {
                 <Link to="/support" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200">
                   Hỗ trợ
                 </Link>
-              </div>
+              </div> */}
             </div>
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
@@ -227,10 +227,10 @@ const Header = () => {
               <Link to="/support" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
                 Hỗ trợ
               </Link>
-              <span className="text-gray-300 dark:text-gray-600">|</span>
-              <Link to="/download" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
+              {/* <span className="text-gray-300 dark:text-gray-600">|</span> */}
+              {/* <Link to="/download" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
                 Tải xuống
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>

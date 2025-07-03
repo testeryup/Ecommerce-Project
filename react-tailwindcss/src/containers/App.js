@@ -13,6 +13,8 @@ import Register from '../components/Register';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { AdminDashboard, SellerDashboard } from '../containers/System';
 import UserDashboard from '../containers/System/UserDashboard';
+import AdminApp from '../components/admin/AdminApp';
+import AdminDemo from '../components/admin/AdminDemo';
 import UserProfile from './Header/User/UserProfile';
 import Loading from '../components/Loading';
 import ProductDetail from '../components/ProductDetailV2';
@@ -27,8 +29,6 @@ import About from '../components/About';
 import AllProducts from '../components/AllProducts.js'
 import SearchResults from '../components/SearchResults';
 import { Toaster } from 'react-hot-toast';
-
-import './App.scss';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -59,7 +59,6 @@ export default function App() {
                         color: '#fff',
                         padding: '16px',
                         borderRadius: '10px',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                     },
                     success: {
                         icon: '🎉',
@@ -137,10 +136,10 @@ export default function App() {
                     }
                 />
                 <Route
-                    path={path.ADMIN_DASHBOARD}
+                    path="/admin/*"
                     element={
                         <ProtectedRoute allowedRoles={['admin']}>
-                            <AdminDashboard />
+                            <AdminApp />
                         </ProtectedRoute>
                     }
                 />
@@ -154,6 +153,7 @@ export default function App() {
                 <Route path="/products" element={<AllProducts />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/admin-demo" element={<AdminDemo />} />
                 {/* Catch-All Route */}
                 <Route path='*' element={
                     <div className="min-h-screen flex items-center justify-center bg-gray-50">

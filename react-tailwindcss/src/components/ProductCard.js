@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -12,41 +12,41 @@ import {
   faShield
 } from '@fortawesome/free-solid-svg-icons';
 
-const ProductCard = ({ product, viewMode = 'grid' }) => {
-  const formatPrice = (price) => {
+const ProductCard = memo(({ product, viewMode = 'grid' }) => {
+  const formatPrice = useCallback((price) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
     }).format(price);
-  };
+  }, []);
 
-  const formatDate = (dateString) => {
+  const formatDate = useCallback((dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('vi-VN', {
       day: '2-digit', month: '2-digit', year: 'numeric'
     });
-  };
+  }, []);
 
-  const getMinPrice = () => {
+  const getMinPrice = useCallback(() => {
     if (product.skus && product.skus.length > 0) {
       return Math.min(...product.skus.map(sku => sku.price));
     }
     return product.price || 0;
-  };
+  }, [product.skus, product.price]);
 
-  const getDiscountPercentage = () => {
+  const getDiscountPercentage = useCallback(() => {
     const minPrice = getMinPrice();
     if (product.originalPrice && minPrice < product.originalPrice) {
       return Math.round(((product.originalPrice - minPrice) / product.originalPrice) * 100);
     }
     return 0;
-  };
+  }, [product.originalPrice, getMinPrice]);
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     console.log('Adding to cart:', product);
-  };
+  }, [product]);
 
   const handleToggleFavorite = (e) => {
     e.preventDefault();
@@ -78,6 +78,7 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
                   src={product.thumbnail}
                   alt={product.name}
                   className="w-full h-full object-contain transition-transform duration-300"
+                  loading="lazy"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -179,12 +180,14 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
       {/* Product Image */}
       <div className="relative">
         <Link to={`/product/${product._id}`}>
-          <div className="aspect-square overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900">
+          <div className="aspect-square overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900"
+               onClick={() => console.log('Clicking product image, navigating to:', `/product/${product._id}`)}>
             {product.thumbnail ? (
               <img
                 src={product.thumbnail}
                 alt={product.name}
                 className="w-full h-full object-contain transition-transform duration-300"
+                loading="lazy"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -312,6 +315,8 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
       </div>
     </div>
   );
-};
+});
+
+ProductCard.displayName = 'ProductCard';
 
 export default ProductCard;
