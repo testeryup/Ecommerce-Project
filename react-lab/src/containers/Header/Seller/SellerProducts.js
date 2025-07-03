@@ -53,7 +53,7 @@ export default function SellerProducts() {
         const fetchCategoriesList = async () => {
             let categories = await getCategory();
             console.log("Category List:", categories);
-            setCategoriesList(categories);
+            setCategoriesList(categories.data);
         }
         fetchCategoriesList();
     }, []);

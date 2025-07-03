@@ -3,6 +3,7 @@ import User from '../models/user.js';
 import Product from '../models/product.js';
 import Order from '../models/order.js';
 import Transaction from '../models/transaction.js';
+import Inventory from '../models/inventory.js';
 import mongoose from 'mongoose';
 
 export const createSeller = async (req, res) => {
@@ -37,7 +38,15 @@ export const deleteSeller = async (req, res) => {
       return res.status(404).json({ message: 'Seller not found' });
     }
 
-    await User.findByIdAndDelete(sellerId);
+    seller.status = 'deleted';
+    await seller.save();
+    const products = await Product.updateMany({
+      seller: seller._id,
+      isDeleted: false
+    }, {
+      isDeleted: true
+    });
+    // if(products.acknowledged && )
     res.status(200).json({ message: 'Seller deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });

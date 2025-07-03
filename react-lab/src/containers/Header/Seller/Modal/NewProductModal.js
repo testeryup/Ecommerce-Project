@@ -64,6 +64,7 @@ export default function NewProductModal({ isOpen, onClose, categoriesList, mode 
         const fetchProduct = async () => {
             try {
                 const result = await getProductById(productId);
+                console.log("check result from getProductById:", result);
                 setProductStateOnUpdate(result.data);
             } catch (error) {
                 console.error("Error fetching product:", error);

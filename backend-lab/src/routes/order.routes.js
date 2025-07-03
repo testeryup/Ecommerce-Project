@@ -5,7 +5,7 @@ import { verifyToken, requireRole } from '../middlewares/auth.middleware.js';
 const router = express.Router();
 
 // User routes
-router.post('/', verifyToken, requireRole(['user']), orderController.createOrder);
+router.post('/', verifyToken, requireRole(['user']), orderController.createOrderWithOptimisticLocking);
 router.get('/:orderId', verifyToken, requireRole(['user']), orderController.getOrderById);
 router.get('/', verifyToken, requireRole(['user']), orderController.getAllUserOrders);
 

@@ -9,6 +9,8 @@ export const getCategory = () => {
     return api.get('/api/category');
 }
 export const createOrUpdateProduct = (data) => {
+    // console.log("check upsert product data:", data);
+    // return;
     return api.post('/api/products', data);
 }
 export const getProductById = (id) => {

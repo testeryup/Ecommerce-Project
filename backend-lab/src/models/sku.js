@@ -47,6 +47,11 @@ const skuSchema = new mongoose.Schema({
             default: null
         }
     },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+        required: true
+    }
 }, { timestamps: true });
 
 skuSchema.index(
@@ -71,11 +76,11 @@ skuSchema.pre('save', async function (next) {
 });
 
 // Add method to get total sales for a product
-skuSchema.statics.getProductSales = async function(productId) {
+skuSchema.statics.getProductSales = async function (productId) {
     return this.aggregate([
-        { 
-            $match: { 
-                product: new mongoose.Types.ObjectId(productId) 
+        {
+            $match: {
+                product: new mongoose.Types.ObjectId(productId)
             }
         },
         {
@@ -89,7 +94,7 @@ skuSchema.statics.getProductSales = async function(productId) {
 };
 
 // Add method to update sales when order completes
-skuSchema.methods.updateSales = async function(quantity, price) {
+skuSchema.methods.updateSales = async function (quantity, price) {
     this.sales.count += quantity;
     this.sales.revenue += quantity * price;
     this.sales.lastSale = new Date();
