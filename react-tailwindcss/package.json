@@ -26,10 +26,19 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@payos/payos-checkout": "^1.0.8",
+    "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-dropdown-menu": "^2.1.15",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.12",
     "@reduxjs/toolkit": "2.5.0",
     "axios": "1.7.9",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "dotenv": "16.4.7",
     "font-awesome": "4.7.0",
+    "lucide-react": "^0.525.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.1",
@@ -39,7 +48,8 @@
     "react-slick": "0.30.3",
     "recharts": "^2.15.1",
     "redux-persist": "6.0.0",
-    "slick-carousel": "1.8.1"
+    "slick-carousel": "1.8.1",
+    "tailwind-merge": "^3.3.1"
   },
   "browserslist": {
     "production": [

@@ -199,38 +199,6 @@ const Products = () => {
         <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
             <Header />
             
-            {/* Hero Section */}
-            <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-20 overflow-hidden">
-                <div className="absolute inset-0 bg-black/20"></div>
-                <div className="absolute inset-0">
-                    <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-pulse"></div>
-                    <div className="absolute top-32 right-20 w-16 h-16 bg-white/10 rounded-full animate-pulse delay-1000"></div>
-                    <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-white/10 rounded-full animate-pulse delay-500"></div>
-                </div>
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 className="text-4xl lg:text-6xl font-bold mb-6 animate-fadeIn">
-                        🐙 Cửa hàng OCTOPUS
-                    </h1>
-                    <p className="text-xl lg:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto animate-slideInFromLeft">
-                        Khám phá hàng ngàn dịch vụ subscription premium với giá tốt nhất thị trường
-                    </p>
-                    <div className="flex items-center justify-center space-x-12 text-blue-100 animate-slideInFromRight">
-                        <div className="text-center group">
-                            <div className="text-3xl font-bold group-hover:scale-110 transition-transform">{products.length}+</div>
-                            <div className="text-sm">Sản phẩm</div>
-                        </div>
-                        <div className="text-center group">
-                            <div className="text-3xl font-bold group-hover:scale-110 transition-transform">24/7</div>
-                            <div className="text-sm">Hỗ trợ</div>
-                        </div>
-                        <div className="text-center group">
-                            <div className="text-3xl font-bold group-hover:scale-110 transition-transform">100%</div>
-                            <div className="text-sm">Bảo đảm</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white dark:bg-gray-900 transition-colors duration-200">
                 {/* Page Header */}
                 <div className="mb-8">

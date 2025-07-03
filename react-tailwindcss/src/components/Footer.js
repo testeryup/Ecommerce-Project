@@ -144,37 +144,6 @@ const Footer = () => {
           ))}
         </div>
       </div>
-
-      {/* Bottom Footer */}
-      <div className="border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-            {/* Copyright */}
-            <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
-              <span>© {currentYear} OCTOPUS Store. Made with</span>
-              <FontAwesomeIcon icon={faHeart} className="text-red-500 animate-pulse" />
-              <span>in Vietnam</span>
-            </div>
-
-            {/* Social Links */}
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-600 dark:text-gray-300 mr-2">Theo dõi:</span>
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`w-10 h-10 bg-white dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 ${social.color} transition-all duration-200 transform hover:scale-110 shadow-sm border border-gray-200 dark:border-gray-600 hover:shadow-md`}
-                  aria-label={social.label}
-                >
-                  <FontAwesomeIcon icon={social.icon} />
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
     </footer>
   );
 };

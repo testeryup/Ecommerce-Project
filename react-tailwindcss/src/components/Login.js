@@ -17,8 +17,8 @@ import toast from 'react-hot-toast';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: 'c@gmail.com', // Pre-filled for testing
-    password: '123456', // Pre-filled for testing
+    email: '', // Pre-filled for testing
+    password: '', // Pre-filled for testing
     rememberMe: false
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -35,7 +35,7 @@ const Login = () => {
       console.log('User authenticated with role:', user.role);
       switch (user.role) {
         case 'admin':
-          navigate('/dashboard/admin');
+          navigate('/admin/dashboard');
           break;
         case 'seller':
           navigate('/dashboard/seller');
@@ -116,16 +116,6 @@ const Login = () => {
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
         <div className="max-w-md w-full">
-          {/* Debug Panel */}
-          <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-4 mb-4 text-sm">
-            <h3 className="font-bold mb-2">Debug Info:</h3>
-            <p>Loading: {auth.loading ? 'Yes' : 'No'}</p>
-            <p>Error: {auth.error || 'None'}</p>
-            <p>Authenticated: {auth.isAuthenticated ? 'Yes' : 'No'}</p>
-            <p>User Role: {user.role || 'None'}</p>
-            <p>Token: {auth.token ? 'Present' : 'None'}</p>
-          </div>
-          
           {/* Login Card */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
             {/* Header */}

@@ -27,6 +27,7 @@ import {
 } from '@fortawesome/free-regular-svg-icons';
 import Header from './Header';
 import Footer from './Footer';
+import DebugRouter from './DebugRouter';
 import { addToCart } from '../features/cart/cartSlice';
 import { userGetProductById } from '../services/userService';
 import toast from 'react-hot-toast';
@@ -263,6 +264,7 @@ const ProductDetailV2 = () => {
 
   return (
     <>
+      <DebugRouter />
       <Header />
       <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
         
