@@ -2,13 +2,45 @@ import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import './ProductSection.scss';
-import ProductCard from './ProductCard';
+import ProductCard from '../../components/ProductCard';
 import { getProducts } from '../../services/userService';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../../features/cart/cartSlice';
+import toast from 'react-hot-toast';
 
-import { useState, useEffect } from 'react';
-import Loading from '../../components/Loading';;
+import { useState, useEffect, useCallback } from 'react';
+import Loading from '../../components/Loading';
 
 export default function ProductSection() {
+    const dispatch = useDispatch();
+    
+    // Handle add to cart for ProductCard
+    const handleAddToCart = useCallback((product) => {
+        console.log('ProductSection handleAddToCart called with:', product);
+        
+        if (!product) {
+            toast.error('Sản phẩm không hợp lệ');
+            return;
+        }
+        
+        if (!product.skus || product.skus.length === 0) {
+            toast.error('Sản phẩm không có phiên bản để thêm vào giỏ');
+            return;
+        }
+        
+        try {
+            dispatch(addToCart({
+                product: product,
+                sku: product.skus[0], // Use first SKU as default
+                quantity: 1
+            }));
+            toast.success('Đã thêm vào giỏ hàng');
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            toast.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
+        }
+    }, [dispatch]);
+
     const settings = {
         slidesToShow: 4,
         slidesToScroll: 1,
@@ -73,7 +105,11 @@ export default function ProductSection() {
                         <Slider {...settings}>
                             {
                                 products.map(product => (
-                                    <ProductCard product={product} key={product._id}></ProductCard>
+                                    <ProductCard 
+                                        product={product} 
+                                        key={product._id}
+                                        onAddToCart={handleAddToCart}
+                                    />
                                 ))
                             }
                             {/* <div className='product-item'>

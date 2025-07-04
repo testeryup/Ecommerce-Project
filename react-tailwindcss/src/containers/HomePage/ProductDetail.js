@@ -59,6 +59,15 @@ export default function ProductDetail() {
     }, [productId]);
 
     const handleAddToCart = () => {
+        if (!product) {
+            toast.error('Không tìm thấy thông tin sản phẩm');
+            return;
+        }
+        if (!selectedSku) {
+            toast.error('Vui lòng chọn phiên bản sản phẩm');
+            return;
+        }
+        
         dispatch(addToCart({
             product,
             sku: selectedSku,
@@ -68,6 +77,15 @@ export default function ProductDetail() {
     };
 
     const handleBuyNow = () => {
+        if (!product) {
+            toast.error('Không tìm thấy thông tin sản phẩm');
+            return;
+        }
+        if (!selectedSku) {
+            toast.error('Vui lòng chọn phiên bản sản phẩm');
+            return;
+        }
+        
         dispatch(addToCart({
             product,
             sku: selectedSku,

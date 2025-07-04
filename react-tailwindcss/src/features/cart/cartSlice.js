@@ -10,7 +10,18 @@ const cartSlice = createSlice({
     },
     reducers: {
         addToCart: (state, action) => {
+            console.log('addToCart action payload:', action.payload);
             const { product, sku, quantity } = action.payload;
+
+            // Validate payload
+            if (!product) {
+                console.error('Product is missing in addToCart payload');
+                return;
+            }
+            if (!sku) {
+                console.error('SKU is missing in addToCart payload');
+                return;
+            }
 
             const existingItemIndex = state.items.findIndex(
                 item => item.skuId === sku._id
@@ -24,8 +35,10 @@ const cartSlice = createSlice({
                 skuName: sku.name,
                 price: sku.price,
                 quantity: Number(quantity),
-                image: product.images[0]
+                image: product.images && product.images.length > 0 ? product.images[0] : '/default-product.jpg'
             };
+
+            console.log('Adding item to cart:', newItem);
 
             // If item exists, replace it entirely
             if (existingItemIndex !== -1) {

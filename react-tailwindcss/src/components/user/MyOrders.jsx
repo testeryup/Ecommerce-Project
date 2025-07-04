@@ -85,13 +85,13 @@ const MyOrdersComponent = ({ orders = [], loading = false, onViewOrder }) => {
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
-              <Card key={order._id} className="hover:shadow-md transition-shadow">
+              <Card key={order.orderId} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
                       <div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">
-                          Đơn hàng #{order._id?.slice(-6)}
+                          Đơn hàng #{order.orderId?.slice(-6)}
                         </h3>
                         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                           <Clock className="h-3 w-3" />
@@ -110,7 +110,7 @@ const MyOrdersComponent = ({ orders = [], loading = false, onViewOrder }) => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => onViewOrder && onViewOrder(order._id)}
+                        onClick={() => onViewOrder && onViewOrder(order.orderId)}
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         Xem chi tiết

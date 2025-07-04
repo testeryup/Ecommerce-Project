@@ -20,9 +20,18 @@ const TransactionHistory = () => {
     try {
       setLoading(true);
       const data = await transactionService.getUserTransactions();
-      setTransactions(data);
+      console.log('Transaction data received:', data);
+      
+      // The service should return an array directly
+      if (Array.isArray(data)) {
+        setTransactions(data);
+      } else {
+        console.warn('Unexpected transaction data format, expected array:', data);
+        setTransactions([]);
+      }
     } catch (error) {
       console.error('Error fetching transactions:', error);
+      setTransactions([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -63,7 +72,7 @@ const TransactionHistory = () => {
     }
   };
 
-  const filteredTransactions = transactions.filter(transaction => {
+  const filteredTransactions = (transactions || []).filter(transaction => {
     const matchesType = filterType === 'all' || transaction.type === filterType;
     const matchesSearch = transaction.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          transaction.type?.toLowerCase().includes(searchTerm.toLowerCase());

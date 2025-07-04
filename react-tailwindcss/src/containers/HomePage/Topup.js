@@ -47,7 +47,7 @@ const ProductDisplay = () => {
             const result = await createPaymentLink(amount);
             setPayOSConfig((oldConfig) => ({
                 ...oldConfig,
-                CHECKOUT_URL: result.checkoutUrl,
+                CHECKOUT_URL: result.checkoutUrl || result.data?.checkoutUrl,
             }));
 
             setIsOpen(true);
@@ -92,11 +92,10 @@ const ProductDisplay = () => {
         const fetchBalance = async () => {
             try {
                 const response = await getUserBalance();
-                if (response.ok === 1) {
-                    setCurrentBalance(response.data);
-                }
+                setCurrentBalance(response.data || 0);
             } catch (error) {
                 console.error('Failed to fetch balance:', error);
+                toast.error('Không thể tải thông tin số dư');
             }
         };
 

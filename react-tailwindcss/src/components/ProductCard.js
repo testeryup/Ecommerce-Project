@@ -1,5 +1,8 @@
 import React, { memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../features/cart/cartSlice';
+import toast from 'react-hot-toast';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faStar, 
@@ -12,7 +15,8 @@ import {
   faShield
 } from '@fortawesome/free-solid-svg-icons';
 
-const ProductCard = memo(({ product, viewMode = 'grid' }) => {
+const ProductCard = memo(({ product, viewMode = 'grid', onAddToCart }) => {
+  const dispatch = useDispatch();
   const formatPrice = useCallback((price) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -45,8 +49,37 @@ const ProductCard = memo(({ product, viewMode = 'grid' }) => {
   const handleAddToCart = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
+    
     console.log('Adding to cart:', product);
-  }, [product]);
+    
+    // Validation checks
+    if (!product) {
+      toast.error('Sản phẩm không hợp lệ');
+      return;
+    }
+    
+    if (!product.skus || product.skus.length === 0) {
+      toast.error('Sản phẩm không có phiên bản để thêm vào giỏ');
+      return;
+    }
+    
+    try {
+      // Use onAddToCart prop if provided, otherwise use default dispatch
+      if (onAddToCart) {
+        onAddToCart(product);
+      } else {
+        dispatch(addToCart({
+          product: product,
+          sku: product.skus[0], // Use first SKU as default
+          quantity: 1
+        }));
+        toast.success('Đã thêm vào giỏ hàng');
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
+    }
+  }, [product, onAddToCart, dispatch]);
 
   const handleToggleFavorite = (e) => {
     e.preventDefault();
