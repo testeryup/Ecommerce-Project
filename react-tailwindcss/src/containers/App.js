@@ -13,8 +13,7 @@ import Register from '../components/Register';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { SellerDashboard } from '../containers/System';
 import UserDashboard from '../containers/System/UserDashboard';
-import AdminApp from '../components/admin/AdminApp';
-import AdminDemo from '../components/admin/AdminDemo';
+import AdminApp from '../components/admin/AdminApp.jsx';
 import UserProfile from './Header/User/UserProfile';
 import Loading from '../components/Loading';
 import ProductDetail from '../components/ProductDetailV2';
@@ -187,7 +186,7 @@ export default function App() {
                 <Route path="/products" element={<AllProducts />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/about" element={<About />} />
-                <Route path="/admin-demo" element={<AdminDemo />} />
+
                 {/* Catch-All Route */}
                 <Route path='*' element={
                     <div className="min-h-screen flex items-center justify-center bg-gray-50">
