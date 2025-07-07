@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { Calendar, CreditCard, TrendingUp, TrendingDown, Clock, Filter, Search } from 'lucide-react';
 import transactionService from '../../services/transactionService';
 import { formatCurrency } from '../../ultils/currencyHelper';
+import Header from '../Header';
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
@@ -98,8 +99,10 @@ const TransactionHistory = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -249,6 +252,7 @@ const TransactionHistory = () => {
         </Card>
       </div>
     </div>
+    </>
   );
 };
 

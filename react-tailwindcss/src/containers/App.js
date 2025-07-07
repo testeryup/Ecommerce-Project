@@ -11,8 +11,8 @@ import Home from '../components/Home';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import ProtectedRoute from '../components/ProtectedRoute';
-import { SellerDashboard } from '../containers/System';
-import UserDashboard from '../containers/System/UserDashboard';
+import SellerDashboard from '../components/seller/SellerDashboard';
+import UserDashboard from '../components/user/UserDashboard';
 import AdminApp from '../components/admin/AdminApp.jsx';
 import UserProfile from './Header/User/UserProfile';
 import Loading from '../components/Loading';
@@ -23,11 +23,11 @@ import PaymentSuccess from './Header/User/PaymentSuccess';
 import MyOrders from './Header/User/MyOrders';
 import OrderDetail from './Header/User/OrderDetail';
 import Support from './Header/User/Support';
-import TransactionHistory from './Header/User/TransactionHistory';
+import TransactionHistory from '../components/user/TransactionHistory';
 import Topup from './HomePage/Topup';
 import About from '../components/About';
 import AllProducts from '../components/AllProducts.js'
-import SearchResults from './Search/SearchResults';
+import SearchResults from '../components/SearchResults';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {

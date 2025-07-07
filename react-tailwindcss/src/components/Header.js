@@ -201,14 +201,6 @@ const Header = () => {
 
                     {/* Menu Items */}
                     <div className="py-2">
-                      <Link
-                        to="/dashboard/user"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        <FontAwesomeIcon icon={faTachometerAlt} className="w-4 h-4 mr-3" />
-                        Dashboard
-                      </Link>
                       
                       <Link
                         to="/profile"
