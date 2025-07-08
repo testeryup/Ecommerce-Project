@@ -4,27 +4,6 @@ import { FiFacebook, FiTwitter, FiInstagram, FiLinkedin, FiMail, FiPhone, FiMapP
 const Footer = () => {
   return (
     <footer className="bg-white border-t border-gray-100">
-      {/* Newsletter Section - Apple Style */}
-      <div className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <h3 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-6 tracking-tight">
-            Luôn cập nhật
-          </h3>
-          <p className="text-xl text-gray-600 mb-12 font-light leading-relaxed max-w-3xl mx-auto">
-            Đăng ký nhận bản tin để cập nhật sản phẩm mới, ưu đãi độc quyền và các chương trình khuyến mãi đặc biệt.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
-            <input
-              type="email"
-              placeholder="Nhập địa chỉ email của bạn"
-              className="flex-1 px-6 py-4 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white text-gray-900 placeholder-gray-500"
-            />
-            <button className="bg-black hover:bg-gray-800 text-white px-8 py-4 rounded-full font-medium transition-all duration-300 whitespace-nowrap">
-              Đăng ký
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Main Footer Content */}
       <div className="py-16 px-4 sm:px-6 lg:px-8">
@@ -33,8 +12,8 @@ const Footer = () => {
             {/* Company Info */}
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">O</span>
+                <div className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors duration-200">
+                  <span className="text-2xl">🐙</span>
                 </div>
                 <h3 className="text-2xl font-semibold text-gray-900">Octopus Store</h3>
               </div>

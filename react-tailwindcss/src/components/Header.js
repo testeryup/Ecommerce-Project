@@ -68,10 +68,10 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">O</span>
+            <div className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors duration-200">
+              <span className="text-2xl">🐙</span>
             </div>
-            <span className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+            <span className="text-xl font-semibold text-gray-900 group-hover:text-gray-700 transition-colors">
               Octopus Store
             </span>
           </Link>

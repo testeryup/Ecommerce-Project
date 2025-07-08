@@ -247,13 +247,13 @@ export default function ProductSection() {
                 </div>
 
                 {/* View All Products Button */}
-                <div className="text-center mt-12">
+                <div className="text-center mt-16">
                     <button 
                         onClick={() => navigate('/products')}
-                        className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                        className="inline-flex items-center bg-gray-900 text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow-md"
                     >
                         Xem tất cả sản phẩm
-                        <FontAwesomeIcon icon={faChevronRight} className="ml-2" />
+                        <FontAwesomeIcon icon={faChevronRight} className="ml-2 w-4 h-4" />
                     </button>
                 </div>
             </div>
