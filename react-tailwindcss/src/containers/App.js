@@ -26,6 +26,7 @@ import Support from './Header/User/Support';
 import Topup from './HomePage/Topup';
 import About from '../components/About';
 import AllProducts from '../components/AllProducts.js'
+import NotFound from '../components/NotFound';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
@@ -164,17 +165,7 @@ export default function App() {
                 <Route path="/about" element={<About />} />
 
                 {/* Catch-All Route */}
-                <Route path='*' element={
-                    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                        <div className="text-center">
-                            <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
-                            <p className="text-xl text-gray-600 mb-8">Trang không tìm thấy</p>
-                            <a href="/" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                                Về trang chủ
-                            </a>
-                        </div>
-                    </div>
-                } />
+                <Route path='*' element={<NotFound />} />
 
 
             </Routes>

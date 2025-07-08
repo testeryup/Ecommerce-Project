@@ -189,7 +189,7 @@ const Header = () => {
                   Đăng nhập
                 </Link>
                 <Link 
-                  to="/register" 
+                  to="/signup" 
                   className="bg-black text-white px-6 py-2 rounded-full font-medium hover:bg-gray-800 transition-colors"
                 >
                   Đăng ký
@@ -272,7 +272,7 @@ const Header = () => {
                   Đăng nhập
                 </Link>
                 <Link 
-                  to="/register" 
+                  to="/signup" 
                   className="block w-full text-center bg-black text-white py-2 rounded-full font-medium hover:bg-gray-800 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >

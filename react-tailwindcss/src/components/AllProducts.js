@@ -151,63 +151,63 @@ const Products = () => {
 
     return (
         <Layout>
-            <div className="min-h-screen bg-gray-50">
-                {/* Hero Section */}
+            <div className="min-h-screen bg-white">
+                {/* Hero Section - Apple Style */}
                 <div className="bg-white border-b border-gray-100">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-                        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+                        <h1 className="text-4xl md:text-6xl font-semibold text-gray-900 mb-6 tracking-tight">
                             Khám phá sản phẩm
                         </h1>
-                        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                        <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto font-light">
                             Tìm thấy {filteredProducts.length} sản phẩm chất lượng cao với thiết kế hiện đại
                         </p>
                         
-                        {/* Search Bar */}
+                        {/* Search Bar - Apple Style */}
                         <div className="max-w-2xl mx-auto relative">
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm sản phẩm..."
-                                value={filters.search}
-                                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                                className="w-full px-6 py-4 text-lg border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent shadow-sm"
-                            />
-                            <button className="absolute right-2 top-2 bg-gray-900 text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors">
-                                🔍
-                            </button>
+                            <div className="flex items-center bg-gray-100 rounded-full transition-all duration-300 hover:bg-gray-200">
+                                <span className="w-4 h-4 text-gray-500 ml-6">🔍</span>
+                                <input
+                                    type="text"
+                                    placeholder="Tìm kiếm sản phẩm..."
+                                    value={filters.search}
+                                    onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                                    className="bg-transparent px-4 py-4 w-full text-lg text-gray-900 placeholder-gray-500 focus:outline-none rounded-full"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Main Content */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="flex flex-col lg:flex-row gap-8">
-                        {/* Sidebar Filters */}
+                        {/* Sidebar Filters - Apple Style */}
                         <div className="lg:w-80 flex-shrink-0">
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-8">
-                                <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                                    Bộ lọc sản phẩm
+                            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 sticky top-8">
+                                <h3 className="text-2xl font-semibold text-gray-900 mb-8 tracking-tight">
+                                    Bộ lọc
                                 </h3>
                                 
                                 {/* Category Filter */}
-                                <div className="mb-8">
-                                    <h4 className="text-sm font-medium text-gray-700 mb-4">
+                                <div className="mb-10">
+                                    <h4 className="text-sm font-medium text-gray-700 mb-6 uppercase tracking-wide">
                                         Danh mục
                                     </h4>
-                                    <div className="space-y-2">
+                                    <div className="space-y-3">
                                         <button
                                             onClick={() => setFilters({ 
                                                 ...filters, 
                                                 category: 'all',
                                                 subcategory: 'all'
                                             })}
-                                            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all ${
+                                            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-left transition-all font-medium ${
                                                 filters.category === 'all'
-                                                    ? 'bg-gray-900 text-white'
-                                                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                                    ? 'bg-gray-100 text-gray-900'
+                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                             }`}
                                         >
                                             <span className="text-lg">🌟</span>
-                                            <span className="font-medium">Tất cả danh mục</span>
+                                            <span>Tất cả danh mục</span>
                                         </button>
                                         {categories.map(category => (
                                             <button
@@ -217,14 +217,14 @@ const Products = () => {
                                                     category: category._id,
                                                     subcategory: 'all'
                                                 })}
-                                                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all ${
+                                                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-left transition-all font-medium ${
                                                     filters.category === category._id
-                                                        ? 'bg-gray-900 text-white'
-                                                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                                        ? 'bg-gray-100 text-gray-900'
+                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                                 }`}
                                             >
                                                 <span className="text-lg">{getCategoryIcon(category.name)}</span>
-                                                <span className="font-medium">{category.name}</span>
+                                                <span>{category.name}</span>
                                             </button>
                                         ))}
                                     </div>
@@ -232,14 +232,14 @@ const Products = () => {
 
                                 {/* Subcategory Filter */}
                                 {activeSubcategories.length > 0 && (
-                                    <div className="mb-8">
-                                        <h4 className="text-sm font-medium text-gray-700 mb-4">
+                                    <div className="mb-10">
+                                        <h4 className="text-sm font-medium text-gray-700 mb-6 uppercase tracking-wide">
                                             Loại sản phẩm
                                         </h4>
                                         <select
                                             value={filters.subcategory}
                                             onChange={(e) => setFilters({ ...filters, subcategory: e.target.value })}
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gray-300 focus:border-transparent text-gray-900 font-medium"
                                         >
                                             <option value="all">Tất cả loại</option>
                                             {activeSubcategories.map(sub => (
@@ -253,13 +253,13 @@ const Products = () => {
 
                                 {/* Sort Options */}
                                 <div className="mb-8">
-                                    <h4 className="text-sm font-medium text-gray-700 mb-4">
+                                    <h4 className="text-sm font-medium text-gray-700 mb-6 uppercase tracking-wide">
                                         Sắp xếp theo
                                     </h4>
                                     <select
                                         value={filters.sort}
                                         onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gray-300 focus:border-transparent text-gray-900 font-medium"
                                     >
                                         <option value="newest">🆕 Mới nhất</option>
                                         <option value="price-asc">💰 Giá thấp đến cao</option>
@@ -274,21 +274,21 @@ const Products = () => {
                         {/* Products Content */}
                         <div className="flex-1">
                             {/* Results Header */}
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-2xl font-semibold text-gray-900">
+                            <div className="flex items-center justify-between mb-8">
+                                <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
                                     {filters.search ? `Kết quả cho "${filters.search}"` : 'Tất cả sản phẩm'}
                                 </h2>
-                                <span className="text-gray-600">
+                                <span className="text-gray-600 font-medium">
                                     {filteredProducts.length} sản phẩm
                                 </span>
                             </div>
 
                             {filteredProducts.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                                     {filteredProducts.map((product) => (
                                         <div 
                                             key={product._id} 
-                                            className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 group"
+                                            className="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all duration-500 overflow-hidden border border-gray-100 group"
                                         >
                                             {/* Product Image */}
                                             <div 
@@ -299,18 +299,18 @@ const Products = () => {
                                                     <img 
                                                         src={product.thumbnail} 
                                                         alt={product.name}
-                                                        className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                                                        className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-700"
                                                     />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center">
-                                                        <span className="text-5xl text-gray-300">📦</span>
+                                                        <span className="text-6xl text-gray-300">📦</span>
                                                     </div>
                                                 )}
                                                 
                                                 {/* Product Badges */}
-                                                <div className="absolute top-3 left-3 flex flex-col space-y-2">
+                                                <div className="absolute top-4 left-4 flex flex-col space-y-2">
                                                     {product.featured && (
-                                                        <span className="px-3 py-1 bg-red-500 text-white text-xs rounded-full font-medium shadow-lg">
+                                                        <span className="px-3 py-1 bg-black text-white text-xs rounded-full font-medium shadow-lg">
                                                             ⭐ Nổi bật
                                                         </span>
                                                     )}
@@ -321,24 +321,20 @@ const Products = () => {
                                                     )}
                                                 </div>
 
-                                                {/* Quick Add Button */}
-                                                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {/* Quick Actions */}
+                                                <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                    <button className="w-10 h-10 bg-white/90 backdrop-blur-sm shadow-lg rounded-full flex items-center justify-center hover:bg-white transition-colors border border-gray-100">
+                                                        ❤️
+                                                    </button>
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleAddToCart(product);
                                                         }}
                                                         disabled={!product.skus || product.skus.length === 0}
-                                                        className="bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors disabled:opacity-50 border border-gray-100"
+                                                        className="w-10 h-10 bg-white/90 backdrop-blur-sm shadow-lg rounded-full flex items-center justify-center hover:bg-white transition-colors disabled:opacity-50 border border-gray-100"
                                                     >
                                                         🛒
-                                                    </button>
-                                                </div>
-
-                                                {/* Wishlist Button */}
-                                                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button className="bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 transition-colors border border-gray-100">
-                                                        ❤️
                                                     </button>
                                                 </div>
                                             </div>
@@ -346,13 +342,13 @@ const Products = () => {
                                             {/* Product Info */}
                                             <div className="p-6">
                                                 <h3 
-                                                    className="font-semibold text-gray-900 mb-2 line-clamp-2 cursor-pointer hover:text-gray-700 text-lg leading-tight"
+                                                    className="font-semibold text-gray-900 mb-3 line-clamp-2 cursor-pointer hover:text-gray-700 text-lg leading-snug tracking-tight"
                                                     onClick={() => handleViewProduct(product._id)}
                                                 >
                                                     {product.name}
                                                 </h3>
                                                 
-                                                <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+                                                <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed font-light">
                                                     {product.description || 'Sản phẩm chất lượng cao với thiết kế hiện đại và tính năng vượt trội'}
                                                 </p>
 
@@ -368,11 +364,11 @@ const Products = () => {
                                                             </span>
                                                         ))}
                                                     </div>
-                                                    <span className="text-sm text-gray-500 font-medium">
+                                                    <span className="text-sm text-gray-600 font-medium">
                                                         {product.rating || '4.8'}
                                                     </span>
                                                     <span className="text-xs text-gray-400">
-                                                        ({product.reviews || '128'} đánh giá)
+                                                        ({product.reviews || '128'})
                                                     </span>
                                                 </div>
 
@@ -380,34 +376,34 @@ const Products = () => {
                                                 <div className="mb-4">
                                                     {product.skus && product.skus.length > 0 ? (
                                                         <div className="flex items-center space-x-2">
-                                                            <span className="text-2xl font-bold text-gray-900">
+                                                            <span className="text-2xl font-semibold text-gray-900 tracking-tight">
                                                                 {formatPrice(product.skus[0].price)}
                                                             </span>
                                                             {product.skus[0].originalPrice && product.skus[0].originalPrice > product.skus[0].price && (
-                                                                <span className="text-lg text-gray-400 line-through">
+                                                                <span className="text-lg text-gray-400 line-through font-light">
                                                                     {formatPrice(product.skus[0].originalPrice)}
                                                                 </span>
                                                             )}
                                                         </div>
                                                     ) : (
-                                                        <span className="text-xl font-bold text-gray-600">
+                                                        <span className="text-xl font-semibold text-gray-600">
                                                             Liên hệ để biết giá
                                                         </span>
                                                     )}
                                                 </div>
 
                                                 {/* Stock Status */}
-                                                <div className="mb-4">
+                                                <div className="mb-6">
                                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
                                                         ✅ Còn hàng
                                                     </span>
                                                 </div>
 
-                                                {/* Add to Cart Button */}
+                                                {/* Add to Cart Button - Apple Style */}
                                                 <button 
                                                     onClick={() => handleAddToCart(product)}
                                                     disabled={!product.skus || product.skus.length === 0}
-                                                    className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                                                    className="w-full bg-black text-white py-3 rounded-2xl font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                                                 >
                                                     Thêm vào giỏ hàng
                                                 </button>
@@ -416,12 +412,12 @@ const Products = () => {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-20 bg-gray-50 rounded-2xl">
-                                    <div className="text-8xl mb-6">🔍</div>
-                                    <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                                <div className="text-center py-24 bg-gray-50 rounded-3xl">
+                                    <div className="text-8xl mb-8">🔍</div>
+                                    <h3 className="text-4xl font-semibold text-gray-900 mb-4 tracking-tight">
                                         Không tìm thấy sản phẩm nào
                                     </h3>
-                                    <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+                                    <p className="text-xl text-gray-600 mb-10 max-w-md mx-auto leading-relaxed font-light">
                                         Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc để xem thêm kết quả
                                     </p>
                                     <button 
@@ -431,7 +427,7 @@ const Products = () => {
                                             search: '',
                                             sort: 'newest'
                                         })}
-                                        className="px-8 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-colors shadow-sm"
+                                        className="px-8 py-4 bg-black text-white rounded-2xl font-medium hover:bg-gray-800 transition-colors shadow-sm"
                                     >
                                         Xóa tất cả bộ lọc
                                     </button>
@@ -440,9 +436,9 @@ const Products = () => {
 
                             {/* Results Summary */}
                             {filteredProducts.length > 0 && (
-                                <div className="text-center mt-12 py-8">
-                                    <div className="inline-flex items-center px-6 py-3 bg-gray-50 rounded-2xl border border-gray-200">
-                                        <span className="text-gray-600">
+                                <div className="text-center mt-16 py-8">
+                                    <div className="inline-flex items-center px-8 py-4 bg-gray-50 rounded-3xl border border-gray-100">
+                                        <span className="text-gray-600 font-medium">
                                             Đã hiển thị tất cả <strong className="text-gray-900">{filteredProducts.length}</strong> sản phẩm
                                         </span>
                                     </div>
