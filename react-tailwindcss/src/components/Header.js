@@ -21,7 +21,10 @@ const Header = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const userMenuRef = useRef(null);
+  const searchRef = useRef(null);
   
   // Add safe selectors with default values
   const auth = useSelector(state => state.auth || {});
@@ -39,6 +42,9 @@ const Header = () => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setIsUserMenuOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -50,8 +56,45 @@ const Header = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      // Navigate to products page with search query
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery(''); // Clear search after submitting
+      setShowSuggestions(false); // Hide suggestions
     }
+  };
+
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Show suggestions when typing
+    if (value.trim()) {
+      // Mock search suggestions - in real app, you'd fetch from API
+      const mockSuggestions = [
+        'Key Windows 11 Pro',
+        'Tài khoản Zoom Pro',
+        'Spotify',
+        'iQIYI',
+        'iQIYI',
+        'ChatGpt Plus',
+        'Youtube Premium',
+        'Netflix Premium',
+        'Microsoft Office 2021'
+      ].filter(item => 
+        item.toLowerCase().includes(value.toLowerCase())
+      ).slice(0, 5);
+      
+      setSearchSuggestions(mockSuggestions);
+      setShowSuggestions(mockSuggestions.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion);
+    navigate(`/products?search=${encodeURIComponent(suggestion)}`);
+    setShowSuggestions(false);
   };
 
   const handleLogout = () => {
@@ -94,25 +137,74 @@ const Header = () => {
 
           {/* Search Bar - Apple style */}
           <div className="hidden lg:flex items-center">
-            <form onSubmit={handleSearch} className="relative">
-              <div className={`flex items-center bg-gray-100 rounded-full transition-all duration-300 ${
-                isSearchFocused ? 'bg-white shadow-md ring-2 ring-blue-500/20' : 'hover:bg-gray-200'
-              }`}>
-                <FontAwesomeIcon 
-                  icon={faSearch} 
-                  className="w-4 h-4 text-gray-500 ml-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm sản phẩm..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                  onBlur={() => setIsSearchFocused(false)}
-                  className="bg-transparent px-4 py-3 w-64 text-gray-900 placeholder-gray-500 focus:outline-none"
-                />
-              </div>
-            </form>
+            <div ref={searchRef} className="relative">
+              <form onSubmit={handleSearch}>
+                <div className={`flex items-center bg-gray-100 rounded-full transition-all duration-300 ${
+                  isSearchFocused ? 'bg-white shadow-md ring-2 ring-blue-500/20' : 'hover:bg-gray-200'
+                }`}>
+                  <FontAwesomeIcon 
+                    icon={faSearch} 
+                    className="w-4 h-4 text-gray-500 ml-4"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm sản phẩm..."
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                    onFocus={() => {
+                      setIsSearchFocused(true);
+                      if (searchQuery.trim()) setShowSuggestions(true);
+                    }}
+                    onBlur={() => {
+                      setIsSearchFocused(false);
+                      // Delay hiding suggestions to allow click
+                      setTimeout(() => setShowSuggestions(false), 150);
+                    }}
+                    className="bg-transparent px-4 py-3 w-64 text-gray-900 placeholder-gray-500 focus:outline-none"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setShowSuggestions(false);
+                      }}
+                      className="p-2 mr-2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              </form>
+
+              {/* Search Suggestions */}
+              {showSuggestions && searchSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 max-h-64 overflow-y-auto">
+                  {searchSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center space-x-3"
+                    >
+                      <FontAwesomeIcon icon={faSearch} className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-900">{suggestion}</span>
+                    </button>
+                  ))}
+                  
+                  <div className="border-t border-gray-100 mt-2 pt-2">
+                    <button
+                      onClick={() => handleSuggestionClick(searchQuery)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center space-x-3"
+                    >
+                      <FontAwesomeIcon icon={faSearch} className="w-4 h-4 text-blue-500" />
+                      <span className="text-blue-600 font-medium">
+                        Tìm kiếm "{searchQuery}"
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right Actions */}
@@ -223,9 +315,18 @@ const Header = () => {
                   type="text"
                   placeholder="Tìm kiếm sản phẩm..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchInputChange}
                   className="bg-transparent px-4 py-3 w-full text-gray-900 placeholder-gray-500 focus:outline-none"
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="p-2 mr-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
+                  </button>
+                )}
               </div>
             </form>
 
