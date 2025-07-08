@@ -113,17 +113,12 @@ export default function ProductSection() {
             try {
                 setLoading(true);
                 const result = await getProducts();
-                console.log('API Response:', result);
                 
                 if (result.errCode === 0) {
-                    console.log('Products data:', result.data);
-                    console.log('First product:', result.data[0]);
-                    
                     if (result.data && result.data.length > 0) {
                         setProducts(result.data);
                     } else {
                         // If no products from API, add some mock data for testing
-                        console.log('No products from API, adding mock data');
                         const mockProducts = [
                             {
                                 _id: "mock1",

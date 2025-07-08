@@ -37,21 +37,14 @@ export default function App() {
 
     useEffect(() => {
         const initializeAuth = async () => {
-            console.log('Initializing auth, token:', auth.token);
-            console.log('Auth state:', auth);
-            
             if (auth.token) {
-                console.log('Setting auth token on app initialization:', auth.token);
                 setAuthToken(auth.token);
                 
                 try {
                     await dispatch(fetchUserProfile());
-                    console.log('User profile fetched successfully');
                 } catch (error) {
                     console.error('Failed to fetch user profile:', error);
                 }
-            } else {
-                console.log('No token found in auth state');
             }
             setIsInitialized(true);
         };

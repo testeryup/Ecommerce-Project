@@ -215,12 +215,16 @@ const ProductCard = ({ product, onAddToCart }) => {
                         >
                             <FontAwesomeIcon icon={faHeart} className="w-4 h-4" />
                         </button>
-                        <Link
-                            to={`/product/${product._id || product.id}`}
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.location.href = `/product/${product._id || product.id}`;
+                            }}
                             className="w-10 h-10 bg-white/90 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-gray-700 hover:bg-blue-500 hover:text-white transition-all duration-300"
                         >
                             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-                        </Link>
+                        </button>
                     </div>
 
                     {/* Quick Add to Cart - appears on hover */}
