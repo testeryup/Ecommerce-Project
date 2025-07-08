@@ -3,7 +3,7 @@ import "./PaymentSuccess.scss"
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import UserHeader from "../UserHeader";
+import Layout from "../../../components/Layout";
 
 const PaymentSuccess = () => {
     const [url, setUrl] = useState('');
@@ -27,8 +27,7 @@ const PaymentSuccess = () => {
         return null;
     }
     return (
-        <>
-            <UserHeader></UserHeader>
+        <Layout>
             <div className="payment-success">
                 <div className="payment-success__card">
                     <div className="payment-success__icon">
@@ -57,7 +56,7 @@ const PaymentSuccess = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     )
 }
 

@@ -3,9 +3,15 @@ import { useParams } from 'react-router-dom';
 import { getOrderById } from '../../../services/userService';
 import { formatCurrency } from '../../../ultils';
 import { toast } from 'react-hot-toast';
-import UserHeader from '../UserHeader';
+import Layout from '../../../components/Layout';
 import Loading from '../../../components/Loading';
-import './OrderDetail.scss';
+import { 
+  Package, 
+  CheckCircle, 
+  Clock, 
+  XCircle, 
+  AlertCircle
+} from 'lucide-react';
 
 const OrderDetail = () => {
   const { orderId } = useParams();
@@ -14,12 +20,12 @@ const OrderDetail = () => {
   const [visiblePasswords, setVisiblePasswords] = useState(new Set());
 
   const orderStatus = {
-    completed: { label: 'Hoàn thành', color: 'success' },
-    refunded: { label: 'Đã hoàn tiền', color: 'info' },
-    canceled: { label: 'Đã huỷ', color: 'danger' },
-    processing: { label: 'Đang xử lý', color: 'warning' },
-    pending: { label: 'Chờ xử lý', color: 'secondary' },
-    default: { label: 'Không xác định', color: 'default' }
+    completed: { label: 'Hoàn thành', color: 'bg-green-100 text-green-800', icon: CheckCircle },
+    refunded: { label: 'Đã hoàn tiền', color: 'bg-blue-100 text-blue-800', icon: Package },
+    canceled: { label: 'Đã huỷ', color: 'bg-red-100 text-red-800', icon: XCircle },
+    processing: { label: 'Đang xử lý', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
+    pending: { label: 'Chờ xử lý', color: 'bg-gray-100 text-gray-800', icon: AlertCircle },
+    default: { label: 'Không xác định', color: 'bg-gray-100 text-gray-800', icon: AlertCircle }
   };
 
   useEffect(() => {
@@ -86,23 +92,29 @@ const OrderDetail = () => {
 
   if (loading) {
     return (
-      <>
-        <UserHeader />
-        <div className="loading-container">
+      <Layout>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
           <Loading />
         </div>
-      </>
+      </Layout>
     );
   }
 
   if (!orderData) {
     return (
-      <>
-        <UserHeader />
-        <div className="error-container">
-          <h1>Không tìm thấy thông tin đơn hàng</h1>
+      <Layout>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+          <div className="text-center">
+            <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Không tìm thấy thông tin đơn hàng
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Đơn hàng này có thể không tồn tại hoặc đã bị xóa
+            </p>
+          </div>
         </div>
-      </>
+      </Layout>
     );
   }
 
@@ -110,8 +122,7 @@ const OrderDetail = () => {
     orderStatus[orderData.status] || orderStatus.default;
 
   return (
-    <>
-      <UserHeader />
+    <Layout>
       <div className="order-info">
         <div className="order-header">
           <div className="header-main">
@@ -211,7 +222,7 @@ const OrderDetail = () => {
           ))}
         </div>
       </div>
-    </>
+    </Layout>
   );
 };
 

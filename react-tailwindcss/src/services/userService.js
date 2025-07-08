@@ -22,11 +22,23 @@ export const getProducts = () => {
 }
 
 export const initOrder = (items) => {
-    return api.post('/api/orders/init', {items})
+    // Transform items to match backend expectations - only send skuId and quantity
+    const transformedItems = items.map(item => ({
+        skuId: item.skuId,
+        quantity: item.quantity
+    }));
+    console.log('Sending to initOrder API:', { items: transformedItems });
+    return api.post('/api/orders/init', {items: transformedItems});
 } 
 
 export const createOrder = (items) => {
-    return api.post('/api/orders', {items});
+    // Transform items to match backend expectations - only send skuId and quantity
+    const transformedItems = items.map(item => ({
+        skuId: item.skuId,
+        quantity: item.quantity
+    }));
+    console.log('Sending to createOrder API:', { items: transformedItems });
+    return api.post('/api/orders', {items: transformedItems});
 }
 
 export const getSkuNames = (skus) => {
@@ -37,18 +49,39 @@ export const getOrderById = (id) => {
     return api.get(`/api/orders/${id}`);
 }
 
-export const getOrders = ({page, limit, status='all'}) => {
-    return api.get(`/api/orders?page=${page}&limit=${limit}&status=${status}`);
+export const getOrders = async ({page = 1, limit = 10, status = 'all'}) => {
+    const response = await api.get(`/api/orders?page=${page}&limit=${limit}&status=${status}`);
+    return response.data;
 }
 
-export const getUserBalance = () => {
-    return api.get(`/api/user/balance`);
+export const updateUserProfile = async (data) => {
+    const response = await api.put('/api/user/profile', data);
+    return response.data;
 }
 
-export const createPaymentLink = (amount) => {
-    return api.post('/api/transactions/topup', {amount})
+export const getUserBalance = async () => {
+    const response = await api.get('/api/user/balance');
+    return response.data;
 }
+
+export const createPaymentLink = async (amount) => {
+    const response = await api.post('/api/transactions/topup', {amount});
+    return response.data;
+}
+
 const userService = {
-    getUserProfile, getCategory, createOrUpdateProduct, getProducts, userGetProductById, getSkuNames
+    getUserProfile, 
+    updateUserProfile,
+    getCategory, 
+    createOrUpdateProduct, 
+    getProducts, 
+    userGetProductById, 
+    getSkuNames,
+    getOrders,
+    getOrderById,
+    getUserBalance,
+    createPaymentLink,
+    initOrder,
+    createOrder
 }
 export default userService;

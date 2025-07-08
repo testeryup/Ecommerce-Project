@@ -3,7 +3,7 @@ import { usePayOS } from "@payos/payos-checkout";
 import { toast } from 'react-hot-toast';
 import "./Topup.scss";
 import { getUserBalance, createPaymentLink } from "../../services/userService";
-import UserHeader from "../Header/UserHeader";
+import Layout from "../../components/Layout";
 import { Navigate, useNavigate } from "react-router-dom";
 const ProductDisplay = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -232,8 +232,9 @@ const Message = ({ message }) => {
 };
 
 export default function Topup() {
-    return <>
-        <UserHeader></UserHeader>
-        <ProductDisplay />
-    </>;
+    return (
+        <Layout>
+            <ProductDisplay />
+        </Layout>
+    );
 }

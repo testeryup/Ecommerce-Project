@@ -1,322 +1,300 @@
-import React, { memo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faStar, 
-  faShoppingCart, 
-  faHeart, 
-  faEye,
-  faTag,
-  faCrown,
-  faFire,
-  faShield
+    faShoppingCart, 
+    faHeart, 
+    faEye, 
+    faStar
 } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 
-const ProductCard = memo(({ product, viewMode = 'grid' }) => {
-  const formatPrice = useCallback((price) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(price);
-  }, []);
+const ProductCard = ({ product, onAddToCart }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    const [isWishlisted, setIsWishlisted] = useState(false);
 
-  const formatDate = useCallback((dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit', month: '2-digit', year: 'numeric'
-    });
-  }, []);
-
-  const getMinPrice = useCallback(() => {
-    if (product.skus && product.skus.length > 0) {
-      return Math.min(...product.skus.map(sku => sku.price));
+    if (!product) {
+        return null;
     }
-    return product.price || 0;
-  }, [product.skus, product.price]);
 
-  const getDiscountPercentage = useCallback(() => {
-    const minPrice = getMinPrice();
-    if (product.originalPrice && minPrice < product.originalPrice) {
-      return Math.round(((product.originalPrice - minPrice) / product.originalPrice) * 100);
-    }
-    return 0;
-  }, [product.originalPrice, getMinPrice]);
+    // Debug log to check product data structure
+    // console.log('ProductCard received product:', product);
+    // console.log('Product ID field:', product._id || product.id);
+    // console.log('Product image fields:', {
+    //     imageUrl: product.imageUrl,
+    //     images: product.images,
+    //     image: product.image,
+    //     thumbnail: product.thumbnail
+    // });
+    // console.log('Product SKUs structure:', product.skus);
+    // console.log('Product inventory:', product.inventory);
 
-  const handleAddToCart = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('Adding to cart:', product);
-  }, [product]);
-
-  const handleToggleFavorite = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('Toggle favorite:', product);
-  };
-
-  const getCategoryIcon = (category) => {
-    const iconMap = {
-      'entertainment': '🎬',
-      'productivity': '💼', 
-      'music': '🎵',
-      'security': '🔒',
-      'education': '🎓',
-      'gaming': '🎮'
+    const handleAddToCart = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (onAddToCart && typeof onAddToCart === 'function') {
+            onAddToCart(product);
+        }
     };
-    return iconMap[category] || '📦';
-  };
 
-  if (viewMode === 'list') {
-    return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden group">
-        <div className="flex items-center p-6 space-x-6">
-          {/* Product Image */}
-          <Link to={`/product/${product._id}`} className="flex-shrink-0">
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-xl overflow-hidden">
-              {product.thumbnail ? (
-                <img
-                  src={product.thumbnail}
-                  alt={product.name}
-                  className="w-full h-full object-contain transition-transform duration-300"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <FontAwesomeIcon icon={faTag} className="text-2xl text-gray-400" />
-                </div>
-              )}
-            </div>
-          </Link>
+    const handleWishlist = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsWishlisted(!isWishlisted);
+    };
 
-          {/* Product Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2 mb-2">
-              <span className="text-lg">{getCategoryIcon(product.category)}</span>
-              <span className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-full">
-                {product.subcategory}
-              </span>
-              {product.featured && (
-                <span className="text-xs font-medium text-yellow-600 bg-yellow-50 px-2 py-1 rounded-full flex items-center">
-                  <FontAwesomeIcon icon={faCrown} className="mr-1" />
-                  Nổi bật
-                </span>
-              )}
-            </div>
-            
-            <Link to={`/product/${product._id}`}>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 mb-2">
-                {product.name}
-              </h3>
-            </Link>
-            
-            <p className="text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
-              {product.description}
-            </p>
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(price);
+    };
 
-            <div className="flex items-center space-x-4 mb-3">
-              <div className="flex items-center space-x-1">
-                <FontAwesomeIcon icon={faStar} className="text-yellow-400 text-sm" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {product.rating}
-                </span>
-                <span className="text-xs text-gray-500">
-                  ({product.reviews} đánh giá)
-                </span>
-              </div>
-              {product.verified && (
-                <div className="flex items-center space-x-1 text-green-600">
-                  <FontAwesomeIcon icon={faShield} className="text-xs" />
-                  <span className="text-xs font-medium">Đã xác minh</span>
-                </div>
-              )}
-            </div>
-          </div>
+    const getDiscountPercent = () => {
+        if (product.skus && product.skus.length > 0) {
+            const sku = product.skus[0];
+            if (sku.originalPrice && sku.price < sku.originalPrice) {
+                return Math.round(((sku.originalPrice - sku.price) / sku.originalPrice) * 100);
+            }
+        }
+        return 0;
+    };
 
-          {/* Price and Actions */}
-          <div className="flex-shrink-0 text-right">
-            <div className="mb-4">
-              <div className="flex items-center justify-end space-x-2 mb-1">
-                <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {formatPrice(getMinPrice())}
-                </span>
-                {getDiscountPercentage() > 0 && (
-                  <span className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-full font-medium">
-                    -{getDiscountPercentage()}%
-                  </span>
-                )}
-              </div>
-              {product.originalPrice && getDiscountPercentage() > 0 && (
-                <span className="text-sm text-gray-400 line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
-              )}
-            </div>
+    const getCurrentPrice = () => {
+        if (product.skus && product.skus.length > 0) {
+            return product.skus[0].price;
+        }
+        return 0;
+    };
 
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={handleToggleFavorite}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
-                title="Thêm vào yêu thích"
-              >
-                <FontAwesomeIcon icon={faHeart} />
-              </button>
-              <button
-                onClick={handleAddToCart}
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium flex items-center space-x-2 shadow-md hover:shadow-lg"
-              >
-                <FontAwesomeIcon icon={faShoppingCart} className="text-sm" />
-                <span>Thêm vào giỏ</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    const getOriginalPrice = () => {
+        if (product.skus && product.skus.length > 0) {
+            return product.skus[0].originalPrice;
+        }
+        return 0;
+    };
 
-  // Grid view (default)
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-200 dark:border-gray-700 transform hover:-translate-y-1">
-      {/* Product Image */}
-      <div className="relative">
-        <Link to={`/product/${product._id}`}>
-          <div className="aspect-square overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900"
-               onClick={() => console.log('Clicking product image, navigating to:', `/product/${product._id}`)}>
-            {product.thumbnail ? (
-              <img
-                src={product.thumbnail}
-                alt={product.name}
-                className="w-full h-full object-contain transition-transform duration-300"
-                loading="lazy"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <FontAwesomeIcon icon={faTag} className="text-4xl text-gray-400" />
-              </div>
-            )}
-          </div>
-        </Link>
+    const getProductImage = () => {
+        // Try multiple possible image fields
+        let imageUrl = null;
         
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col space-y-1">
-          {getDiscountPercentage() > 0 && (
-            <span className="px-2 py-1 bg-red-500 text-white text-xs rounded-full font-medium shadow-lg">
-              -{getDiscountPercentage()}%
-            </span>
-          )}
-          {product.featured && (
-            <span className="px-2 py-1 bg-yellow-500 text-white text-xs rounded-full font-medium shadow-lg flex items-center">
-              <FontAwesomeIcon icon={faCrown} className="mr-1" />
-              Nổi bật
-            </span>
-          )}
-          {product.bestseller && (
-            <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded-full font-medium shadow-lg flex items-center">
-              <FontAwesomeIcon icon={faFire} className="mr-1" />
-              Bán chạy
-            </span>
-          )}
-        </div>
+        // Check thumbnail first (usually base64 data)
+        if (product.thumbnail && product.thumbnail.trim()) {
+            imageUrl = product.thumbnail;
+        }
+        // Check images array
+        else if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+            imageUrl = product.images[0];
+        }
+        // Check imageUrl field
+        else if (product.imageUrl && product.imageUrl.trim()) {
+            imageUrl = product.imageUrl;
+        }
+        // Check image field
+        else if (product.image && product.image.trim()) {
+            imageUrl = product.image;
+        }
+        
+        // Validate the image URL/data
+        if (imageUrl) {
+            // If it's base64 data, return as is
+            if (imageUrl.startsWith('data:image/')) {
+                return imageUrl;
+            }
+            // If it's a URL, make sure it's valid
+            if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('/')) {
+                return imageUrl;
+            }
+        }
+        
+        // Return null if no valid image found
+        return null;
+    };
 
-        {/* Hover Actions */}
-        <div className="absolute top-3 right-3 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-          <button
-            onClick={handleToggleFavorite}
-            className="p-2 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full shadow-lg hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 transition-colors duration-200"
-            title="Thêm vào yêu thích"
-          >
-            <FontAwesomeIcon icon={faHeart} />
-          </button>
-          <Link
-            to={`/product/${product._id}`}
-            className="p-2 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full shadow-lg hover:bg-blue-50 hover:text-blue-500 dark:hover:bg-blue-900/20 transition-colors duration-200"
-            title="Xem chi tiết"
-          >
-            <FontAwesomeIcon icon={faEye} />
-          </Link>
-        </div>
-      </div>
+    const getStockQuantity = () => {
+        // Try multiple possible inventory structures
+        if (product.skus && product.skus.length > 0) {
+            const sku = product.skus[0];
+            
+            // Check if stock is in SKU (this is the actual structure based on logs)
+            if (typeof sku.stock === 'number') {
+                return sku.stock;
+            }
+            
+            // Check SKU inventory
+            if (sku.inventory && typeof sku.inventory.quantity === 'number') {
+                return sku.inventory.quantity;
+            }
+            
+            // Check if quantity is directly in SKU
+            if (typeof sku.quantity === 'number') {
+                return sku.quantity;
+            }
+        }
+        
+        // Check if inventory is directly in product
+        if (product.inventory && typeof product.inventory.quantity === 'number') {
+            return product.inventory.quantity;
+        }
+        
+        // Check if quantity is directly in product
+        if (typeof product.quantity === 'number') {
+            return product.quantity;
+        }
+        
+        // Check if stock is used instead of quantity
+        if (typeof product.stock === 'number') {
+            return product.stock;
+        }
+        
+        // Default to available if we can't determine
+        // console.log('Could not determine stock quantity for product:', product);
+        return 1; // Default to available
+    };
 
-      {/* Product Info */}
-      <div className="p-6 space-y-4">
-        {/* Category and Verification */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-lg">{getCategoryIcon(product.category)}</span>
-            <span className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-full">
-              {product.subcategory}
-            </span>
-          </div>
-          {product.verified && (
-            <div className="flex items-center space-x-1 text-green-600">
-              <FontAwesomeIcon icon={faShield} className="text-xs" />
-              <span className="text-xs font-medium">Xác minh</span>
-            </div>
-          )}
-        </div>
+    const discountPercent = getDiscountPercent();
+    const currentPrice = getCurrentPrice();
+    const originalPrice = getOriginalPrice();
+    const productImage = getProductImage();
+    const stockQuantity = getStockQuantity();
 
-        {/* Product Name */}
-        <Link to={`/product/${product._id}`}>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 line-clamp-2 min-h-[3.5rem]">
-            {product.name}
-          </h3>
-          {product.createdAt && (
-            <p className="text-xs text-gray-500 dark:text-gray-400">Ngày thêm: {formatDate(product.createdAt)}</p>
-          )}
-        </Link>
-
-        {/* Description */}
-        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 min-h-[2.5rem]">
-          {product.description}
-        </p>
-
-        {/* Rating */}
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-1">
-            <FontAwesomeIcon icon={faStar} className="text-yellow-400 text-sm" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {product.rating}
-            </span>
-          </div>
-          <span className="text-xs text-gray-500">
-            ({product.reviews} đánh giá)
-          </span>
-        </div>
-
-        {/* Price */}
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="flex items-center space-x-2 mb-1">
-              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                {formatPrice(getMinPrice())}
-              </span>
-              {getDiscountPercentage() > 0 && (
-                <span className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-full font-medium">
-                  -{getDiscountPercentage()}%
-                </span>
-              )}
-            </div>
-            {product.originalPrice && getDiscountPercentage() > 0 && (
-              <span className="text-sm text-gray-400 line-through">
-                {formatPrice(product.originalPrice)}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Add to Cart Button */}
-        <button
-          onClick={handleAddToCart}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium flex items-center justify-center space-x-2 shadow-md hover:shadow-lg group/button"
+    return (
+        <Link 
+            to={`/product/${product._id || product.id}`}
+            className="group block"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
-          <FontAwesomeIcon icon={faShoppingCart} className="text-sm group-hover/button:scale-110 transition-transform duration-200" />
-          <span>Thêm vào giỏ</span>
-        </button>
-      </div>
-    </div>
-  );
-});
+            <div className="bg-white rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border border-gray-100 h-full flex flex-col">
+                {/* Product Image */}
+                <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                    {productImage && productImage !== 'https://via.placeholder.com/300x300/f3f4f6/6b7280?text=No+Image' ? (
+                        <img
+                            src={productImage}
+                            alt={product.name || 'Sản phẩm'}
+                            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 p-2"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                            }}
+                        />
+                    ) : null}
+                    
+                    {/* Fallback placeholder */}
+                    <div 
+                        className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100"
+                        style={{ display: productImage && productImage !== 'https://via.placeholder.com/300x300/f3f4f6/6b7280?text=No+Image' ? 'none' : 'flex' }}
+                    >
+                        <div className="text-center">
+                            <div className="w-16 h-16 mx-auto mb-2 bg-gray-300 rounded-lg flex items-center justify-center">
+                                <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <p className="text-xs text-gray-500 font-medium">Chưa có hình ảnh</p>
+                        </div>
+                    </div>
+                    
+                    {/* Discount Badge */}
+                    {discountPercent > 0 && (
+                        <div className="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                            -{discountPercent}%
+                        </div>
+                    )}
 
-ProductCard.displayName = 'ProductCard';
+                    {/* Action Buttons */}
+                    <div className={`absolute top-4 right-4 flex flex-col space-y-2 transition-all duration-300 ${
+                        isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                    }`}>
+                        <button
+                            onClick={handleWishlist}
+                            className={`w-10 h-10 rounded-full backdrop-blur-md border border-white/20 flex items-center justify-center transition-all duration-300 ${
+                                isWishlisted 
+                                    ? 'bg-red-500 text-white' 
+                                    : 'bg-white/90 text-gray-700 hover:bg-red-500 hover:text-white'
+                            }`}
+                        >
+                            <FontAwesomeIcon icon={faHeart} className="w-4 h-4" />
+                        </button>
+                        <Link
+                            to={`/product/${product._id || product.id}`}
+                            className="w-10 h-10 bg-white/90 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-gray-700 hover:bg-blue-500 hover:text-white transition-all duration-300"
+                        >
+                            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+                        </Link>
+                    </div>
+
+                    {/* Quick Add to Cart - appears on hover */}
+                    <div className={`absolute bottom-4 left-4 right-4 transition-all duration-300 ${
+                        isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                    }`}>
+                        <button
+                            onClick={handleAddToCart}
+                            className="w-full bg-black/90 backdrop-blur-md text-white py-3 rounded-full font-medium hover:bg-black transition-all duration-300 flex items-center justify-center space-x-2"
+                        >
+                            <FontAwesomeIcon icon={faShoppingCart} className="w-4 h-4" />
+                            <span>Thêm vào giỏ</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Product Info */}
+                <div className="p-6 flex-1 flex flex-col justify-between">
+                    {/* Category */}
+                    <div className="text-sm text-gray-500 mb-2 font-medium">
+                        {product.category?.name || 'Sản phẩm'}
+                    </div>
+
+                    {/* Product Name */}
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                        {product.name}
+                    </h3>
+
+                    {/* Rating */}
+                    <div className="flex items-center mb-4">
+                        <div className="flex items-center space-x-1">
+                            {[...Array(5)].map((_, i) => (
+                                <FontAwesomeIcon
+                                    key={i}
+                                    icon={faStar}
+                                    className={`w-4 h-4 ${
+                                        i < (product.rating || 5) ? 'text-yellow-400' : 'text-gray-200'
+                                    }`}
+                                />
+                            ))}
+                        </div>
+                        <span className="text-sm text-gray-500 ml-2">
+                            ({product.reviewCount || 0})
+                        </span>
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex items-center space-x-2">
+                        <span className="text-xl font-bold text-gray-900">
+                            {formatPrice(currentPrice)}
+                        </span>
+                        {originalPrice > currentPrice && (
+                            <span className="text-sm text-gray-500 line-through">
+                                {formatPrice(originalPrice)}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Stock Status */}
+                    <div className="mt-3">
+                        {stockQuantity > 0 ? (
+                            <span className="text-sm text-emerald-600 font-medium">
+                                Còn hàng ({stockQuantity} sản phẩm)
+                            </span>
+                        ) : (
+                            <span className="text-sm text-red-500 font-medium">
+                                Hết hàng
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </Link>
+    );
+};
 
 export default ProductCard;

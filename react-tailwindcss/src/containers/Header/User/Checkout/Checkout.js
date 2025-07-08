@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import UserHeader from '../../UserHeader';
-import './Checkout.scss';
+import Layout from '../../../../components/Layout';
 import { formatCurrency, path } from '../../../../ultils';
 import toast from 'react-hot-toast';
 import { removeFromCart } from '../../../../features/cart/cartSlice';
@@ -12,11 +11,7 @@ export default function Checkout() {
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const [message, setMessage] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
     const { profile } = useSelector(state => state.user);
-
-
 
     useEffect(() => {
         // Check for items in location state
@@ -29,17 +24,40 @@ export default function Checkout() {
         // Validate items
         const validateItems = async () => {
             try {
+                console.log('Validating items:', location.state.items);
+                console.log('User profile:', profile);
+                console.log('User authenticated:', !!profile);
+                
                 const result = await initOrder(location.state.items);
+                console.log('InitOrder result:', result);
+                
                 if (result.errCode !== 0) {
-                    toast.error('Mặt hàng bạn đang yêu cầu không tồn tại hoặc đã hết');
+                    console.error('InitOrder failed:', result);
+                    toast.error(result.message || 'Mặt hàng bạn đang yêu cầu không tồn tại hoặc đã hết');
                     // navigate(path.CART);
+                } else {
+                    console.log('Order validation successful!');
                 }
             } catch (error) {
-                console.error('Validation error:', error);
-                toast.error('Có lỗi xảy ra khi kiểm tra đơn hàng');
-                navigate(path.CART);
+                console.error('Validation error details:', error);
+                console.error('Error response:', error.response?.data);
+                console.error('Error status:', error.response?.status);
+                
+                let errorMessage = 'Có lỗi xảy ra khi kiểm tra đơn hàng';
+                
+                if (error.response?.status === 401) {
+                    errorMessage = 'Bạn cần đăng nhập để thực hiện đặt hàng';
+                } else if (error.response?.status === 400) {
+                    errorMessage = error.response?.data?.message || 'Dữ liệu đơn hàng không hợp lệ';
+                } else if (error.response?.data?.message) {
+                    errorMessage = error.response.data.message;
+                }
+                
+                toast.error(errorMessage);
+                // Temporarily comment out navigation to debug
+                // navigate(path.CART);
             } finally {
-                setIsLoading(false);
+                // Removed setIsLoading call
             }
         };
 
@@ -82,50 +100,115 @@ export default function Checkout() {
     };
 
     return (
-        <>
-            <UserHeader />
-            <div className="checkout-container">
-                <div className="checkout-content">
-                    <div className="order-summary">
-                        <h2>Xác nhận đơn hàng</h2>
-                        <div className="items-list">
-                            {items.map(item => (
-                                <div key={item.skuId} className="checkout-item">
-                                    <img src={item.image} alt={item.name} />
-                                    <div className="item-details">
-                                        <h3>{item.name}</h3>
-                                        <p className="sku-name">{item.skuName}</p>
-                                        <p className="quantity">Số lượng: {item.quantity}</p>
-                                        <p className="price">{formatCurrency(item.price)}₫</p>
+        <Layout>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+                {/* Page Header */}
+                <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-16">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <h1 className="text-4xl font-bold">Xác nhận đơn hàng</h1>
+                        <p className="text-blue-100 text-lg mt-2">
+                            Kiểm tra lại thông tin và hoàn tất đặt hàng
+                        </p>
+                    </div>
+                </div>
+
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+                        {/* Order Summary */}
+                        <div className="p-8">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                                Chi tiết đơn hàng
+                            </h2>
+                            
+                            <div className="space-y-6">
+                                {items.map(item => (
+                                    <div key={item.skuId} className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                                        <img 
+                                            src={item.image} 
+                                            alt={item.name}
+                                            className="w-20 h-20 object-cover rounded-lg"
+                                            onError={(e) => {
+                                                e.target.src = '/default-product.jpg';
+                                            }}
+                                        />
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                {item.name}
+                                            </h3>
+                                            <p className="text-gray-600 dark:text-gray-400 text-sm">
+                                                {item.skuName}
+                                            </p>
+                                            <p className="text-gray-700 dark:text-gray-300 text-sm mt-1">
+                                                Số lượng: {item.quantity}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                {formatCurrency(item.price)}₫
+                                            </p>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                Tổng: {formatCurrency(item.price * item.quantity)}₫
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="item-total">
-                                        {formatCurrency(item.price * item.quantity)}₫
+                                ))}
+                            </div>
+
+                            {/* Payment Summary */}
+                            <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-700 dark:text-gray-300 font-medium">
+                                            Số dư hiện tại:
+                                        </span>
+                                        <span className="text-lg font-semibold text-green-600 dark:text-green-400">
+                                            {formatCurrency(profile?.balance || 0)}₫
+                                        </span>
                                     </div>
+                                    <hr className="border-gray-200 dark:border-gray-600" />
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xl font-bold text-gray-900 dark:text-white">
+                                            Tổng thanh toán:
+                                        </span>
+                                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                            {formatCurrency(total)}₫
+                                        </span>
+                                    </div>
+                                    
+                                    {profile?.balance < total && (
+                                        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                            <p className="text-red-700 dark:text-red-400 text-sm">
+                                                ⚠️ Số dư không đủ để thanh toán. Vui lòng nạp thêm tiền.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
-                            ))}
-                        </div>
-
-                        <div className="payment-info">
-                            <div className="balance-info">
-                                <span>Số dư hiện tại:</span>
-                                <span>{formatCurrency(profile?.balance || 0)}₫</span>
                             </div>
-                            <div className="total-info">
-                                <span>Tổng thanh toán:</span>
-                                <span className="final-total">{formatCurrency(total)}₫</span>
+
+                            {/* Action Buttons */}
+                            <div className="mt-8 flex space-x-4">
+                                <button
+                                    onClick={() => navigate(path.CART)}
+                                    className="flex-1 py-3 px-6 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 font-medium"
+                                >
+                                    Quay lại giỏ hàng
+                                </button>
+                                <button
+                                    onClick={handlePlaceOrder}
+                                    disabled={profile?.balance < total}
+                                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 ${
+                                        profile?.balance < total
+                                            ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-not-allowed'
+                                            : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                                    }`}
+                                >
+                                    {profile?.balance < total ? 'Số dư không đủ' : 'Xác nhận đặt hàng'}
+                                </button>
                             </div>
                         </div>
-
-                        <button
-                            className="place-order-btn"
-                            onClick={handlePlaceOrder}
-                            disabled={profile?.balance < total}
-                        >
-                            Xác nhận đặt hàng
-                        </button>
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }

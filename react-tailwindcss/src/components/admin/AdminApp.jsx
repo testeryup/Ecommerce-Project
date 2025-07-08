@@ -4,7 +4,6 @@ import AdminLayout from './AdminLayout';
 import AdminDashboard from './AdminDashboard';
 import UsersManagement from './UsersManagement';
 import ProductsManagement from './ProductsManagement';
-import TransactionsManagement from './TransactionsManagement';
 import OrdersManagement from './OrdersManagement';
 import AdminSettings from './AdminSettings';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -44,12 +43,11 @@ const AdminApp = () => {
   return (
     <AdminLayout>
       <Routes>
-        <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard/admin/dashboard" replace />} />
         <Route path="/dashboard" element={<AdminDashboard />} />
         <Route path="/users" element={<UsersManagement />} />
         <Route path="/products" element={<ProductsManagement />} />
         <Route path="/orders" element={<OrdersManagement />} />
-        <Route path="/transactions" element={<TransactionsManagement />} />
         <Route path="/reports" element={<ReportsManagement />} />
         <Route path="/settings" element={<SettingsManagement />} />
       </Routes>

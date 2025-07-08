@@ -1,6 +1,5 @@
 import React from 'react';
-import Header from "./Header";
-import Footer from "./Footer";
+import Layout from "./Layout";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faUsers, 
@@ -86,9 +85,7 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-      <Header />
-      
+    <Layout>
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -310,9 +307,7 @@ const About = () => {
           </div>
         </div>
       </div>
-
-      <Footer />
-    </div>
+    </Layout>
   );
 };
 

@@ -1,21 +1,51 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../features/cart/cartSlice';
+import toast from 'react-hot-toast';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faCrown, faPlay, faDesktop, faMusic, faBolt, faGamepad,
   faSort
 } from '@fortawesome/free-solid-svg-icons';
-import LoadingSpinner from './LoadingSpinner';
 import ProductGridSkeleton from './ProductGridSkeleton';
 import ProductCard from './ProductCard';
 import productService from '../services/productService';
 
 const ProductGrid = ({ filters = {}, onProductClick }) => {
+  const dispatch = useDispatch();
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortBy, setSortBy] = useState('featured');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
+  // Handle add to cart
+  const handleAddToCart = useCallback((product) => {
+    console.log('ProductGrid handleAddToCart called with:', product);
+    
+    if (!product) {
+      toast.error('Sản phẩm không hợp lệ');
+      return;
+    }
+    
+    if (!product.skus || product.skus.length === 0) {
+      toast.error('Sản phẩm không có phiên bản để thêm vào giỏ');
+      return;
+    }
+    
+    try {
+      dispatch(addToCart({
+        product: product,
+        sku: product.skus[0], // Use first SKU as default
+        quantity: 1
+      }));
+      toast.success('Đã thêm vào giỏ hàng');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
+    }
+  }, [dispatch]);
+
   // Cache để tránh fetch lại dữ liệu
   const [productCache, setProductCache] = useState({});
 
@@ -73,7 +103,8 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
 
     // Cleanup function
     return () => clearTimeout(timeoutId);
-  }, [activeFilter]); // Bỏ productCache khỏi dependency để tránh infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFilter]); // Intentionally exclude productCache to avoid infinite loop
 
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
@@ -238,7 +269,11 @@ const ProductGrid = ({ filters = {}, onProductClick }) => {
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {sortedProducts.map((product) => (
-            <ProductCard key={product._id} product={product} />
+            <ProductCard 
+              key={product._id} 
+              product={product} 
+              onAddToCart={handleAddToCart}
+            />
           ))}
         </div>
 

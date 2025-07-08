@@ -6,7 +6,7 @@ export const path = {
     SIGNUP: '/signup',
     USER_DASHBOARD: '/dashboard/user',
     SELLER_DASHBOARD: '/dashboard/seller',
-    ADMIN_DASHBOARD: '/admin/dashboard',
+    ADMIN_DASHBOARD: '/dashboard/admin',
     UNAUTHORIZED: '/unauthorized',
     PROFILE: '/profile',
     PRODUCT: '/product/:productId',

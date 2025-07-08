@@ -1,83 +1,51 @@
-import './UserProfile.scss';
-import UserHeader from '../UserHeader';
-import { useSelector } from 'react-redux';
+import Layout from '../../../components/Layout';
+import UserProfileComponent from '../../../components/user/UserProfile';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateUserProfile } from '../../../services/userService';
+import { fetchUserProfile } from '../../../features/user/userSlice';
 import Loading from '../../../components/Loading';
-import { formatCurrency } from '../../../ultils';
+import { AlertCircle } from 'lucide-react';
 
 export default function UserProfile() {
+    const dispatch = useDispatch();
     const { profile, loading, error } = useSelector(state => state.user);
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleString('vi-VN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        });
+    const handleUpdateProfile = async (data) => {
+        try {
+            await updateUserProfile(data);
+            // Refresh profile data
+            await dispatch(fetchUserProfile());
+        } catch (error) {
+            throw error;
+        }
     };
 
-    if (loading) return <Loading />;
-    if (error) return <div className="error-message">Error: {error}</div>;
-
-    return (
-        <>
-            <UserHeader />
-            <div className='profile-container'>
-                <div className='profile-content'>
-                    <div className='profile-header'>
-                        <h1>Thông tin tài khoản</h1>
-                    </div>
-                    
-                    <div className='profile-grid'>
-                        <div className='profile-avatar'>
-                            <div className='avatar'></div>
-                            <button className='change-avatar-btn'>
-                                <i className="fas fa-camera"></i>
-                                Đổi ảnh đại diện
-                            </button>
-                            <div className='user-status'>
-                                <span className={`status-badge ${profile?.status?.toLowerCase()}`}>
-                                    {profile?.status || 'Chưa xác định'}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className='profile-details'>
-                            <div className='detail-group'>
-                                <label>Tên người dùng</label>
-                                <div className='detail-value'>{profile?.username || 'Chưa cập nhật'}</div>
-                            </div>
-
-                            <div className='detail-group'>
-                                <label>Email</label>
-                                <div className='detail-value'>{profile?.email || 'Chưa cập nhật'}</div>
-                            </div>
-
-                            <div className='detail-group'>
-                                <label>Số dư tài khoản</label>
-                                <div className='detail-value highlight'>
-                                    {profile?.balance >= 0 ? formatCurrency(profile.balance) : 0}₫
-                                </div>
-                            </div>
-
-                            <div className='detail-group'>
-                                <label>Vai trò</label>
-                                <div className='detail-value role'>
-                                    <i className="fas fa-user-shield"></i>
-                                    {profile?.role || 'Chưa cập nhật'}
-                                </div>
-                            </div>
-
-                            <div className='detail-group'>
-                                <label>Ngày tham gia</label>
-                                <div className='detail-value'>
-                                    <i className="far fa-calendar-alt"></i>
-                                    {profile?.createdAt ? formatDate(profile.createdAt) : 'Chưa cập nhật'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    if (loading) return (
+        <Layout>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+                <Loading />
+            </div>
+        </Layout>
+    );
+    
+    if (error) return (
+        <Layout>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+                <div className="text-center">
+                    <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                    <p className="text-red-600 dark:text-red-400 text-lg">Error: {error}</p>
                 </div>
             </div>
-        </>
+        </Layout>
+    );
+
+    return (
+        <Layout>
+            <UserProfileComponent 
+                profile={profile}
+                loading={loading}
+                onUpdateProfile={handleUpdateProfile}
+            />
+        </Layout>
     );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,18 +7,24 @@ import {
   faShoppingCart, 
   faUser, 
   faBars, 
-  faHome,
-  faStore,
-  faGamepad,
-  faDownload,
-  faHeart
+  faChevronDown,
+  faSignOutAlt,
+  faReceipt,
+  faHeart,
+  faHeadset,
+  faTimes
 } from '@fortawesome/free-solid-svg-icons';
 import { logout } from '../features/auth/authSlice';
-import DarkModeToggle from './DarkModeToggle';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const userMenuRef = useRef(null);
+  const searchRef = useRef(null);
   
   // Add safe selectors with default values
   const auth = useSelector(state => state.auth || {});
@@ -30,11 +36,65 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      // Navigate to products page with search query
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery(''); // Clear search after submitting
+      setShowSuggestions(false); // Hide suggestions
     }
+  };
+
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Show suggestions when typing
+    if (value.trim()) {
+      // Mock search suggestions - in real app, you'd fetch from API
+      const mockSuggestions = [
+        'Key Windows 11 Pro',
+        'Tài khoản Zoom Pro',
+        'Spotify',
+        'iQIYI',
+        'iQIYI',
+        'ChatGpt Plus',
+        'Youtube Premium',
+        'Netflix Premium',
+        'Microsoft Office 2021'
+      ].filter(item => 
+        item.toLowerCase().includes(value.toLowerCase())
+      ).slice(0, 5);
+      
+      setSearchSuggestions(mockSuggestions);
+      setShowSuggestions(mockSuggestions.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion);
+    navigate(`/products?search=${encodeURIComponent(suggestion)}`);
+    setShowSuggestions(false);
   };
 
   const handleLogout = () => {
@@ -45,108 +105,115 @@ const Header = () => {
   const cartItemCount = items?.reduce((total, item) => total + item.quantity, 0) || 0;
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 transition-all duration-300">
-      {/* Top Navigation - Clean White Design */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-50 dark:border-gray-800 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-12 text-sm">
-            <div className="flex items-center space-x-8">
-              <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium flex items-center space-x-2">
-                <span className="text-lg">🐙</span>
-                <span>OCTOPUS Store</span>
-              </Link>
-              {/* <div className="hidden md:flex items-center space-x-6">
-                <Link to="/subscriptions" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200">
-                  Gói dịch vụ
-                </Link>
-                <Link to="/apps" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200">
-                  Ứng dụng
-                </Link>
-                <Link to="/support" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200">
-                  Hỗ trợ
-                </Link>
-              </div> */}
+    <header className="bg-white/95 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
+      {/* Main Navigation - Apple Style */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors duration-200">
+              <span className="text-2xl">🐙</span>
             </div>
-            <div className="flex items-center space-x-4">
-              {isAuthenticated ? (
-                <>
-                  <span className="text-gray-600 dark:text-gray-300 text-sm">Xin chào, {user?.firstName}</span>
-                  <button 
-                    onClick={handleLogout}
-                    className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-200 font-medium text-sm"
-                  >
-                    Đăng xuất
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
-                    Đăng nhập
-                  </Link>
-                  <Link to="/signup" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
-                    Đăng ký
-                  </Link>
-                </>
+            <span className="text-xl font-semibold text-gray-900 group-hover:text-gray-700 transition-colors">
+              Octopus Store
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link to="/" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+              Trang chủ
+            </Link>
+            <Link to="/products" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+              Sản phẩm
+            </Link>
+            <Link to="/about" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+              Giới thiệu
+            </Link>
+            <Link to="/support" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+              Hỗ trợ
+            </Link>
+          </nav>
+
+          {/* Search Bar - Apple style */}
+          <div className="hidden lg:flex items-center">
+            <div ref={searchRef} className="relative">
+              <form onSubmit={handleSearch}>
+                <div className={`flex items-center bg-gray-100 rounded-full transition-all duration-300 ${
+                  isSearchFocused ? 'bg-white shadow-md ring-2 ring-blue-500/20' : 'hover:bg-gray-200'
+                }`}>
+                  <FontAwesomeIcon 
+                    icon={faSearch} 
+                    className="w-4 h-4 text-gray-500 ml-4"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm sản phẩm..."
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                    onFocus={() => {
+                      setIsSearchFocused(true);
+                      if (searchQuery.trim()) setShowSuggestions(true);
+                    }}
+                    onBlur={() => {
+                      setIsSearchFocused(false);
+                      // Delay hiding suggestions to allow click
+                      setTimeout(() => setShowSuggestions(false), 150);
+                    }}
+                    className="bg-transparent px-4 py-3 w-64 text-gray-900 placeholder-gray-500 focus:outline-none"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setShowSuggestions(false);
+                      }}
+                      className="p-2 mr-2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              </form>
+
+              {/* Search Suggestions */}
+              {showSuggestions && searchSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 max-h-64 overflow-y-auto">
+                  {searchSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center space-x-3"
+                    >
+                      <FontAwesomeIcon icon={faSearch} className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-900">{suggestion}</span>
+                    </button>
+                  ))}
+                  
+                  <div className="border-t border-gray-100 mt-2 pt-2">
+                    <button
+                      onClick={() => handleSuggestionClick(searchQuery)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center space-x-3"
+                    >
+                      <FontAwesomeIcon icon={faSearch} className="w-4 h-4 text-blue-500" />
+                      <span className="text-blue-600 font-medium">
+                        Tìm kiếm "{searchQuery}"
+                      </span>
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Main Header - Modern Clean Design */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo - Enhanced */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
-                <span className="text-white text-lg font-bold">🐙</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-2xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">OCTOPUS</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 -mt-1">Digital Store</span>
-              </div>
-            </Link>
-          </div>
-
-          {/* Search Bar - Enhanced Clean Design */}
-          <div className="flex-1 max-w-2xl mx-8">
-            <form onSubmit={handleSearch} className="relative">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Tìm kiếm sản phẩm, dịch vụ..."
-                  className="w-full px-6 py-4 pl-14 pr-24 text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-700 transition-all duration-300 placeholder-gray-400 dark:placeholder-gray-500 text-lg shadow-sm hover:shadow-md"
-                />
-                <FontAwesomeIcon 
-                  icon={faSearch} 
-                  className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 text-lg"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200 text-sm font-semibold shadow-md hover:shadow-lg active:scale-95"
-                >
-                  Tìm kiếm
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Right Menu - Clean Icons */}
+          {/* Right Actions */}
           <div className="flex items-center space-x-4">
-            {/* Dark Mode Toggle */}
-            <DarkModeToggle />
-            
-            {/* Cart - Enhanced */}
-            <Link 
-              to="/cart" 
-              className="relative p-3 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 group"
-            >
-              <FontAwesomeIcon icon={faShoppingCart} className="text-xl group-hover:scale-110 transition-transform duration-200" />
+            {/* Cart */}
+            <Link to="/cart" className="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
+              <FontAwesomeIcon icon={faShoppingCart} className="w-5 h-5" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-semibold animate-pulse shadow-lg">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                   {cartItemCount}
                 </span>
               )}
@@ -154,124 +221,166 @@ const Header = () => {
 
             {/* User Menu */}
             {isAuthenticated ? (
-              <div className="relative">
-                <Link 
-                  to="/profile"
-                  className="flex items-center space-x-2 p-3 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 group"
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center space-x-2 p-2 text-gray-700 hover:text-gray-900 transition-colors"
                 >
-                  <FontAwesomeIcon icon={faUser} className="text-xl group-hover:scale-110 transition-transform duration-200" />
-                </Link>
+                  <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                    <FontAwesomeIcon icon={faUser} className="w-4 h-4" />
+                  </div>
+                  <span className="hidden lg:block font-medium">{user?.firstName}</span>
+                  <FontAwesomeIcon icon={faChevronDown} className="w-3 h-3" />
+                </button>
+
+                {/* User Dropdown */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="font-semibold text-gray-900">{user?.firstName} {user?.lastName}</p>
+                      <p className="text-sm text-gray-500">{user?.email}</p>
+                    </div>
+                    
+                    <div className="py-2">
+                      <Link to="/profile" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
+                        <FontAwesomeIcon icon={faUser} className="w-4 h-4 mr-3" />
+                        Thông tin cá nhân
+                      </Link>
+                      <Link to="/orders" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
+                        <FontAwesomeIcon icon={faReceipt} className="w-4 h-4 mr-3" />
+                        Đơn hàng của tôi
+                      </Link>
+                      <Link to="/wishlist" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
+                        <FontAwesomeIcon icon={faHeart} className="w-4 h-4 mr-3" />
+                        Yêu thích
+                      </Link>
+                      <Link to="/support" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
+                        <FontAwesomeIcon icon={faHeadset} className="w-4 h-4 mr-3" />
+                        Hỗ trợ
+                      </Link>
+                    </div>
+                    
+                    <div className="border-t border-gray-100 pt-2">
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faSignOutAlt} className="w-4 h-4 mr-3" />
+                        Đăng xuất
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
-              <Link 
-                to="/login" 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
-              >
-                Đăng nhập
-              </Link>
+              <div className="flex items-center space-x-3">
+                <Link 
+                  to="/login" 
+                  className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                >
+                  Đăng nhập
+                </Link>
+                <Link 
+                  to="/signup" 
+                  className="bg-black text-white px-6 py-2 rounded-full font-medium hover:bg-gray-800 transition-colors"
+                >
+                  Đăng ký
+                </Link>
+              </div>
             )}
 
             {/* Mobile Menu Button */}
-            <button 
-              className="md:hidden p-3 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
+            <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 text-gray-700 hover:text-gray-900 transition-colors"
             >
-              <FontAwesomeIcon icon={faBars} className="text-xl" />
+              <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} className="w-5 h-5" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Navigation Menu - Clean White Design */}
-      <nav className="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
-            <div className="flex items-center space-x-8">
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="md:hidden bg-white border-t border-gray-100">
+          <div className="px-4 py-4 space-y-4">
+            {/* Mobile Search */}
+            <form onSubmit={handleSearch} className="relative">
+              <div className="flex items-center bg-gray-100 rounded-full">
+                <FontAwesomeIcon 
+                  icon={faSearch} 
+                  className="w-4 h-4 text-gray-500 ml-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm sản phẩm..."
+                  value={searchQuery}
+                  onChange={handleSearchInputChange}
+                  className="bg-transparent px-4 py-3 w-full text-gray-900 placeholder-gray-500 focus:outline-none"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="p-2 mr-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {/* Mobile Navigation */}
+            <nav className="space-y-2">
               <Link 
                 to="/" 
-                className="flex items-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 group"
+                className="block py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                onClick={() => setIsMenuOpen(false)}
               >
-                <FontAwesomeIcon icon={faHome} className="text-sm group-hover:scale-110 transition-transform duration-200" />
-                <span className="font-medium">Trang chủ</span>
+                Trang chủ
               </Link>
               <Link 
                 to="/products" 
-                className="flex items-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 group"
+                className="block py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                onClick={() => setIsMenuOpen(false)}
               >
-                <FontAwesomeIcon icon={faStore} className="text-sm group-hover:scale-110 transition-transform duration-200" />
-                <span className="font-medium">Sản phẩm</span>
-              </Link>
-              <Link 
-                to="/entertainment" 
-                className="flex items-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 group"
-              >
-                <FontAwesomeIcon icon={faGamepad} className="text-sm group-hover:scale-110 transition-transform duration-200" />
-                <span className="font-medium">Giải trí</span>
-              </Link>
-              <Link 
-                to="/productivity" 
-                className="flex items-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 group"
-              >
-                <FontAwesomeIcon icon={faDownload} className="text-sm group-hover:scale-110 transition-transform duration-200" />
-                <span className="font-medium">Năng suất</span>
+                Sản phẩm
               </Link>
               <Link 
                 to="/about" 
-                className="flex items-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 group"
+                className="block py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                onClick={() => setIsMenuOpen(false)}
               >
-                <FontAwesomeIcon icon={faHeart} className="text-sm group-hover:scale-110 transition-transform duration-200" />
-                <span className="font-medium">Về chúng tôi</span>
+                Giới thiệu
               </Link>
-            </div>
-            <div className="hidden md:flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-              <Link to="/support" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
+              <Link 
+                to="/support" 
+                className="block py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Hỗ trợ
               </Link>
-              {/* <span className="text-gray-300 dark:text-gray-600">|</span> */}
-              {/* <Link to="/download" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
-                Tải xuống
-              </Link> */}
-            </div>
-          </div>
-        </div>
-      </nav>
+            </nav>
 
-      {/* Mobile Menu - Clean Design */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 shadow-lg transition-colors duration-300">
-          <div className="px-4 py-4 space-y-2">
-            <Link 
-              to="/" 
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition-all duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <FontAwesomeIcon icon={faHome} className="text-sm" />
-              <span className="font-medium">Trang chủ</span>
-            </Link>
-            <Link 
-              to="/products" 
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition-all duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <FontAwesomeIcon icon={faStore} className="text-sm" />
-              <span className="font-medium">Sản phẩm</span>
-            </Link>
-            <Link 
-              to="/entertainment" 
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition-all duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <FontAwesomeIcon icon={faGamepad} className="text-sm" />
-              <span className="font-medium">Giải trí</span>
-            </Link>
-            <Link 
-              to="/about" 
-              className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition-all duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <FontAwesomeIcon icon={faHeart} className="text-sm" />
-              <span className="font-medium">Về chúng tôi</span>
-            </Link>
+            {/* Mobile Auth */}
+            {!isAuthenticated && (
+              <div className="pt-4 border-t border-gray-100 space-y-3">
+                <Link 
+                  to="/login" 
+                  className="block w-full text-center py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Đăng nhập
+                </Link>
+                <Link 
+                  to="/signup" 
+                  className="block w-full text-center bg-black text-white py-2 rounded-full font-medium hover:bg-gray-800 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Đăng ký
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}

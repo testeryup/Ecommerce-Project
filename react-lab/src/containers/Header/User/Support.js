@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import UserHeader from '../UserHeader';
+import Layout from '../../../components/Layout';
 import './Support.scss';
 
 const Support = () => {
@@ -35,8 +35,7 @@ const Support = () => {
     };
 
     return (
-        <>
-            <UserHeader />
+        <Layout>
             <div className="support-container">
                 <div className="support-content">
                     <div className="support-header">
@@ -113,7 +112,7 @@ const Support = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 };
 

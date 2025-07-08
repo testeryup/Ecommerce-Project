@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
+import Button from '../ui/Button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Progress } from '../ui/progress';
 import { 
@@ -350,6 +350,12 @@ const UserDashboard = () => {
                     <Button variant="outline" className="w-full justify-start">
                       <User className="h-4 w-4 mr-2" />
                       Cập nhật hồ sơ
+                    </Button>
+                  </Link>
+                  <Link to="/transactions" className="w-full">
+                    <Button variant="outline" className="w-full justify-start">
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Lịch sử giao dịch
                     </Button>
                   </Link>
                   <Link to="/support" className="w-full">

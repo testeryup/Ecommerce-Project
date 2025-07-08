@@ -23,7 +23,7 @@ import {
     faHeart,
     faShare
 } from '@fortawesome/free-solid-svg-icons';
-import UserHeader from '../Header/UserHeader';
+import Layout from '../../components/Layout';
 
 export default function ProductDetail() {
     const [selectedImage, setSelectedImage] = useState(0);
@@ -37,6 +37,14 @@ export default function ProductDetail() {
     const [isFavorite, setIsFavorite] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    // Scroll to top when component mounts or productId changes
+    useEffect(() => {
+        window.scrollTo({ 
+            top: 0, 
+            behavior: 'smooth' 
+        });
+    }, [productId]);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -59,6 +67,15 @@ export default function ProductDetail() {
     }, [productId]);
 
     const handleAddToCart = () => {
+        if (!product) {
+            toast.error('Không tìm thấy thông tin sản phẩm');
+            return;
+        }
+        if (!selectedSku) {
+            toast.error('Vui lòng chọn phiên bản sản phẩm');
+            return;
+        }
+        
         dispatch(addToCart({
             product,
             sku: selectedSku,
@@ -68,6 +85,15 @@ export default function ProductDetail() {
     };
 
     const handleBuyNow = () => {
+        if (!product) {
+            toast.error('Không tìm thấy thông tin sản phẩm');
+            return;
+        }
+        if (!selectedSku) {
+            toast.error('Vui lòng chọn phiên bản sản phẩm');
+            return;
+        }
+        
         dispatch(addToCart({
             product,
             sku: selectedSku,
@@ -83,24 +109,22 @@ export default function ProductDetail() {
                     skuName: selectedSku.name,
                     price: selectedSku.price,
                     quantity: selectedQuantity,
-                    image: product.images[0]
+                    image: (product.images && product.images[0]) || product.thumbnail || product.imageUrl || ''
                 }]
             }
         });
     };
 
     if (loading) return (
-        <>
-            <UserHeader />
+        <Layout>
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
                 <Loading />
             </div>
-        </>
+        </Layout>
     );
 
     if (error) return (
-        <>
-            <UserHeader />
+        <Layout>
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
                 <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
                     <FontAwesomeIcon icon={faTimesCircle} className="text-red-500 text-6xl mb-4" />
@@ -114,12 +138,11 @@ export default function ProductDetail() {
                     </button>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 
     if (!product) return (
-        <>
-            <UserHeader />
+        <Layout>
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
                 <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
                     <FontAwesomeIcon icon={faStore} className="text-gray-400 text-6xl mb-4" />
@@ -133,263 +156,273 @@ export default function ProductDetail() {
                     </button>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 
     const maxQuantity = Math.min(selectedSku.stock || 0, 10);
 
     return (
-        <>
-            <UserHeader />
-            <div className="min-h-screen bg-gray-50">
-                {/* Breadcrumb */}
-                <div className="bg-white border-b">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+        <Layout>
+            <div className="min-h-screen bg-white">
+                {/* Header Navigation */}
+                <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16">
                             <button 
                                 onClick={() => navigate(-1)}
-                                className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
+                                className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
                             >
-                                <FontAwesomeIcon icon={faArrowLeft} />
-                                <span>Quay lại</span>
+                                <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
+                                <span className="font-medium">Quay lại</span>
                             </button>
-                            <span>/</span>
-                            <span className="text-gray-400">{product.category}</span>
-                            <span>/</span>
-                            <span className="text-gray-800 font-medium truncate">{product.name}</span>
+                            
+                            <div className="flex items-center space-x-4">
+                                <button 
+                                    onClick={() => setIsFavorite(!isFavorite)}
+                                    className={`p-2 rounded-full transition-all duration-200 ${
+                                        isFavorite 
+                                            ? 'text-red-500 bg-red-50' 
+                                            : 'text-gray-400 hover:text-red-500 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    <FontAwesomeIcon icon={faHeart} className="w-5 h-5" />
+                                </button>
+                                <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-all duration-200">
+                                    <FontAwesomeIcon icon={faShare} className="w-5 h-5" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                {/* Main Content */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                         {/* Product Gallery */}
-                        <div className="space-y-4">
-                            <div className="relative">
-                                <div 
-                                    className={`relative overflow-hidden rounded-lg bg-white shadow-lg cursor-zoom-in transition-transform duration-300 ${isImageZoomed ? 'scale-105' : ''}`}
+                        <div className="space-y-8">
+                            {/* Main Image */}
+                            <div className="relative aspect-square bg-gray-50 rounded-3xl overflow-hidden group">
+                                <img 
+                                    src={
+                                        (product.images && product.images[selectedImage]) || 
+                                        product.thumbnail || 
+                                        product.imageUrl || 
+                                        'https://via.placeholder.com/600x600/f9fafb/9ca3af?text=Hình+ảnh'
+                                    } 
+                                    alt={product.name}
+                                    className="w-full h-full object-contain p-12 transition-transform duration-700 group-hover:scale-105"
+                                />
+                                
+                                {/* Zoom Button */}
+                                <button 
                                     onClick={() => setIsImageZoomed(!isImageZoomed)}
+                                    className="absolute bottom-6 right-6 bg-white/90 backdrop-blur-sm text-gray-700 px-4 py-2 rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white shadow-lg"
                                 >
-                                    <img 
-                                        src={product.images[selectedImage]} 
-                                        alt={product.name}
-                                        className="w-full h-96 sm:h-[500px] object-cover"
-                                    />
-                                    <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm flex items-center space-x-2">
-                                        <FontAwesomeIcon icon={faSearchPlus} />
-                                        <span>Phóng to</span>
-                                    </div>
-                                </div>
+                                    <FontAwesomeIcon icon={faSearchPlus} className="w-4 h-4 mr-2" />
+                                    Phóng to
+                                </button>
                             </div>
                             
-                            {/* Thumbnails */}
-                            <div className="flex space-x-2 overflow-x-auto pb-2">
-                                {product.images.map((img, index) => (
-                                    <button
-                                        key={index}
-                                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                                            selectedImage === index 
-                                                ? 'border-blue-500 ring-2 ring-blue-200' 
-                                                : 'border-gray-200 hover:border-gray-300'
-                                        }`}
-                                        onClick={() => setSelectedImage(index)}
-                                    >
-                                        <img 
-                                            src={img} 
-                                            alt={`${product.name} view ${index + 1}`}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </button>
-                                ))}
-                            </div>
+                            {/* Thumbnail Navigation */}
+                            {product.images && product.images.length > 1 && (
+                                <div className="flex space-x-4 justify-center overflow-x-auto pb-2">
+                                    {product.images.map((img, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => setSelectedImage(index)}
+                                            className={`flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
+                                                selectedImage === index 
+                                                    ? 'border-gray-900 ring-4 ring-gray-100' 
+                                                    : 'border-gray-200 hover:border-gray-300'
+                                            }`}
+                                        >
+                                            <img 
+                                                src={img} 
+                                                alt={`${product.name} ${index + 1}`}
+                                                className="w-full h-full object-contain bg-gray-50"
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
-                        {/* Product Info */}
-                        <div className="space-y-6">
+                        {/* Product Information */}
+                        <div className="space-y-8">
                             {/* Header */}
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-                                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                    <FontAwesomeIcon icon={faStore} className="text-blue-600" />
-                                    <span>Cung cấp bởi</span>
-                                    <button className="text-blue-600 hover:text-blue-800 font-medium">
-                                        {product.seller.username}
-                                    </button>
+                            <div className="space-y-4">
+                                <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">
+                                    {product.category?.name || product.categoryName || 'Sản phẩm'}
                                 </div>
-                            </div>
-
-                            {/* Rating & Actions */}
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-1">
-                                    {[...Array(5)].map((_, i) => (
-                                        <FontAwesomeIcon 
-                                            key={i} 
-                                            icon={faStar} 
-                                            className={`text-sm ${i < 4 ? 'text-yellow-400' : 'text-gray-300'}`} 
-                                        />
-                                    ))}
-                                    <span className="text-sm text-gray-600 ml-2">(4.2) • 89 đánh giá</span>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                    <button 
-                                        onClick={() => setIsFavorite(!isFavorite)}
-                                        className={`p-2 rounded-full transition-colors ${
-                                            isFavorite ? 'text-red-500 bg-red-50' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-                                        }`}
-                                    >
-                                        <FontAwesomeIcon icon={faHeart} />
-                                    </button>
-                                    <button className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-full transition-colors">
-                                        <FontAwesomeIcon icon={faShare} />
-                                    </button>
+                                
+                                <h1 className="text-4xl font-semibold text-gray-900 leading-tight tracking-tight">
+                                    {product.name}
+                                </h1>
+                                
+                                {/* Rating */}
+                                <div className="flex items-center space-x-3 pt-2">
+                                    <div className="flex items-center space-x-1">
+                                        {[...Array(5)].map((_, i) => (
+                                            <FontAwesomeIcon 
+                                                key={i} 
+                                                icon={faStar} 
+                                                className={`w-4 h-4 ${i < 4 ? 'text-yellow-400' : 'text-gray-200'}`} 
+                                            />
+                                        ))}
+                                    </div>
+                                    <span className="text-sm text-gray-600">4.2 (89 đánh giá)</span>
                                 </div>
                             </div>
 
                             {/* Price */}
-                            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
+                            <div className="space-y-2">
                                 <div className="flex items-baseline space-x-2">
-                                    <span className="text-3xl font-bold text-blue-600">
-                                        {formatCurrency(selectedSku.price)}
+                                    <span className="text-4xl font-semibold text-gray-900">
+                                        {formatCurrency(selectedSku.price)}₫
                                     </span>
-                                    <span className="text-xl text-blue-600">₫</span>
                                     {selectedSku.originalPrice > selectedSku.price && (
-                                        <>
-                                            <span className="text-lg text-gray-500 line-through">
-                                                {formatCurrency(selectedSku.originalPrice)}₫
-                                            </span>
-                                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                                                -{Math.round((1 - selectedSku.price/selectedSku.originalPrice) * 100)}%
-                                            </span>
-                                        </>
+                                        <span className="text-xl text-gray-400 line-through">
+                                            {formatCurrency(selectedSku.originalPrice)}₫
+                                        </span>
                                     )}
+                                </div>
+                                
+                                {selectedSku.originalPrice > selectedSku.price && (
+                                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-red-50 text-red-700 text-sm font-medium">
+                                        Tiết kiệm {Math.round((1 - selectedSku.price/selectedSku.originalPrice) * 100)}%
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* SKU Selection */}
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-semibold text-gray-900">Chọn phiên bản</h3>
+                                <div className="space-y-3">
+                                    {product.skus.map(sku => (
+                                        <button
+                                            key={sku._id}
+                                            onClick={() => setSelectedSku(sku)}
+                                            className={`w-full p-4 rounded-2xl border text-left transition-all duration-200 ${
+                                                selectedSku._id === sku._id
+                                                    ? 'border-gray-900 bg-gray-50'
+                                                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                                            }`}
+                                        >
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <div className="font-medium text-gray-900">{sku.name}</div>
+                                                    <div className="text-sm text-gray-500">Còn {sku.stock} sản phẩm</div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="font-semibold text-gray-900">
+                                                        {formatCurrency(sku.price)}₫
+                                                    </div>
+                                                    {sku.originalPrice > sku.price && (
+                                                        <div className="text-sm text-gray-400 line-through">
+                                                            {formatCurrency(sku.originalPrice)}₫
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
 
-                            {/* Options */}
+                            {/* Quantity */}
                             <div className="space-y-4">
-                                {/* SKU Selection */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Chọn gói:
-                                    </label>
-                                    <div className="grid grid-cols-1 gap-2">
-                                        {product.skus.map(sku => (
-                                            <button
-                                                key={sku._id}
-                                                onClick={() => setSelectedSku(sku)}
-                                                className={`p-3 rounded-lg border text-left transition-colors ${
-                                                    selectedSku._id === sku._id
-                                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                                                }`}
-                                            >
-                                                <div className="flex justify-between items-center">
-                                                    <span className="font-medium">{sku.name}</span>
-                                                    <span className="font-semibold text-blue-600">
-                                                        {formatCurrency(sku.price)}₫
-                                                    </span>
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Quantity */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Số lượng:
-                                    </label>
-                                    <div className="flex items-center space-x-3">
+                                <h3 className="text-lg font-semibold text-gray-900">Số lượng</h3>
+                                <div className="flex items-center space-x-4">
+                                    <div className="flex items-center border border-gray-200 rounded-xl">
                                         <button 
                                             onClick={() => setSelectedQuantity(Math.max(1, selectedQuantity - 1))}
                                             disabled={selectedQuantity === 1}
-                                            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            className="p-3 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-l-xl"
                                         >
-                                            <FontAwesomeIcon icon={faMinus} />
+                                            <FontAwesomeIcon icon={faMinus} className="w-4 h-4" />
                                         </button>
                                         <input
                                             type="number"
                                             value={selectedQuantity}
                                             onChange={(e) => setSelectedQuantity(Math.max(1, Math.min(maxQuantity, parseInt(e.target.value) || 1)))}
-                                            className="w-20 text-center border border-gray-300 rounded-lg py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                            className="w-16 text-center border-0 focus:ring-0 font-medium"
                                             min="1"
                                             max={maxQuantity}
                                         />
                                         <button 
                                             onClick={() => setSelectedQuantity(Math.min(maxQuantity, selectedQuantity + 1))}
                                             disabled={selectedQuantity === maxQuantity}
-                                            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            className="p-3 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-r-xl"
                                         >
-                                            <FontAwesomeIcon icon={faPlus} />
+                                            <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
                                         </button>
-                                        <span className="text-sm text-gray-500">
-                                            (Tối đa {maxQuantity})
-                                        </span>
                                     </div>
+                                    <span className="text-sm text-gray-500">Tối đa {maxQuantity}</span>
                                 </div>
                             </div>
 
                             {/* Stock Status */}
                             <div className="flex items-center space-x-2">
-                                <FontAwesomeIcon 
-                                    icon={selectedSku.stock > 0 ? faCheckCircle : faTimesCircle}
-                                    className={selectedSku.stock > 0 ? 'text-green-500' : 'text-red-500'}
-                                />
-                                <span className={`font-medium ${selectedSku.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                    {selectedSku.stock > 0 ? `Còn ${selectedSku.stock} sản phẩm` : 'Hết hàng'}
+                                <div className={`w-2 h-2 rounded-full ${
+                                    selectedSku.stock > 0 ? 'bg-green-500' : 'bg-red-500'
+                                }`}></div>
+                                <span className={`text-sm font-medium ${
+                                    selectedSku.stock > 0 ? 'text-green-600' : 'text-red-600'
+                                }`}>
+                                    {selectedSku.stock > 0 ? 'Còn hàng' : 'Hết hàng'}
                                 </span>
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <button 
-                                    onClick={handleAddToCart}
-                                    disabled={selectedSku.stock === 0}
-                                    className="flex items-center justify-center space-x-2 py-3 px-6 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-                                >
-                                    <FontAwesomeIcon icon={faShoppingCart} />
-                                    <span>Thêm vào giỏ</span>
-                                </button>
+                            <div className="space-y-4 pt-4">
                                 <button 
                                     onClick={handleBuyNow}
                                     disabled={selectedSku.stock === 0}
-                                    className="flex items-center justify-center space-x-2 py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                                    className="w-full bg-gray-900 text-white py-4 rounded-xl font-medium text-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-3"
                                 >
-                                    <FontAwesomeIcon icon={faBolt} />
+                                    <FontAwesomeIcon icon={faBolt} className="w-5 h-5" />
                                     <span>Mua ngay</span>
+                                </button>
+                                
+                                <button 
+                                    onClick={handleAddToCart}
+                                    disabled={selectedSku.stock === 0}
+                                    className="w-full border-2 border-gray-900 text-gray-900 py-4 rounded-xl font-medium text-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-3"
+                                >
+                                    <FontAwesomeIcon icon={faShoppingCart} className="w-5 h-5" />
+                                    <span>Thêm vào giỏ</span>
                                 </button>
                             </div>
 
                             {/* Features */}
-                            <div className="bg-gray-50 rounded-lg p-4">
-                                <h3 className="font-semibold text-gray-800 mb-3">Ưu điểm nổi bật</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div className="flex items-start space-x-3">
-                                        <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <FontAwesomeIcon icon={faShieldAlt} className="text-blue-600 text-sm" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-medium text-gray-800 text-sm">Bảo mật thanh toán</h4>
-                                            <p className="text-gray-600 text-xs">An toàn tuyệt đối</p>
-                                        </div>
+                            <div className="pt-8 space-y-6">
+                                <div className="flex items-center space-x-4 py-4 border-b border-gray-100">
+                                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                        <FontAwesomeIcon icon={faShieldAlt} className="w-4 h-4 text-gray-600" />
                                     </div>
-                                    <div className="flex items-start space-x-3">
-                                        <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                            <FontAwesomeIcon icon={faBolt} className="text-green-600 text-sm" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-medium text-gray-800 text-sm">Giao dịch tức thì</h4>
-                                            <p className="text-gray-600 text-xs">Nhận hàng ngay lập tức</p>
-                                        </div>
+                                    <div>
+                                        <div className="font-medium text-gray-900">Bảo mật thanh toán</div>
+                                        <div className="text-sm text-gray-500">Mã hóa SSL 256-bit</div>
                                     </div>
-                                    <div className="flex items-start space-x-3">
-                                        <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                                            <FontAwesomeIcon icon={faHeadset} className="text-purple-600 text-sm" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-medium text-gray-800 text-sm">Hỗ trợ 24/7</h4>
-                                            <p className="text-gray-600 text-xs">Luôn sẵn sàng hỗ trợ</p>
-                                        </div>
+                                </div>
+                                
+                                <div className="flex items-center space-x-4 py-4 border-b border-gray-100">
+                                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                        <FontAwesomeIcon icon={faBolt} className="w-4 h-4 text-gray-600" />
+                                    </div>
+                                    <div>
+                                        <div className="font-medium text-gray-900">Giao hàng tức thì</div>
+                                        <div className="text-sm text-gray-500">Nhận ngay sau thanh toán</div>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-center space-x-4 py-4">
+                                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                        <FontAwesomeIcon icon={faHeadset} className="w-4 h-4 text-gray-600" />
+                                    </div>
+                                    <div>
+                                        <div className="font-medium text-gray-900">Hỗ trợ 24/7</div>
+                                        <div className="text-sm text-gray-500">Tư vấn miễn phí</div>
                                     </div>
                                 </div>
                             </div>
@@ -397,20 +430,30 @@ export default function ProductDetail() {
                     </div>
 
                     {/* Product Description */}
-                    <div className="mt-12">
-                        <div className="bg-white rounded-lg shadow-sm p-6">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-4">Mô tả sản phẩm</h2>
-                            <div className="prose prose-blue max-w-none">
-                                {product.description.split('\n').map((paragraph, index) => (
-                                    <p key={index} className="text-gray-700 leading-relaxed mb-4 last:mb-0">
+                    <div className="mt-24 border-t border-gray-100 pt-16">
+                        <div className="max-w-4xl mx-auto">
+                            <h2 className="text-3xl font-semibold text-gray-900 text-center mb-12">
+                                Thông tin sản phẩm
+                            </h2>
+                            
+                            <div className="prose prose-lg max-w-none text-gray-600 leading-relaxed">
+                                {product.description ? product.description.split('\n').map((paragraph, index) => (
+                                    <p key={index} className="mb-6 last:mb-0">
                                         {paragraph}
                                     </p>
-                                ))}
+                                )) : (
+                                    <div className="text-center py-16">
+                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <FontAwesomeIcon icon={faStore} className="text-gray-400 text-xl" />
+                                        </div>
+                                        <p className="text-gray-500">Thông tin chi tiết sẽ được cập nhật sớm</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }
