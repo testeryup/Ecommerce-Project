@@ -22,9 +22,9 @@ import Checkout from './Header/User/Checkout/Checkout';
 import PaymentSuccess from './Header/User/PaymentSuccess';
 import MyOrders from './Header/User/MyOrders';
 import OrderDetail from './Header/User/OrderDetail';
-import Support from './Header/User/Support';
 import Topup from './HomePage/Topup';
 import About from '../components/About';
+import Support from '../components/Support';
 import AllProducts from '../components/AllProducts.js'
 import NotFound from '../components/NotFound';
 import ScrollToTop from '../components/ScrollToTop';
