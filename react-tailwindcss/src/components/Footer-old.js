@@ -43,16 +43,16 @@ const Footer = () => {
                 Chúng tôi cam kết mang đến trải nghiệm mua sắm tuyệt vời với dịch vụ giao hàng nhanh chóng và hỗ trợ khách hàng xuất sắc.
               </p>
               <div className="flex space-x-6">
-                <a href="https://facebook.com" className="text-gray-400 hover:text-blue-600 transition-colors">
+                <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
                   <FiFacebook className="w-6 h-6" />
                 </a>
-                <a href="https://twitter.com" className="text-gray-400 hover:text-blue-600 transition-colors">
+                <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
                   <FiTwitter className="w-6 h-6" />
                 </a>
-                <a href="https://instagram.com" className="text-gray-400 hover:text-blue-600 transition-colors">
+                <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
                   <FiInstagram className="w-6 h-6" />
                 </a>
-                <a href="https://linkedin.com" className="text-gray-400 hover:text-blue-600 transition-colors">
+                <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
                   <FiLinkedin className="w-6 h-6" />
                 </a>
               </div>
@@ -63,27 +63,27 @@ const Footer = () => {
               <h4 className="text-lg font-semibold text-gray-900 mb-6">Liên kết nhanh</h4>
               <ul className="space-y-4">
                 <li>
-                  <a href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
                     Trang chủ
                   </a>
                 </li>
                 <li>
-                  <a href="/products" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
                     Sản phẩm
                   </a>
                 </li>
                 <li>
-                  <a href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
                     Giới thiệu
                   </a>
                 </li>
                 <li>
-                  <a href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
                     Liên hệ
                   </a>
                 </li>
                 <li>
-                  <a href="/blog" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
                     Blog
                   </a>
                 </li>
@@ -95,27 +95,27 @@ const Footer = () => {
               <h4 className="text-lg font-semibold text-gray-900 mb-6">Hỗ trợ khách hàng</h4>
               <ul className="space-y-4">
                 <li>
-                  <a href="/help" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
                     Hướng dẫn mua hàng
                   </a>
                 </li>
                 <li>
-                  <a href="/returns" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
                     Chính sách đổi trả
                   </a>
                 </li>
                 <li>
-                  <a href="/shipping" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
                     Vận chuyển
                   </a>
                 </li>
                 <li>
-                  <a href="/payment" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
                     Thanh toán
                   </a>
                 </li>
                 <li>
-                  <a href="/faq" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
                     FAQ
                   </a>
                 </li>
@@ -157,23 +157,98 @@ const Footer = () => {
           </div>
         </div>
       </div>
-
-      {/* Bottom Footer */}
-      <div className="border-t border-gray-100 py-8 px-4 sm:px-6 lg:px-8 bg-gray-50/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-gray-600 text-sm">
-              © 2025 Octopus Store. Tất cả quyền được bảo lưu.
+                <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
+                  <FiInstagram className="w-6 h-6" />
+                </a>
+                <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
+                  <FiLinkedin className="w-6 h-6" />
+                </a>
+              </div>
             </div>
-            <div className="flex space-x-8 text-sm">
-              <a href="/terms" className="text-gray-600 hover:text-gray-900 transition-colors">
-                Điều khoản dịch vụ
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Quick Links</h4>
+              <ul className="space-y-3">
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Products
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Contact
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Blog
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Customer Service */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Customer Service</h4>
+              <ul className="space-y-3">
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Help Center
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Shipping Info
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Returns
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Size Guide
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    Track Order
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Bar */}
+      <div className="border-t border-gray-200 py-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <p className="text-gray-600 text-sm">
+              © 2024 ShopHub. All rights reserved.
+            </p>
+            <div className="flex space-x-6 mt-4 sm:mt-0">
+              <a href="#" className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
+                Privacy Policy
               </a>
-              <a href="/privacy" className="text-gray-600 hover:text-gray-900 transition-colors">
-                Chính sách bảo mật
+              <a href="#" className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
+                Terms of Service
               </a>
-              <a href="/cookies" className="text-gray-600 hover:text-gray-900 transition-colors">
-                Cookie
+              <a href="#" className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
+                Cookie Policy
               </a>
             </div>
           </div>

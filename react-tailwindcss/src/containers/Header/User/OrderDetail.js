@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { getOrderById } from '../../../services/userService';
 import { formatCurrency } from '../../../ultils';
 import { toast } from 'react-hot-toast';
-import Header from '../../../components/Header';
+import UserHeader from '../UserHeader';
 import Loading from '../../../components/Loading';
 import { 
   Package, 
@@ -99,7 +99,7 @@ const OrderDetail = () => {
   if (loading) {
     return (
       <>
-        <Header />
+        <UserHeader />
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
           <Loading />
         </div>
@@ -110,7 +110,7 @@ const OrderDetail = () => {
   if (!orderData) {
     return (
       <>
-        <Header />
+        <UserHeader />
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
           <div className="text-center">
             <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -131,7 +131,7 @@ const OrderDetail = () => {
 
   return (
     <>
-      <Header />
+      <UserHeader />
       <div className="order-info">
         <div className="order-header">
           <div className="header-main">

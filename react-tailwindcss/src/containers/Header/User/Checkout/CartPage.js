@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, updateQuantity } from '../../../../features/cart/cartSlice';
 import { formatCurrency } from '../../../../ultils';
-import Header from '../../../../components/Header';
+import UserHeader from '../../UserHeader';
 import Footer from '../../../../components/Footer';
 import { path } from '../../../../ultils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -65,7 +65,7 @@ export default function CartPage() {
 
     return (
         <>
-            <Header />
+            <UserHeader />
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
             
             {/* Page Header */}

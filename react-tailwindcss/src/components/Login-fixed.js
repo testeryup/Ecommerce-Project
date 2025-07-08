@@ -7,7 +7,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faEnvelope, 
   faLock,
-  faArrowRight
+  faArrowRight,
+  faEye,
+  faEyeSlash
 } from '@fortawesome/free-solid-svg-icons';
 import { faGoogle as fabGoogle, faFacebook as fabFacebook, faApple as fabApple } from '@fortawesome/free-brands-svg-icons';
 import Layout from './Layout';
@@ -21,6 +23,7 @@ const Login = () => {
     password: '',
     rememberMe: false
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [localErrors, setLocalErrors] = useState({});
 
   const dispatch = useDispatch();

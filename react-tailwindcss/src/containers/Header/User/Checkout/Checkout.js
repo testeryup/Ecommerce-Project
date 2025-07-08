@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import Header from '../../../../components/Header';
+import UserHeader from '../../UserHeader';
 import Footer from '../../../../components/Footer';
 import { formatCurrency, path } from '../../../../ultils';
 import toast from 'react-hot-toast';
@@ -102,7 +102,7 @@ export default function Checkout() {
 
     return (
         <>
-            <Header />
+            <UserHeader />
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
                 {/* Page Header */}
                 <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-16">

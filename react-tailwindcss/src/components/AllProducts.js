@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import Header from "./Header";
-import Footer from "./Footer";
+import Layout from "./Layout";
 import { getProducts, getCategory } from '../services/userService';
 import { addToCart } from '../features/cart/cartSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,12 +15,6 @@ import {
     faShoppingCart,
     faHeart,
     faEye,
-    faPlay,
-    faDesktop,
-    faMusic,
-    faShield,
-    faGraduationCap,
-    faGamepad,
     faTag,
     faFire,
     faCrown
@@ -169,23 +162,19 @@ const Products = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-                <Header />
+            <Layout>
                 <div className="flex items-center justify-center h-96">
                     <div className="text-center">
                         <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
                         <p className="text-xl font-medium text-gray-600 dark:text-gray-400">Đang tải sản phẩm...</p>
                     </div>
                 </div>
-                <Footer />
-            </div>
+            </Layout>
         );
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-            <Header />
-            
+        <Layout>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white dark:bg-gray-900 transition-colors duration-200">
                 {/* Page Header */}
                 <div className="mb-8">
@@ -493,9 +482,7 @@ const Products = () => {
                     </div>
                 </div>
             </div>
-            
-            <Footer />
-        </div>
+        </Layout>
     );
 };
 

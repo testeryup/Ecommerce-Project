@@ -1,4 +1,4 @@
-import Header from '../../../components/Header';
+import UserHeader from '../UserHeader';
 import UserProfileComponent from '../../../components/user/UserProfile';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUserProfile } from '../../../services/userService';
@@ -22,7 +22,7 @@ export default function UserProfile() {
 
     if (loading) return (
         <>
-            <Header />
+            <UserHeader />
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
                 <Loading />
             </div>
@@ -31,7 +31,7 @@ export default function UserProfile() {
     
     if (error) return (
         <>
-            <Header />
+            <UserHeader />
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
                 <div className="text-center">
                     <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
@@ -43,7 +43,7 @@ export default function UserProfile() {
 
     return (
         <>
-            <Header />
+            <UserHeader />
             <UserProfileComponent 
                 profile={profile}
                 loading={loading}

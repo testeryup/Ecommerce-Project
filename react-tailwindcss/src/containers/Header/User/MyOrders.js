@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MyOrdersComponent from '../../../components/user/MyOrders';
 import { getOrders } from '../../../services/userService';
-import Header from '../../../components/Header';
+import UserHeader from '../UserHeader';
 
 const MyOrders = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const MyOrders = () => {
 
   return (
     <>
-      <Header />
+      <UserHeader />
       <MyOrdersComponent 
         orders={orders}
         loading={loading}

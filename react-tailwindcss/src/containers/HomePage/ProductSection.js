@@ -1,15 +1,42 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import './ProductSection.scss';
 import ProductCard from '../../components/ProductCard';
 import { getProducts } from '../../services/userService';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../../features/cart/cartSlice';
 import toast from 'react-hot-toast';
-
-import { useState, useEffect, useCallback } from 'react';
 import Loading from '../../components/Loading';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+    faArrowLeft, 
+    faArrowRight, 
+    faStar,
+    faFire,
+    faGift,
+    faChevronRight,
+    faShoppingCart
+} from '@fortawesome/free-solid-svg-icons';
+
+// Custom Arrow Components
+const NextArrow = ({ onClick }) => (
+    <button
+        onClick={onClick}
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:shadow-xl transition-all duration-300 group"
+    >
+        <FontAwesomeIcon icon={faArrowRight} className="group-hover:scale-110 transition-transform duration-300" />
+    </button>
+);
+
+const PrevArrow = ({ onClick }) => (
+    <button
+        onClick={onClick}
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:shadow-xl transition-all duration-300 group"
+    >
+        <FontAwesomeIcon icon={faArrowLeft} className="group-hover:scale-110 transition-transform duration-300" />
+    </button>
+);
 
 export default function ProductSection() {
     const dispatch = useDispatch();
@@ -45,21 +72,30 @@ export default function ProductSection() {
         slidesToShow: 4,
         slidesToScroll: 1,
         autoplay: true,
-        autoplaySpeed: 3000,
+        autoplaySpeed: 4000,
         pauseOnHover: true,
         infinite: true,
+        nextArrow: <NextArrow />,
+        prevArrow: <PrevArrow />,
         responsive: [
             {
-                breakpoint: 1024,
+                breakpoint: 1280,
                 settings: {
                     slidesToShow: 3,
                     slidesToScroll: 1
                 }
             },
             {
-                breakpoint: 600,
+                breakpoint: 768,
                 settings: {
                     slidesToShow: 2,
+                    slidesToScroll: 1
+                }
+            },
+            {
+                breakpoint: 480,
+                settings: {
+                    slidesToShow: 1,
                     slidesToScroll: 1
                 }
             }
@@ -88,54 +124,69 @@ export default function ProductSection() {
         }
         fetchProducts();
     }, [])
-    if (loading) return (<Loading></Loading>);
+    
+    if (loading) return (<Loading />);
+    
     if (error) {
         console.log("error from product slider container:", error);
-    }
-    console.log("check products:", products)
-    return (
-        <>
-            <div className="product-slider-container">
-                <div className="product-slider-wrapper">
-                    <div className="product-slider">
-                        <div className='heading'>
-                            <div className='vertical-bar'></div>
-                            <h1 className='header'>Hàng mới về</h1>
-                        </div>
-                        <Slider {...settings}>
-                            {
-                                products.map(product => (
-                                    <ProductCard 
-                                        product={product} 
-                                        key={product._id}
-                                        onAddToCart={handleAddToCart}
-                                    />
-                                ))
-                            }
-                            {/* <div className='product-item'>
-                                <img src={require('../../assets/products/Canva-giahan-1nam-13476.png')} alt=''></img>
-                                <div><h4>Canva Premium 1 năm</h4></div>
-                            </div>
-                            <div className='product-item'>
-                                <img src={require('../../assets/products/ChatGPT.png')} alt=''></img>
-                                <div><h4>ChatGPT Premium</h4></div>
-                            </div>
-                            <div className='product-item'>
-                                <img src={require('../../assets/products/Windows 10 Professional CD Key-22736.png')} alt=''></img>
-                                <div><h4>Key Windows 10 Pro</h4></div>
-                            </div>
-                            <div className='product-item'>
-                                <img src={require('../../assets/products/YouTube Premium Music-1nam-65910.png')} alt=''></img>
-                                <div><h4>YouTube Premium Music</h4></div>
-                            </div>
-                            <div className='product-item'>
-                                <img src={require('../../assets/products/Zoom Pro 28d-58614.png')} alt=''></img>
-                                <div><h4>Zoom Pro</h4></div>
-                            </div> */}
-                        </Slider>
-                    </div>
+        return (
+            <div className="min-h-[200px] flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <p className="text-red-500 text-lg mb-2">Có lỗi xảy ra khi tải sản phẩm</p>
+                    <p className="text-gray-600">{error}</p>
                 </div>
             </div>
-        </>
-    )
+        );
+    }
+
+    return (
+        <div className="py-20 bg-white">
+            <div className="max-w-7xl mx-auto px-6 lg:px-8">
+                {/* Section Header */}
+                <div className="text-center mb-16">
+                    <div className="inline-flex items-center justify-center p-2 bg-orange-100 rounded-full mb-6">
+                        <div className="bg-orange-600 rounded-full p-2">
+                            <FontAwesomeIcon icon={faFire} className="text-white text-lg" />
+                        </div>
+                    </div>
+                    <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                        Sản phẩm 
+                        <span className="text-orange-600"> Hot</span> nhất
+                    </h2>
+                    <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                        Khám phá những sản phẩm được yêu thích nhất với chất lượng premium và giá cả hợp lý
+                    </p>
+                </div>
+
+                {/* Products Slider */}
+                <div className="relative">
+                    {products && products.length > 0 ? (
+                        <Slider {...settings} className="product-slider">
+                            {products.map((product, index) => (
+                                <div key={index} className="px-3">
+                                    <ProductCard 
+                                        product={product} 
+                                        onAddToCart={handleAddToCart}
+                                    />
+                                </div>
+                            ))}
+                        </Slider>
+                    ) : (
+                        <div className="text-center py-16">
+                            <FontAwesomeIcon icon={faShoppingCart} className="text-gray-400 text-6xl mb-4" />
+                            <p className="text-gray-500 text-xl">Không có sản phẩm nào để hiển thị</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* View All Products Button */}
+                <div className="text-center mt-12">
+                    <button className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Xem tất cả sản phẩm
+                        <FontAwesomeIcon icon={faChevronRight} className="ml-2" />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
 }

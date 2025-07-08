@@ -2,7 +2,7 @@ import { path } from "../../../ultils";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Header from "../../../components/Header";
+import UserHeader from '../UserHeader';
 
 const PaymentSuccess = () => {
     const [url, setUrl] = useState('');
@@ -27,7 +27,7 @@ const PaymentSuccess = () => {
     }
     return (
         <>
-            <Header />
+            <UserHeader />
             <div className="payment-success">
                 <div className="payment-success__card">
                     <div className="payment-success__icon">

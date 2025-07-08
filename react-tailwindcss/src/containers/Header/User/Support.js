@@ -17,7 +17,7 @@ import {
   faBug,
   faLightbulb
 } from '@fortawesome/free-solid-svg-icons';
-import Header from '../../../components/Header';
+import UserHeader from '../UserHeader';
 import Footer from '../../../components/Footer';
 
 // Custom CSS for animations
@@ -216,7 +216,7 @@ const Support = () => {
     return (
         <>
             <style>{customStyles}</style>
-            <Header />
+            <UserHeader />
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
                 
                 {/* Hero Section */}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
-import { Button } from '../ui/button';
+import Button from '../ui/Button';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { 
@@ -19,7 +19,6 @@ import {
   Users, 
   Package, 
   ShoppingCart, 
-  CreditCard, 
   BarChart3, 
   Settings, 
   Bell, 
@@ -37,43 +36,37 @@ const AdminLayout = ({ children }) => {
     { 
       icon: LayoutDashboard, 
       label: 'Tổng quan', 
-      path: '/admin/dashboard',
+      path: '/dashboard/admin/dashboard',
       description: 'Thống kê tổng quan'
     },
     { 
       icon: Users, 
       label: 'Người dùng', 
-      path: '/admin/users',
+      path: '/dashboard/admin/users',
       description: 'Quản lý người dùng'
     },
     { 
       icon: Package, 
       label: 'Sản phẩm', 
-      path: '/admin/products',
+      path: '/dashboard/admin/products',
       description: 'Quản lý sản phẩm'
     },
     { 
       icon: ShoppingCart, 
       label: 'Đơn hàng', 
-      path: '/admin/orders',
+      path: '/dashboard/admin/orders',
       description: 'Quản lý đơn hàng'
-    },
-    { 
-      icon: CreditCard, 
-      label: 'Giao dịch', 
-      path: '/admin/transactions',
-      description: 'Quản lý giao dịch'
     },
     { 
       icon: BarChart3, 
       label: 'Báo cáo', 
-      path: '/admin/reports',
+      path: '/dashboard/admin/reports',
       description: 'Báo cáo thống kê'
     },
     { 
       icon: Settings, 
       label: 'Cài đặt', 
-      path: '/admin/settings',
+      path: '/dashboard/admin/settings',
       description: 'Cài đặt hệ thống'
     }
   ];

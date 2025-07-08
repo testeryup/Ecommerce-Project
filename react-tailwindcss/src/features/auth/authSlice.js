@@ -8,16 +8,10 @@ export const login = createAsyncThunk(
     async ({ email, password }, thunkAPI) => {
         try {
             const response = await authService.login(email, password);
-            console.log("Login response:", response);
-            
-            // Set user role in user slice
-            if (response.role) {
-                thunkAPI.dispatch(setUserRole(response.role));
-            }
-            
+            console.log("check response:", response);
+            thunkAPI.dispatch(setUserRole(response.role));
             return response;
         } catch (e) {
-            console.error("Login error:", e);
             return thunkAPI.rejectWithValue(e.response?.data?.message || 'Login failed');
         }
     }
@@ -31,12 +25,10 @@ export const register = createAsyncThunk(
                 return thunkAPI.rejectWithValue('Passwords do not match');
             }
             const response = await authService.register(email, password, username);
-            console.log("Register response:", response);
-            
+            console.log("check response from register:", response);
             if (response.role) {
                 thunkAPI.dispatch(setUserRole(response.role));
             }
-            
             return response;
         } catch (e) {
             console.error("Register error:", e);
@@ -50,16 +42,13 @@ export const refreshToken = createAsyncThunk(
     async (_, thunkAPI) => {
         try {
             const response = await authService.refresh();
-            
-            if (response.role) {
-                thunkAPI.dispatch(setUserRole(response.role));
+            if (response.data.role) {
+                thunkAPI.dispatch(setUserRole(response.data.role));
             }
-            
-            return response;
+            return response.data;
         } catch (error) {
-            console.error("Refresh token error:", error);
             thunkAPI.dispatch(clearUserProfile());
-            return thunkAPI.rejectWithValue(error.response?.data?.message || 'Token refresh failed');
+            return thunkAPI.rejectWithValue(error.response?.data?.message || 'Get new token failed');
         }
     }
 );

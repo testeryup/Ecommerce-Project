@@ -4,7 +4,9 @@ import {
     faShoppingCart, 
     faHeart, 
     faEye, 
-    faStar
+    faStar,
+    faTag,
+    faPlus
 } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 

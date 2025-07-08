@@ -1,5 +1,5 @@
 import React from 'react';
-import Header from "./Header";
+import UserHeader from "../containers/Header/UserHeader";
 import Footer from "./Footer";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -87,7 +87,7 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-      <Header />
+      <UserHeader />
       
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">

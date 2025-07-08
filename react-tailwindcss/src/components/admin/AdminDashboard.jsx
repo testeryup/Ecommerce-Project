@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
+import Button from '../ui/Button';
 import MetricCard from './MetricCard';
 import useRealTimeStats from '../../hooks/useRealTimeStats';
 import { 

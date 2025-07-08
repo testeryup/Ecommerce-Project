@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
 import { Label } from '../ui/label';
 import { User, Mail, DollarSign, Shield, Calendar, Camera, Edit, Save, X } from 'lucide-react';
 import { formatCurrency } from '../../ultils/currencyHelper';

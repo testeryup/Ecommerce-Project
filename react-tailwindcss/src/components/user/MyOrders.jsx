@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
+import Button from '../ui/Button';
 import { ShoppingBag, Clock, Eye, Package } from 'lucide-react';
 import { formatCurrency } from '../../ultils/currencyHelper';
 

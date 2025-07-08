@@ -9,25 +9,23 @@ import { setAuthToken } from '../axios';
 import Application from '../components/Application';
 import Home from '../components/Home';
 import Login from '../components/Login';
-import Register from '../components/Register';
+import SignUp from '../components/SignUp';
 import ProtectedRoute from '../components/ProtectedRoute';
 import SellerDashboard from '../components/seller/SellerDashboard';
 import UserDashboard from '../components/user/UserDashboard';
 import AdminApp from '../components/admin/AdminApp.jsx';
 import UserProfile from './Header/User/UserProfile';
 import Loading from '../components/Loading';
-import ProductDetail from '../components/ProductDetailV2';
+import ProductDetail from './HomePage/ProductDetail';
 import CartPage from './Header/User/Checkout/CartPage';
 import Checkout from './Header/User/Checkout/Checkout';
 import PaymentSuccess from './Header/User/PaymentSuccess';
 import MyOrders from './Header/User/MyOrders';
 import OrderDetail from './Header/User/OrderDetail';
 import Support from './Header/User/Support';
-import TransactionHistory from '../components/user/TransactionHistory';
 import Topup from './HomePage/Topup';
 import About from '../components/About';
 import AllProducts from '../components/AllProducts.js'
-import SearchResults from '../components/SearchResults';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
@@ -118,7 +116,7 @@ export default function App() {
                 <Route path={path.HOME} element={<Home></Home>} />
                 <Route path={path.APP} element={<Application />} />
                 <Route path={path.LOGIN} element={<Login />} />
-                <Route path={path.SIGNUP} element={auth.isAuthenticated ? <Home></Home> : <Register></Register>}></Route>
+                <Route path={path.SIGNUP} element={auth.isAuthenticated ? <Home></Home> : <SignUp></SignUp>}></Route>
                 <Route
                     path={path.PRODUCT}
                     element={<ProductDetail />}
@@ -148,7 +146,7 @@ export default function App() {
                     }
                 />
                 <Route
-                    path="/admin/*"
+                    path={`${path.ADMIN_DASHBOARD}/*`}
                     element={
                         <ProtectedRoute allowedRoles={['admin']}>
                             <AdminApp />
@@ -158,33 +156,11 @@ export default function App() {
                 <Route path={path.CHECKOUT} element={<Checkout></Checkout>}></Route>
                 <Route path={path.CART} element={<CartPage />} />
                 <Route path={path.CHECKOUT_SUCCESS} element={<PaymentSuccess></PaymentSuccess>}></Route>
-                <Route path={path.VIEWORDER} element={
-                    <ProtectedRoute allowedRoles={['user', 'seller', 'admin']}>
-                        <OrderDetail />
-                    </ProtectedRoute>
-                }></Route>
-                <Route path={path.ORDERS} element={
-                    <ProtectedRoute allowedRoles={['user', 'seller', 'admin']}>
-                        <MyOrders />
-                    </ProtectedRoute>
-                }></Route>
-                <Route path={path.SUPPORT} element={
-                    <ProtectedRoute allowedRoles={['user', 'seller', 'admin']}>
-                        <Support />
-                    </ProtectedRoute>
-                }></Route>
-                <Route path={path.TRANSACTIONS} element={
-                    <ProtectedRoute allowedRoles={['user', 'seller', 'admin']}>
-                        <TransactionHistory />
-                    </ProtectedRoute>
-                }></Route>
-                <Route path={path.TOPUP} element={
-                    <ProtectedRoute allowedRoles={['user', 'seller', 'admin']}>
-                        <Topup />
-                    </ProtectedRoute>
-                }></Route>
+                <Route path={path.VIEWORDER} element={<OrderDetail />}></Route>
+                <Route path={path.ORDERS} element={<MyOrders />}></Route>
+                <Route path={path.SUPPORT} element={<Support />}></Route>
+                <Route path={path.TOPUP} element={<Topup />}></Route>
                 <Route path="/products" element={<AllProducts />} />
-                <Route path="/search" element={<SearchResults />} />
                 <Route path="/about" element={<About />} />
 
                 {/* Catch-All Route */}

@@ -21,7 +21,7 @@ import {
 import { 
   faHeart as faHeartRegular
 } from '@fortawesome/free-regular-svg-icons';
-import Header from './Header';
+import UserHeader from '../containers/Header/UserHeader';
 import Footer from './Footer';
 import { addToCart } from '../features/cart/cartSlice';
 import { userGetProductById } from '../services/userService';
@@ -186,7 +186,7 @@ const ProductDetailV2 = () => {
   if (loading) {
     return (
       <>
-        <Header />
+        <UserHeader />
         <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center transition-colors duration-200">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -202,7 +202,7 @@ const ProductDetailV2 = () => {
   if (error) {
     return (
       <>
-        <Header />
+        <UserHeader />
         <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center transition-colors duration-200">
           <div className="text-center">
             <div className="text-red-500 text-6xl mb-4">⚠️</div>
@@ -237,7 +237,7 @@ const ProductDetailV2 = () => {
   if (!product) {
     return (
       <>
-        <Header />
+        <UserHeader />
         <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center transition-colors duration-200">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
@@ -259,7 +259,7 @@ const ProductDetailV2 = () => {
 
   return (
     <>
-      <Header />
+      <UserHeader />
       <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
         
         {/* Breadcrumb */}

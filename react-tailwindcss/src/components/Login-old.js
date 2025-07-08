@@ -17,10 +17,11 @@ import toast from 'react-hot-toast';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: '', // Pre-filled for testing
+    password: '', // Pre-filled for testing
     rememberMe: false
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [localErrors, setLocalErrors] = useState({});
 
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ const Login = () => {
 
   useEffect(() => {
     if (auth.isAuthenticated && user.role) {
+      // Redirect based on user role using constants
       console.log('User authenticated with role:', user.role);
       switch (user.role) {
         case 'admin':
@@ -60,6 +62,7 @@ const Login = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    // Clear error when user starts typing
     if (localErrors[name]) {
       setLocalErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -156,6 +159,16 @@ const Login = () => {
             </div>
 
             {/* Divider */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">or</span>
+              </div>
+            </div>
+
+            {/* Divider */}
             <div className="relative mb-8">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
@@ -190,6 +203,16 @@ const Login = () => {
                 name="password"
                 error={localErrors.password}
               />
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  </button>
+                </div>
+                {localErrors.password && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{localErrors.password}</p>
+                )}
+              </div>
 
               {/* Remember Me & Forgot Password */}
               <div className="flex items-center justify-between">
@@ -201,51 +224,54 @@ const Login = () => {
                     onChange={handleChange}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Ghi nhớ đăng nhập</span>
+                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Remember me</span>
                 </label>
                 <Link 
                   to="/forgot-password" 
-                  className="text-sm text-blue-600 hover:text-blue-500 font-medium"
+                  className="text-sm text-blue-600 hover:text-blue-500"
                 >
-                  Quên mật khẩu?
+                  Forgot password?
                 </Link>
               </div>
 
               {/* Submit Button */}
-              <Button
+              <button
                 type="submit"
-                variant="primary"
-                size="lg"
-                loading={auth.loading}
-                icon={faArrowRight}
-                iconPosition="right"
-                className="w-full shadow-xl"
+                disabled={auth.loading}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
               >
-                {auth.loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-              </Button>
+                {auth.loading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Signing in...
+                  </div>
+                ) : (
+                  'Sign In'
+                )}
+              </button>
             </form>
 
             {/* Register Link */}
-            <div className="mt-8 text-center">
-              <p className="text-gray-600">
-                Chưa có tài khoản?{' '}
-                <Link to="/signup" className="text-blue-600 hover:text-blue-500 font-semibold">
-                  Đăng ký ngay
+            <div className="mt-6 text-center">
+              <p className="text-gray-600 dark:text-gray-400">
+                Don't have an account?{' '}
+                <Link to="/signup" className="text-blue-600 hover:text-blue-500 font-medium">
+                  Sign up now
                 </Link>
               </p>
             </div>
           </div>
 
           {/* Terms Footer */}
-          <div className="mt-8 text-center text-sm text-gray-500">
+          <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
             <p>
-              Bằng việc đăng nhập, bạn đồng ý với{' '}
+              By signing in, you agree to our{' '}
               <Link to="/terms" className="text-blue-600 hover:text-blue-500">
-                Điều khoản dịch vụ
+                Terms of Service
               </Link>{' '}
-              và{' '}
+              and{' '}
               <Link to="/privacy" className="text-blue-600 hover:text-blue-500">
-                Chính sách bảo mật
+                Privacy Policy
               </Link>
             </p>
           </div>
