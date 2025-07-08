@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -40,6 +41,7 @@ const PrevArrow = ({ onClick }) => (
 
 export default function ProductSection() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     
     // Handle add to cart for ProductCard
     const handleAddToCart = useCallback((product) => {
@@ -111,8 +113,73 @@ export default function ProductSection() {
             try {
                 setLoading(true);
                 const result = await getProducts();
+                console.log('API Response:', result);
+                
                 if (result.errCode === 0) {
-                    setProducts(result.data);
+                    console.log('Products data:', result.data);
+                    console.log('First product:', result.data[0]);
+                    
+                    if (result.data && result.data.length > 0) {
+                        setProducts(result.data);
+                    } else {
+                        // If no products from API, add some mock data for testing
+                        console.log('No products from API, adding mock data');
+                        const mockProducts = [
+                            {
+                                _id: "mock1",
+                                name: "iPhone 15 Pro Max",
+                                images: ["https://via.placeholder.com/300x300/007AFF/ffffff?text=iPhone+15"],
+                                category: { name: "Điện thoại" },
+                                skus: [{
+                                    price: 29990000,
+                                    originalPrice: 32990000,
+                                    inventory: { quantity: 10 }
+                                }],
+                                rating: 5,
+                                reviewCount: 234
+                            },
+                            {
+                                _id: "mock2", 
+                                name: "MacBook Pro M3",
+                                images: ["https://via.placeholder.com/300x300/2D2D2D/ffffff?text=MacBook+Pro"],
+                                category: { name: "Laptop" },
+                                skus: [{
+                                    price: 52990000,
+                                    originalPrice: 55990000,
+                                    inventory: { quantity: 5 }
+                                }],
+                                rating: 5,
+                                reviewCount: 156
+                            },
+                            {
+                                _id: "mock3",
+                                name: "iPad Air M2", 
+                                images: ["https://via.placeholder.com/300x300/5856D6/ffffff?text=iPad+Air"],
+                                category: { name: "Tablet" },
+                                skus: [{
+                                    price: 16990000,
+                                    originalPrice: 18990000,
+                                    inventory: { quantity: 8 }
+                                }],
+                                rating: 4,
+                                reviewCount: 89
+                            },
+                            {
+                                _id: "mock4",
+                                name: "AirPods Pro 2",
+                                images: ["https://via.placeholder.com/300x300/34C759/ffffff?text=AirPods+Pro"],
+                                category: { name: "Tai nghe" },
+                                skus: [{
+                                    price: 6990000,
+                                    originalPrice: 7490000,
+                                    inventory: { quantity: 15 }
+                                }],
+                                rating: 5,
+                                reviewCount: 312
+                            }
+                        ];
+                        setProducts(mockProducts);
+                    }
                 }
                 else {
                     throw new Error("An error occured when fetching data:", result);
@@ -181,7 +248,10 @@ export default function ProductSection() {
 
                 {/* View All Products Button */}
                 <div className="text-center mt-12">
-                    <button className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <button 
+                        onClick={() => navigate('/products')}
+                        className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    >
                         Xem tất cả sản phẩm
                         <FontAwesomeIcon icon={faChevronRight} className="ml-2" />
                     </button>
