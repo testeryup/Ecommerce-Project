@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MyOrdersComponent from '../../../components/user/MyOrders';
 import { getOrders } from '../../../services/userService';
-import UserHeader from '../UserHeader';
+import Layout from '../../../components/Layout';
 
 const MyOrders = () => {
   const navigate = useNavigate();
@@ -30,14 +30,13 @@ const MyOrders = () => {
   };
 
   return (
-    <>
-      <UserHeader />
+    <Layout>
       <MyOrdersComponent 
         orders={orders}
         loading={loading}
         onViewOrder={handleViewOrder}
       />
-    </>
+    </Layout>
   );
 };
 

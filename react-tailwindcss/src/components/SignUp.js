@@ -1,4 +1,4 @@
-import UserHeader from '../containers/Header/UserHeader';
+import Layout from './Layout';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
@@ -40,8 +40,7 @@ export default function SignUp() {
     }
     
     return (
-        <>
-            <UserHeader></UserHeader>
+        <Layout>
             <div className='min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
                 <div className='max-w-md w-full space-y-8'>
                     <div className='bg-white rounded-xl shadow-lg p-8'>
@@ -121,6 +120,6 @@ export default function SignUp() {
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     )
 }

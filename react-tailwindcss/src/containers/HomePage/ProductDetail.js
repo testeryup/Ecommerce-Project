@@ -23,7 +23,7 @@ import {
     faHeart,
     faShare
 } from '@fortawesome/free-solid-svg-icons';
-import UserHeader from '../Header/UserHeader';
+import Layout from '../../components/Layout';
 
 export default function ProductDetail() {
     const [selectedImage, setSelectedImage] = useState(0);
@@ -108,17 +108,15 @@ export default function ProductDetail() {
     };
 
     if (loading) return (
-        <>
-            <UserHeader />
+        <Layout>
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
                 <Loading />
             </div>
-        </>
+        </Layout>
     );
 
     if (error) return (
-        <>
-            <UserHeader />
+        <Layout>
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
                 <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
                     <FontAwesomeIcon icon={faTimesCircle} className="text-red-500 text-6xl mb-4" />
@@ -132,12 +130,11 @@ export default function ProductDetail() {
                     </button>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 
     if (!product) return (
-        <>
-            <UserHeader />
+        <Layout>
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
                 <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
                     <FontAwesomeIcon icon={faStore} className="text-gray-400 text-6xl mb-4" />
@@ -151,14 +148,13 @@ export default function ProductDetail() {
                     </button>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 
     const maxQuantity = Math.min(selectedSku.stock || 0, 10);
 
     return (
-        <>
-            <UserHeader />
+        <Layout>
             <div className="min-h-screen bg-gray-50">
                 {/* Breadcrumb */}
                 <div className="bg-white border-b">
@@ -429,6 +425,6 @@ export default function ProductDetail() {
                     </div>
                 </div>
             </div>
-        </>
+        </Layout>
     );
 }

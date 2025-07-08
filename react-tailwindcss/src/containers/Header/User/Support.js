@@ -17,8 +17,7 @@ import {
   faBug,
   faLightbulb
 } from '@fortawesome/free-solid-svg-icons';
-import UserHeader from '../UserHeader';
-import Footer from '../../../components/Footer';
+import Layout from '../../../components/Layout';
 
 // Custom CSS for animations
 const customStyles = `
@@ -214,9 +213,8 @@ const Support = () => {
         : faqCategories[selectedCategory].faqs;
 
     return (
-        <>
+        <Layout>
             <style>{customStyles}</style>
-            <UserHeader />
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
                 
                 {/* Hero Section */}
@@ -552,8 +550,7 @@ const Support = () => {
                     )}
                 </div>
             </div>
-            <Footer />
-        </>
+        </Layout>
     );
 };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { usePayOS } from "@payos/payos-checkout";
 import { toast } from 'react-hot-toast';
 import { getUserBalance, createPaymentLink } from "../../services/userService";
-import UserHeader from "../Header/UserHeader";
+import Layout from "../../components/Layout";
 import { useNavigate } from "react-router-dom";
 const ProductDisplay = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -103,11 +103,13 @@ const ProductDisplay = () => {
     }, []);
 
     return message ? (
-        <Message message={message} />
+        <Layout>
+            <Message message={message} />
+        </Layout>
     ) : (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <UserHeader />
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <Layout>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
@@ -253,7 +255,8 @@ const ProductDisplay = () => {
                     <div id="embedded-payment-container" className="mt-6"></div>
                 </div>
             </div>
-        </div>
+            </div>
+        </Layout>
     );
 };
 const Message = ({ message }) => {
@@ -291,7 +294,11 @@ const Message = ({ message }) => {
 };
 
 const Topup = () => {
-    return <ProductDisplay />;
+    return (
+        <Layout>
+            <ProductDisplay />
+        </Layout>
+    );
 };
 
 export default Topup;

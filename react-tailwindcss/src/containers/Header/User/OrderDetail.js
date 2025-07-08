@@ -3,20 +3,14 @@ import { useParams } from 'react-router-dom';
 import { getOrderById } from '../../../services/userService';
 import { formatCurrency } from '../../../ultils';
 import { toast } from 'react-hot-toast';
-import UserHeader from '../UserHeader';
+import Layout from '../../../components/Layout';
 import Loading from '../../../components/Loading';
 import { 
   Package, 
-  Calendar, 
-  Receipt, 
-  DollarSign, 
   CheckCircle, 
   Clock, 
   XCircle, 
-  AlertCircle,
-  Eye,
-  EyeOff,
-  Copy
+  AlertCircle
 } from 'lucide-react';
 
 const OrderDetail = () => {
@@ -98,19 +92,17 @@ const OrderDetail = () => {
 
   if (loading) {
     return (
-      <>
-        <UserHeader />
+      <Layout>
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
           <Loading />
         </div>
-      </>
+      </Layout>
     );
   }
 
   if (!orderData) {
     return (
-      <>
-        <UserHeader />
+      <Layout>
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
           <div className="text-center">
             <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -122,7 +114,7 @@ const OrderDetail = () => {
             </p>
           </div>
         </div>
-      </>
+      </Layout>
     );
   }
 
@@ -130,8 +122,7 @@ const OrderDetail = () => {
     orderStatus[orderData.status] || orderStatus.default;
 
   return (
-    <>
-      <UserHeader />
+    <Layout>
       <div className="order-info">
         <div className="order-header">
           <div className="header-main">
@@ -231,7 +222,7 @@ const OrderDetail = () => {
           ))}
         </div>
       </div>
-    </>
+    </Layout>
   );
 };
 

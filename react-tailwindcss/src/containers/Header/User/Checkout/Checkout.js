@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import UserHeader from '../../UserHeader';
-import Footer from '../../../../components/Footer';
+import Layout from '../../../../components/Layout';
 import { formatCurrency, path } from '../../../../ultils';
 import toast from 'react-hot-toast';
 import { removeFromCart } from '../../../../features/cart/cartSlice';
@@ -101,8 +100,7 @@ export default function Checkout() {
     };
 
     return (
-        <>
-            <UserHeader />
+        <Layout>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
                 {/* Page Header */}
                 <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-16">
@@ -211,7 +209,6 @@ export default function Checkout() {
                     </div>
                 </div>
             </div>
-            <Footer />
-        </>
+        </Layout>
     );
 }

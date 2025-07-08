@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, updateQuantity } from '../../../../features/cart/cartSlice';
 import { formatCurrency } from '../../../../ultils';
-import UserHeader from '../../UserHeader';
-import Footer from '../../../../components/Footer';
+import Layout from '../../../../components/Layout';
 import { path } from '../../../../ultils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -64,8 +63,7 @@ export default function CartPage() {
         .reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     return (
-        <>
-            <UserHeader />
+        <Layout>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
             
             {/* Page Header */}
@@ -275,7 +273,6 @@ export default function CartPage() {
                 )}
             </div>
             </div>
-            <Footer />
-        </>
+        </Layout>
     );
 }
