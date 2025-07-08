@@ -27,6 +27,7 @@ import Topup from './HomePage/Topup';
 import About from '../components/About';
 import AllProducts from '../components/AllProducts.js'
 import NotFound from '../components/NotFound';
+import ScrollToTop from '../components/ScrollToTop';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
@@ -61,6 +62,7 @@ export default function App() {
 
     return (
         <>
+            <ScrollToTop />
             <Toaster
                 position="bottom-right"
                 toastOptions={{

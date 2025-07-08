@@ -115,7 +115,14 @@ export const getProducts = async (req, res) => {
                     as: 'skus'
                 }
             },
-
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'categoryInfo'
+                }
+            },
             {
                 $lookup: {
                     from: 'users',
@@ -143,6 +150,7 @@ export const getProducts = async (req, res) => {
                     thumbnail: {
                         $ifNull: [{ $arrayElemAt: ['$images', 0] }, null]
                     },
+                    categoryName: { $arrayElemAt: ['$categoryInfo.name', 0] },
                     totalStock: {
                         $ifNull: [{ $sum: '$skus.stock' }, 0]
                     },
@@ -157,12 +165,14 @@ export const getProducts = async (req, res) => {
                     name: 1,
                     description: 1,
                     category: 1,
+                    categoryName: 1,
                     subcategory: 1,
                     seller: 1,
                     'skus': 1,
                     minPrice: 1,
                     totalStock: 1,
                     thumbnail: 1,
+                    createdAt: 1
                 }
             },
             { $limit: 50 }
@@ -197,6 +207,14 @@ export const getProductById = async (req, res) => {
             },
             {
                 $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'categoryInfo'
+                }
+            },
+            {
+                $lookup: {
                     from: 'users',
                     let: { sellerId: '$seller' },
                     pipeline: [
@@ -222,11 +240,14 @@ export const getProductById = async (req, res) => {
                     name: 1,
                     description: 1,
                     category: 1,
+                    categoryName: { $arrayElemAt: ['$categoryInfo.name', 0] },
                     subcategory: 1,
                     images: 1,
+                    thumbnail: 1,
                     'skus._id': 1,
                     'skus.name': 1,
                     'skus.price': 1,
+                    'skus.originalPrice': 1,
                     'skus.stock': 1,
                     seller: { $arrayElemAt: ['$seller', 0] }
                 }

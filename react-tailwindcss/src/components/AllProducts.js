@@ -64,7 +64,12 @@ const Products = () => {
     };
 
     const handleViewProduct = (productId) => {
-        navigate(`/product/${productId}`);
+        // Scroll to top smoothly before navigating
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Small delay to ensure smooth scrolling starts before navigation
+        setTimeout(() => {
+            navigate(`/product/${productId}`);
+        }, 100);
     };
 
     useEffect(() => {

@@ -38,6 +38,14 @@ export default function ProductDetail() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
+    // Scroll to top when component mounts or productId changes
+    useEffect(() => {
+        window.scrollTo({ 
+            top: 0, 
+            behavior: 'smooth' 
+        });
+    }, [productId]);
+
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -244,7 +252,7 @@ export default function ProductDetail() {
                             {/* Header */}
                             <div className="space-y-4">
                                 <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">
-                                    {product.category}
+                                    {product.category?.name || product.categoryName || 'Sản phẩm'}
                                 </div>
                                 
                                 <h1 className="text-4xl font-semibold text-gray-900 leading-tight tracking-tight">
