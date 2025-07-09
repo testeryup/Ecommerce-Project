@@ -190,14 +190,29 @@ export const getProductById = async (req, res) => {
             {
                 $match: {
                     _id: new mongoose.Types.ObjectId(productId),
+                    isDeleted: false
                 }
             },
             {
                 $lookup: {
                     from: 'skus',
-                    localField: '_id',
-                    foreignField: 'product',
-                    as: 'skus'
+                    // localField: '_id',
+                    // foreignField: 'product',
+                    // as: 'skus'
+                    let: {productId: "$_id"},
+                    pipeline: [
+                        {
+                            $match: { 
+                                $expr: { 
+                                    $and: [
+                                        {$eq: ["$product", "$$productId"]},
+                                        {$eq: ["$isDeleted", false]}
+                                    ]
+                                },
+                            }
+                        }
+                    ],
+                    as: "skus"
                 }
             },
             {
@@ -246,6 +261,7 @@ export const getProductById = async (req, res) => {
             data: product[0]
         })
     } catch (error) {
+        console.log(error);
         return res.status(500).json(error);
     }
 }
