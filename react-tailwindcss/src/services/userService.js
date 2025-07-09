@@ -2,7 +2,8 @@ import api from '../axios';
 
 export const getUserProfile = async () => {
     const response = await api.get('/api/user/profile');
-    return response.data;
+    console.log("check response from userService:", response);
+    return response;
 }
 
 export const getCategory = () => {
