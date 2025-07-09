@@ -4,6 +4,7 @@ import User from "../models/user.js";
 import Order from "../models/order.js";
 import Transaction from "../models/transaction.js";
 import Inventory from "../models/inventory.js";
+import Promo from "../models/promo.js";
 //
 // Be careful with this controller because we already changed the structure of sku and product!
 //
@@ -165,11 +166,36 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
         const session = await mongoose.startSession();
         session.startTransaction();
         try {
-            const { items } = req.body;
+            const { items, promoCode } = req.body;
+            if (!items || !Array.isArray(items) || items.length === 0) {
+                throw new Error("Items array is required and cannot be empty");
+            }
             const userId = req.user.id;
             const skuIds = items.map(item => item.skuId);
+            let discount = 1;
+            let promo = null;
+            if (promoCode) {
+                if (!/^[A-Z0-9]{3,20}$/.test(promoCode.toUpperCase())) {
+                    throw new Error("Mã promo chỉ được chứa chữ cái và số, độ dài 3-20 ký tự");
+                }
+                promo = await Promo.findOne({
+                    code: promoCode.toUpperCase(),
+                    isDeleted: false,
+                    maximumUse: { $gt: 0 },
+                    expiresAt: { $gt: new Date() }
+                }).select('_id code maximumUse discount __v').session(session);
+                if (!promo) {
+                    throw new Error("Mã giảm giá không hợp lệ hoặc đã hết hạn");
+                }
+                if (promo.discount && promo.discount > 0) {
+                    discount = (100 - promo.discount) / 100;
+                } else {
+                    throw new Error("Mã giảm giá không có giá trị giảm giá hợp lệ");
+                }
+            }
             const skus = await SKU.find({
-                _id: { $in: skuIds }
+                _id: { $in: skuIds },
+                isDeleted: false
             }).select('_id name price stock __v').session(session);
 
             const skuMap = new Map(skus.map(sku => [sku._id.toString(), sku]));
@@ -178,6 +204,15 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
             const skuUpdates = [];
 
             for (const item of items) {
+                if (!item.skuId || !item.quantity || item.quantity <= 0) {
+                    throw new Error(`Invalid item: skuId and positive quantity are required`);
+                }
+                if (!mongoose.Types.ObjectId.isValid(item.skuId)) {
+                    throw new Error(`Invalid SKU ID format: ${item.skuId}`);
+                }
+                if (!Number.isInteger(item.quantity) || item.quantity > 1000) {
+                    throw new Error(`Invalid quantity for SKU ${item.skuId}: must be integer between 1-1000`);
+                }
                 const sku = skuMap.get(item.skuId);
                 if (!sku) {
                     throw new Error(`Không tìm thấy SKU:${item.skuId}`);
@@ -186,8 +221,8 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
                 if (sku.stock < item.quantity) {
                     throw new Error(`Không đủ hàng cho SKU: ${item.skuId}`);
                 }
-
-                total += sku.price * item.quantity;
+                const itemTotal = sku.price * item.quantity * discount;
+                total += itemTotal;
                 orderItems.push({
                     sku: sku._id,
                     quantity: item.quantity,
@@ -203,13 +238,16 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
                         $inc: {
                             stock: -item.quantity,
                             'sales.count': item.quantity,
-                            'sales.revenue': item.quantity * sku.price,
+                            'sales.revenue': itemTotal,
                             __v: 1
                         }
                     }
                 });
             }
             const user = await User.findById(userId).session(session);
+            if (!user) {
+                throw new Error("Người dùng không hợp lệ");
+            }
             if (user.balance < total) {
                 throw new Error("Người dùng không đủ số dư để thực hiện giao dịch");
             }
@@ -242,7 +280,8 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
             for (const item of orderItems) {
                 const inventories = await Inventory.find({
                     sku: item.sku,
-                    status: 'available'
+                    status: 'available',
+                    isDeleted: false
                 }).limit(item.quantity).session(session);
 
                 if (inventories.length < item.quantity) {
@@ -253,7 +292,7 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
                 inventories.forEach(inv => {
                     const sellerId = inv.seller.toString();
                     const currentBalance = sellerBalanceMap.get(sellerId) || 0;
-                    sellerBalanceMap.set(sellerId, currentBalance + item.price);
+                    sellerBalanceMap.set(sellerId, currentBalance + item.price * discount);
                 });
 
                 credentialsList.push({
@@ -273,11 +312,25 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
                         $inc: { balance: revenue }
                     }).session(session)
             );
+
             await Promise.all(sellerUpdatePromises);
 
             await Order.findByIdAndUpdate(order._id, {
                 status: 'completed'
             }).session(session);
+
+            if (promo) {
+                const promoUpdateResult = await Promo.findOneAndUpdate({
+                    _id: promo._id,
+                    __v: promo.__v,
+                    isDeleted: false
+                }, {
+                    $inc: { maximumUse: -1, __v: 1 }
+                }, { session: session });
+                if (!promoUpdateResult) {
+                    throw new Error("OPTIMISTIC_LOCK_CONFLICT");
+                }
+            }
 
             await Transaction.create([{
                 user: userId,
@@ -295,6 +348,9 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
                 data: {
                     orderId: order._id,
                     total,
+                    originalTotal: total / discount,
+                    discount: promo ? promo.discount : 0,
+                    promoCode: promo ? promo.code : null,
                     credentials: credentialsList
                 }
             });

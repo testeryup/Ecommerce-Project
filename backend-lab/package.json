@@ -5,7 +5,11 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon  src/server.js"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "engines":{
+    "node": ">=18.0.0"
   },
   "keywords": [],
   "author": "",
@@ -22,9 +26,10 @@
     "lodash": "^4.17.21",
     "mongodb": "6.12.0",
     "mongoose": "8.9.2",
-    "nodemon": "3.1.9"
+    "nanoid": "^5.1.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0"
+    "@babel/core": "^7.26.0",
+    "nodemon": "3.1.9"
   }
 }
