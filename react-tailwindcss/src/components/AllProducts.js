@@ -88,7 +88,7 @@ const Products = () => {
                     setProducts(productsResponse.data);
                     setFilteredProducts(productsResponse.data);
                 }
-                if (categoriesResponse) {
+                if (categoriesResponse && categoriesResponse.data) {
                     setCategories(categoriesResponse.data);
                 }
             } catch (error) {
