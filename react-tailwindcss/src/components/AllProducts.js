@@ -89,7 +89,7 @@ const Products = () => {
                     setFilteredProducts(productsResponse.data);
                 }
                 if (categoriesResponse) {
-                    setCategories(categoriesResponse);
+                    setCategories(categoriesResponse.data);
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);

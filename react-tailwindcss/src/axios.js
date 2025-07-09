@@ -40,6 +40,7 @@ const processQueue = (error, token = null) => {
 api.interceptors.response.use(
     (response) => response.data,
     async (error) => {
+        console.log("check error:", error);
         if (!error.response) {
             return Promise.reject(new Error('Network Error'));
         }
