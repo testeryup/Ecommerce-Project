@@ -8,7 +8,6 @@ export const login = createAsyncThunk(
     async ({ email, password }, thunkAPI) => {
         try {
             const response = await authService.login(email, password);
-            console.log("check response:", response);
             thunkAPI.dispatch(setUserRole(response.role));
             return response;
         } catch (e) {
