@@ -31,17 +31,17 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 
   // Rate limiting với correct IP
-  const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP',
-    standardHeaders: true,
-    legacyHeaders: false,
-    // Sử dụng req.ip (đã được trust proxy xử lý)
-    keyGenerator: (req) => req.ip
-  });
+  // const limiter = rateLimit({
+  //   windowMs: 15 * 60 * 1000, // 15 minutes
+  //   max: 100, // limit each IP to 100 requests per windowMs
+  //   message: 'Too many requests from this IP',
+  //   standardHeaders: true,
+  //   legacyHeaders: false,
+  //   // Sử dụng req.ip (đã được trust proxy xử lý)
+  //   keyGenerator: (req) => req.ip
+  // });
 
-  app.use('/api/', limiter);
+  // app.use('/api/', limiter);
 
   // HTTPS redirect
   app.use((req, res, next) => {
@@ -66,18 +66,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.get('/', (req, res) => {
-//   res.json({
-//     message: 'API is running',
-//     client: {
-//       ip: req.ip,
-//       protocol: req.protocol,
-//       hostname: req.hostname,
-//       secure: req.secure,
-//       userAgent: req.get('User-Agent')
-//     }
-//   });
-// })
 
 app.use(express.json({ limit: '50mb' })); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true, limit: '50mb', parameterLimit: 50000 })); // Parse URL-encoded bodies
