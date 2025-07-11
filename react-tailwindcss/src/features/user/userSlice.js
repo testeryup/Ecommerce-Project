@@ -6,7 +6,8 @@ export const fetchUserProfile = createAsyncThunk(
     async (_, thunkAPI) => {
         try {
             const response = await userService.getUserProfile();
-            return response.data; // Return response.data instead of the whole response
+            // Backend trả về user object trực tiếp, không có wrapper .data
+            return response; 
         } catch (error) {
             const message = 
                 (error.response && 
@@ -47,10 +48,12 @@ export const userSlice = createSlice({
             .addCase(fetchUserProfile.fulfilled, (state, action) => {
                 state.loading = false;
                 state.profile = action.payload;
-                state.role = action.payload.user.role; // Set role from profile
+                // Set role from profile directly (not from nested user object)
+                state.role = action.payload?.role;
             })
             .addCase(fetchUserProfile.rejected, (state, action) => {
                 state.loading = false;
+                state.error = action.payload;
             });
     }
 });

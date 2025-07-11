@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MyOrdersComponent from '../../../components/user/MyOrders';
+import MyOrdersComponent from '../../../components/user/MyOrders.jsx';
 import { getOrders } from '../../../services/userService';
 import Layout from '../../../components/Layout';
 

@@ -11,9 +11,9 @@ import Home from '../components/Home';
 import Login from '../components/Login';
 import SignUp from '../components/SignUp';
 import ProtectedRoute from '../components/ProtectedRoute';
-import SellerDashboard from '../components/seller/SellerDashboard';
+import SellerDashboard from './System/SellerDashboard';
 import UserDashboard from '../components/user/UserDashboard';
-import AdminApp from '../components/admin/AdminApp.jsx';
+import AdminDashboard from './System/AdminDashboard';
 import UserProfile from './Header/User/UserProfile';
 import Loading from '../components/Loading';
 import ProductDetail from './HomePage/ProductDetail';
@@ -145,7 +145,7 @@ export default function App() {
                     path={`${path.ADMIN_DASHBOARD}/*`}
                     element={
                         <ProtectedRoute allowedRoles={['admin']}>
-                            <AdminApp />
+                            <AdminDashboard />
                         </ProtectedRoute>
                     }
                 />

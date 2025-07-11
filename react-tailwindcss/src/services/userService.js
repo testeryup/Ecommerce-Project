@@ -1,8 +1,7 @@
 import api from '../axios';
 
-export const getUserProfile = async () => {
-    const response = await api.get('/api/user/profile');
-    return response.data;
+export const getUserProfile = () => {
+    return api.get('/api/user/profile');
 }
 
 export const getCategory = () => {
@@ -49,24 +48,24 @@ export const getOrderById = (id) => {
     return api.get(`/api/orders/${id}`);
 }
 
-export const getOrders = async ({page = 1, limit = 10, status = 'all'}) => {
-    const response = await api.get(`/api/orders?page=${page}&limit=${limit}&status=${status}`);
-    return response.data;
+export const getOrders = ({page = 1, limit = 10, status = 'all'}) => {
+    return api.get(`/api/orders?page=${page}&limit=${limit}&status=${status}`);
 }
 
-export const updateUserProfile = async (data) => {
-    const response = await api.put('/api/user/profile', data);
-    return response.data;
+export const updateUserProfile = (data) => {
+    return api.put('/api/user/profile', data);
 }
 
-export const getUserBalance = async () => {
-    const response = await api.get('/api/user/balance');
-    return response.data;
+export const getUserBalance = () => {
+    return api.get('/api/user/balance');
 }
 
-export const createPaymentLink = async (amount) => {
-    const response = await api.post('/api/transactions/topup', {amount});
-    return response.data;
+export const createPaymentLink = (amount) => {
+    return api.post('/api/transactions/topup', {amount});
+}
+
+export const getAllUser = () => {
+    return api.get('/api/admin/users');
 }
 
 const userService = {
@@ -82,6 +81,7 @@ const userService = {
     getUserBalance,
     createPaymentLink,
     initOrder,
-    createOrder
+    createOrder,
+    getAllUser
 }
 export default userService;
