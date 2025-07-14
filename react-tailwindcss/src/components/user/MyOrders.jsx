@@ -2,68 +2,80 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '../ui/badge';
 import Breadcrumb from '../ui/Breadcrumb';
-import { ShoppingBag, Clock, Eye, Package, Filter, Search, Calendar, Truck, CheckCircle, XCircle, RefreshCw, User } from 'lucide-react';
+import { ShoppingBag, Clock, Eye, Package, Filter, Search, Calendar, Truck, CheckCircle, XCircle, RefreshCw, User, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { formatCurrency } from '../../ultils/currencyHelper';
 
-const MyOrdersComponent = ({ orders = [], loading = false, onViewOrder }) => {
-  const [filterStatus, setFilterStatus] = useState('all');
+const MyOrdersComponent = ({ 
+  orders = [], 
+  loading = false, 
+  onViewOrder,
+  pagination,
+  activeFilter = 'all',
+  filterOptions = [],
+  orderStatus = {},
+  onFilterChange,
+  onPageChange,
+  formatDate,
+  Pagination
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const getStatusConfig = (status) => {
+    const statusMap = orderStatus[status] || orderStatus.default || { label: status, color: 'default' };
+    
     switch (status) {
       case 'completed':
         return {
           color: 'bg-green-50 text-green-700 border-green-200',
           icon: CheckCircle,
-          text: 'Hoàn thành'
+          text: statusMap.label || 'Hoàn thành'
         };
       case 'pending':
         return {
           color: 'bg-yellow-50 text-yellow-700 border-yellow-200',
           icon: Clock,
-          text: 'Chờ xử lý'
+          text: statusMap.label || 'Chờ xử lý'
         };
-      case 'cancelled':
+      case 'canceled':
         return {
           color: 'bg-red-50 text-red-700 border-red-200',
           icon: XCircle,
-          text: 'Đã hủy'
+          text: statusMap.label || 'Đã hủy'
         };
       case 'processing':
         return {
           color: 'bg-blue-50 text-blue-700 border-blue-200',
           icon: RefreshCw,
-          text: 'Đang xử lý'
+          text: statusMap.label || 'Đang xử lý'
         };
-      case 'shipping':
+      case 'refunded':
         return {
           color: 'bg-purple-50 text-purple-700 border-purple-200',
-          icon: Truck,
-          text: 'Đang giao'
+          icon: RefreshCw,
+          text: statusMap.label || 'Đã hoàn tiền'
         };
       default:
         return {
           color: 'bg-gray-50 text-gray-700 border-gray-200',
           icon: Package,
-          text: status
+          text: statusMap.label || status
         };
     }
   };
 
-  const filterStatuses = [
-    { key: 'all', label: 'Tất cả', count: orders.length },
-    { key: 'pending', label: 'Chờ xử lý', count: orders.filter(o => o.status === 'pending').length },
-    { key: 'processing', label: 'Đang xử lý', count: orders.filter(o => o.status === 'processing').length },
-    { key: 'shipping', label: 'Đang giao', count: orders.filter(o => o.status === 'shipping').length },
-    { key: 'completed', label: 'Hoàn thành', count: orders.filter(o => o.status === 'completed').length },
-    { key: 'cancelled', label: 'Đã hủy', count: orders.filter(o => o.status === 'cancelled').length },
-  ];
+  const filterStatuses = filterOptions.map(option => ({
+    key: option.value,
+    label: option.label,
+    count: option.value === 'all' 
+      ? orders.length 
+      : orders.filter(o => o.status === option.value).length
+  }));
 
   const filteredOrders = orders.filter(order => {
-    const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
+    const matchesStatus = activeFilter === 'all' || order.status === activeFilter;
     const matchesSearch = searchTerm === '' || 
       order.orderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.items?.some(item => item.name?.toLowerCase().includes(searchTerm.toLowerCase()));
+      order.items?.some(item => item.productName?.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesStatus && matchesSearch;
   });
 
@@ -100,6 +112,18 @@ const MyOrdersComponent = ({ orders = [], loading = false, onViewOrder }) => {
               <p className="text-lg text-gray-600">
                 Theo dõi và quản lý tất cả đơn hàng của bạn
               </p>
+              {pagination && (
+                <div className="flex items-center gap-4 text-sm text-gray-500 mt-2">
+                  <div className="flex items-center gap-1">
+                    <ShoppingBag className="h-4 w-4" />
+                    <span>Tổng số đơn hàng: {pagination.totalItems}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Package className="h-4 w-4" />
+                    <span>Trang {pagination.currentPage}/{pagination.totalPages}</span>
+                  </div>
+                </div>
+              )}
             </div>
             <Link to="/profile" className="hidden sm:flex items-center gap-2 px-6 py-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors text-gray-700 font-medium">
               <User className="h-5 w-5" />
@@ -127,16 +151,16 @@ const MyOrdersComponent = ({ orders = [], loading = false, onViewOrder }) => {
             {filterStatuses.map(status => (
               <button
                 key={status.key}
-                onClick={() => setFilterStatus(status.key)}
+                onClick={() => onFilterChange && onFilterChange(status.key)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl whitespace-nowrap transition-all ${
-                  filterStatus === status.key
+                  activeFilter === status.key
                     ? 'bg-gray-900 text-white'
                     : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
                 }`}
               >
                 <span className="font-medium">{status.label}</span>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  filterStatus === status.key
+                  activeFilter === status.key
                     ? 'bg-white/20 text-white'
                     : 'bg-gray-200 text-gray-600'
                 }`}>
@@ -190,7 +214,7 @@ const MyOrdersComponent = ({ orders = [], loading = false, onViewOrder }) => {
                         <div className="flex items-center gap-4 text-sm text-gray-500">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            {new Date(order.createdAt).toLocaleDateString('vi-VN', {
+                            {formatDate ? formatDate(order.createdAt) : new Date(order.createdAt).toLocaleDateString('vi-VN', {
                               year: 'numeric',
                               month: 'long',
                               day: 'numeric',
@@ -236,7 +260,7 @@ const MyOrdersComponent = ({ orders = [], loading = false, onViewOrder }) => {
                                 )}
                                 <div>
                                   <p className="font-medium text-gray-900 text-sm">
-                                    {item.name?.length > 30 ? `${item.name.substring(0, 30)}...` : item.name}
+                                    {(item.productName || item.name)?.length > 30 ? `${(item.productName || item.name).substring(0, 30)}...` : (item.productName || item.name)}
                                   </p>
                                   <p className="text-sm text-gray-500">
                                     Số lượng: {item.quantity}
@@ -269,7 +293,122 @@ const MyOrdersComponent = ({ orders = [], loading = false, onViewOrder }) => {
             })}
           </div>
         )}
+
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 1 && Pagination && (
+          <div className="mt-8">
+            <PaginationComponent 
+              pagination={pagination}
+              onPageChange={onPageChange}
+              Pagination={Pagination}
+            />
+          </div>
+        )}
       </div>
+    </div>
+  );
+};
+
+// Pagination Component
+const PaginationComponent = ({ pagination, onPageChange, Pagination: PaginationData }) => {
+  const { pageNumbers, startPage, endPage } = PaginationData();
+
+  return (
+    <div className="flex items-center justify-center space-x-2">
+      {/* First page button */}
+      <button
+        onClick={() => onPageChange(1)}
+        disabled={!pagination.hasPrev}
+        className={`p-2 rounded-lg border transition-colors ${
+          !pagination.hasPrev
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+        }`}
+      >
+        <ChevronsLeft className="h-4 w-4" />
+      </button>
+
+      {/* Previous page button */}
+      <button
+        onClick={() => onPageChange(pagination.currentPage - 1)}
+        disabled={!pagination.hasPrev}
+        className={`p-2 rounded-lg border transition-colors ${
+          !pagination.hasPrev
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+        }`}
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+
+      {/* Page numbers */}
+      {startPage > 1 && (
+        <>
+          <button
+            onClick={() => onPageChange(1)}
+            className="px-3 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50 border-gray-300 font-medium"
+          >
+            1
+          </button>
+          {startPage > 2 && (
+            <span className="px-3 py-2 text-gray-500">...</span>
+          )}
+        </>
+      )}
+
+      {pageNumbers.map(page => (
+        <button
+          key={page}
+          onClick={() => onPageChange(page)}
+          className={`px-3 py-2 rounded-lg border font-medium transition-colors ${
+            pagination.currentPage === page
+              ? 'bg-gray-900 text-white border-gray-900'
+              : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+          }`}
+        >
+          {page}
+        </button>
+      ))}
+
+      {endPage < pagination.totalPages && (
+        <>
+          {endPage < pagination.totalPages - 1 && (
+            <span className="px-3 py-2 text-gray-500">...</span>
+          )}
+          <button
+            onClick={() => onPageChange(pagination.totalPages)}
+            className="px-3 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50 border-gray-300 font-medium"
+          >
+            {pagination.totalPages}
+          </button>
+        </>
+      )}
+
+      {/* Next page button */}
+      <button
+        onClick={() => onPageChange(pagination.currentPage + 1)}
+        disabled={!pagination.hasNext}
+        className={`p-2 rounded-lg border transition-colors ${
+          !pagination.hasNext
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+        }`}
+      >
+        <ChevronRight className="h-4 w-4" />
+      </button>
+
+      {/* Last page button */}
+      <button
+        onClick={() => onPageChange(pagination.totalPages)}
+        disabled={!pagination.hasNext}
+        className={`p-2 rounded-lg border transition-colors ${
+          !pagination.hasNext
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+        }`}
+      >
+        <ChevronsRight className="h-4 w-4" />
+      </button>
     </div>
   );
 };

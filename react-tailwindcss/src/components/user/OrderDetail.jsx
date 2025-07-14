@@ -26,57 +26,71 @@ const OrderDetailComponent = ({
   orderData, 
   loading = false, 
   visiblePasswords = new Set(), 
-  onTogglePasswordVisibility 
+  onTogglePasswordVisibility,
+  orderStatus = {},
+  formatDate,
+  copyToClipboard,
+  inventoriesBySku = {}
 }) => {
   const getStatusConfig = (status) => {
+    const statusMap = orderStatus[status] || orderStatus.default || { label: status, color: 'default' };
+    
     switch (status) {
       case 'completed':
         return {
           color: 'bg-green-50 text-green-700 border-green-200',
           icon: CheckCircle,
-          text: 'Hoàn thành'
+          text: statusMap.label || 'Hoàn thành'
         };
       case 'refunded':
         return {
           color: 'bg-blue-50 text-blue-700 border-blue-200',
           icon: Package,
-          text: 'Đã hoàn tiền'
+          text: statusMap.label || 'Đã hoàn tiền'
         };
       case 'canceled':
         return {
           color: 'bg-red-50 text-red-700 border-red-200',
           icon: XCircle,
-          text: 'Đã hủy'
+          text: statusMap.label || 'Đã hủy'
         };
       case 'processing':
         return {
           color: 'bg-yellow-50 text-yellow-700 border-yellow-200',
           icon: RefreshCw,
-          text: 'Đang xử lý'
+          text: statusMap.label || 'Đang xử lý'
         };
       case 'shipping':
         return {
           color: 'bg-purple-50 text-purple-700 border-purple-200',
           icon: Truck,
-          text: 'Đang giao'
+          text: statusMap.label || 'Đang giao'
         };
       case 'pending':
         return {
           color: 'bg-gray-50 text-gray-700 border-gray-200',
           icon: Clock,
-          text: 'Chờ xử lý'
+          text: statusMap.label || 'Chờ xử lý'
         };
       default:
         return {
           color: 'bg-gray-50 text-gray-700 border-gray-200',
           icon: AlertCircle,
-          text: 'Không xác định'
+          text: statusMap.label || 'Không xác định'
         };
     }
   };
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
+  const handleCopyToClipboard = async (text, type) => {
+    if (copyToClipboard) {
+      await copyToClipboard(text, type);
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    }
   };
 
   if (loading) {
@@ -167,89 +181,81 @@ const OrderDetailComponent = ({
                 </h2>
               </div>
               <div className="p-6">
-                <div className="space-y-4">
-                  {orderData.orderItems?.map((item, index) => (
-                    <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-2xl">
-                      {item.image && (
-                        <img 
-                          src={item.image} 
-                          alt={item.productName}
-                          className="w-16 h-16 object-cover rounded-xl"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-1">
-                          {item.productName}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          SKU: {item.skuCode}
-                        </p>
+                <div className="space-y-6">
+                  {orderData.skuDetails?.map((sku) => (
+                    <div key={sku._id} className="border border-gray-200 rounded-2xl overflow-hidden">
+                      {/* SKU Header */}
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">
-                            Số lượng: {item.quantity}
-                          </span>
-                          <span className="font-bold text-gray-900">
-                            {formatCurrency(item.price)}
+                          <div>
+                            <h3 className="font-semibold text-gray-900">
+                              {sku.productName}
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {sku.name}
+                            </p>
+                          </div>
+                          <span className="text-xl font-bold text-gray-900">
+                            {formatCurrency(sku.price)}₫
                           </span>
                         </div>
-                        
-                        {/* Digital Product Information */}
-                        {item.digitalInfo && (
-                          <div className="mt-3 p-3 bg-white rounded-xl border border-gray-200">
-                            <h4 className="font-medium text-gray-900 mb-2">Thông tin sản phẩm số:</h4>
-                            <div className="space-y-2">
-                              {item.digitalInfo.username && (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm text-gray-600">Tài khoản:</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
-                                      {item.digitalInfo.username}
-                                    </span>
+                      </div>
+
+                      {/* Account Credentials */}
+                      <div className="p-6">
+                        <div className="grid gap-4">
+                          {inventoriesBySku[sku._id]?.map((inventory) => {
+                            const [username, password] = inventory.credentials.split('|');
+                            return (
+                              <div key={inventory._id} className="bg-white border border-gray-200 rounded-xl p-4">
+                                <h4 className="font-medium text-gray-900 mb-3">Thông tin tài khoản</h4>
+                                
+                                {/* Username */}
+                                <div className="mb-3">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <label className="text-sm text-gray-600">Tài khoản</label>
                                     <button
-                                      onClick={() => copyToClipboard(item.digitalInfo.username)}
-                                      className="p-1 hover:bg-gray-100 rounded"
+                                      onClick={() => handleCopyToClipboard(username, 'tài khoản')}
+                                      className="p-1 hover:bg-gray-100 rounded transition-colors"
                                     >
-                                      <Copy className="h-3 w-3 text-gray-500" />
+                                      <Copy className="h-4 w-4 text-gray-500" />
                                     </button>
                                   </div>
-                                </div>
-                              )}
-                              {item.digitalInfo.password && (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm text-gray-600">Mật khẩu:</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
-                                      {visiblePasswords.has(`${index}`) 
-                                        ? item.digitalInfo.password 
-                                        : '••••••••'
-                                      }
-                                    </span>
-                                    <button
-                                      onClick={() => onTogglePasswordVisibility && onTogglePasswordVisibility(index)}
-                                      className="p-1 hover:bg-gray-100 rounded"
-                                    >
-                                      {visiblePasswords.has(`${index}`) 
-                                        ? <EyeOff className="h-3 w-3 text-gray-500" />
-                                        : <Eye className="h-3 w-3 text-gray-500" />
-                                      }
-                                    </button>
-                                    <button
-                                      onClick={() => copyToClipboard(item.digitalInfo.password)}
-                                      className="p-1 hover:bg-gray-100 rounded"
-                                    >
-                                      <Copy className="h-3 w-3 text-gray-500" />
-                                    </button>
+                                  <div className="font-mono text-sm bg-gray-50 px-3 py-2 rounded-lg border">
+                                    {username}
                                   </div>
                                 </div>
-                              )}
-                              {item.digitalInfo.additionalInfo && (
-                                <div className="text-sm text-gray-600 bg-blue-50 p-2 rounded">
-                                  {item.digitalInfo.additionalInfo}
+
+                                {/* Password */}
+                                <div>
+                                  <div className="flex items-center justify-between mb-1">
+                                    <label className="text-sm text-gray-600">Mật khẩu</label>
+                                    <div className="flex items-center gap-1">
+                                      <button
+                                        onClick={() => onTogglePasswordVisibility && onTogglePasswordVisibility(inventory._id)}
+                                        className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                      >
+                                        {visiblePasswords.has(inventory._id) 
+                                          ? <EyeOff className="h-4 w-4 text-gray-500" />
+                                          : <Eye className="h-4 w-4 text-gray-500" />
+                                        }
+                                      </button>
+                                      <button
+                                        onClick={() => handleCopyToClipboard(password, 'mật khẩu')}
+                                        className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                      >
+                                        <Copy className="h-4 w-4 text-gray-500" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <div className="font-mono text-sm bg-gray-50 px-3 py-2 rounded-lg border">
+                                    {visiblePasswords.has(inventory._id) ? password : '••••••••'}
+                                  </div>
                                 </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -273,7 +279,7 @@ const OrderDetailComponent = ({
                       <div>
                         <p className="text-sm text-gray-600">Ngày đặt hàng</p>
                         <p className="font-medium text-gray-900">
-                          {new Date(orderData.createdAt).toLocaleDateString('vi-VN', {
+                          {formatDate ? formatDate(orderData.createdAt) : new Date(orderData.createdAt).toLocaleDateString('vi-VN', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',
@@ -312,7 +318,7 @@ const OrderDetailComponent = ({
                         <div>
                           <p className="text-sm text-gray-600">Cập nhật lần cuối</p>
                           <p className="font-medium text-gray-900">
-                            {new Date(orderData.updatedAt).toLocaleDateString('vi-VN', {
+                            {formatDate ? formatDate(orderData.updatedAt) : new Date(orderData.updatedAt).toLocaleDateString('vi-VN', {
                               year: 'numeric',
                               month: 'long',
                               day: 'numeric',
