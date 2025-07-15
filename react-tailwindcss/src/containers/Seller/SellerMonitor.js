@@ -3,7 +3,14 @@ import { getSellerStats } from '../../services/sellerService';
 import Loading from '../../components/Loading';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../ultils';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+    Wallet, 
+    ShoppingCart, 
+    Package, 
+    Users,
+    TrendingUp,
+    TrendingDown
+} from 'lucide-react';
 
 import {
     AreaChart,
@@ -15,22 +22,30 @@ import {
     ResponsiveContainer,
     Brush
 } from 'recharts';
-import './SellerMonitor.scss';
 
-const MetricCard = ({ icon, title, value, change, format }) => (
-    <div className="metric-card">
-        <div className={`metric-icon ${Array.isArray(icon) ? icon[1] : ''}`}>
-            <FontAwesomeIcon icon={icon} />
-        </div>
-        <div className="metric-info">
-            <h3>{title}</h3>
-            <p className="metric-value">{format ? format(value) : value}</p>
-            {/* {change && (
-                <p className={`metric-change ${parseFloat(change) >= 0 ? 'positive' : 'negative'}`}>
-                    <i className={`fas fa-arrow-${parseFloat(change) >= 0 ? 'up' : 'down'}`}></i>
-                    {Math.abs(parseFloat(change))}% so với hôm qua
-                </p>
-            )} */}
+const MetricCard = ({ icon: Icon, title, value, change, format }) => (
+    <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="p-5">
+            <div className="flex items-center">
+                <div className="flex-shrink-0">
+                    <Icon className="h-8 w-8 text-green-600" />
+                </div>
+                <div className="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">{title}</dt>
+                        <dd className="text-2xl font-bold text-gray-900">{format ? format(value) : value}</dd>
+                    </dl>
+                    {change && (
+                        <div className={`flex items-center text-sm ${parseFloat(change) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {parseFloat(change) >= 0 ? 
+                                <TrendingUp className="h-4 w-4 mr-1" /> : 
+                                <TrendingDown className="h-4 w-4 mr-1" />
+                            }
+                            {Math.abs(parseFloat(change))}% so với hôm qua
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     </div>
 );
@@ -38,11 +53,11 @@ const MetricCard = ({ icon, title, value, change, format }) => (
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload?.length) {
         return (
-            <div className="chart-tooltip">
-                <p className="label">{label}</p>
-                <div className="tooltip-value">
-                    <span className="dot sales"></span>
-                    <span>Doanh thu: {formatCurrency(payload[0].value)}₫</span>
+            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                <p className="font-medium text-gray-900">{label}</p>
+                <div className="flex items-center mt-1">
+                    <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                    <span className="text-sm text-gray-600">Doanh thu: {formatCurrency(payload[0].value)}₫</span>
                 </div>
             </div>
         );
@@ -51,20 +66,26 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const RecentOrders = ({ orders }) => (
-    <div className="recent-orders">
-        <h3>Đơn hàng gần đây</h3>
-        <div className="orders-list">
+    <div className="bg-white shadow rounded-lg p-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Đơn hàng gần đây</h3>
+        <div className="space-y-3">
             {orders.map(order => (
-                <div key={order.orderId} className="order-item">
-                    <div className="sl-order-info">
-                        <span className="sl-order-id">#{order.orderId}</span>
-                        <span className="sl-buyer-name">{order.buyerName}</span>
+                <div key={order.orderId} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                    <div>
+                        <span className="text-sm font-medium text-gray-900">#{order.orderId}</span>
+                        <div className="text-sm text-gray-500">{order.buyerName}</div>
                     </div>
-                    <div className="sl-order-meta">
-                        <span className={`order-status ${order.status}`}>
+                    <div className="text-right">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            order.status === 'completed' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                        }`}>
                             {order.status === 'completed' ? 'Hoàn thành' : 'Đang xử lý'}
                         </span>
-                        <span className="order-amount">{formatCurrency(order.total)}₫</span>
+                        <div className="text-sm font-medium text-gray-900 mt-1">
+                            {formatCurrency(order.total)}₫
+                        </div>
                     </div>
                 </div>
             ))}
@@ -73,18 +94,20 @@ const RecentOrders = ({ orders }) => (
 );
 
 const TopProducts = ({ products }) => (
-    <div className="top-products">
-        <h3>Sản phẩm bán chạy</h3>
-        <div className="products-list">
+    <div className="bg-white shadow rounded-lg p-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Sản phẩm bán chạy</h3>
+        <div className="space-y-3">
             {products.map(product => (
-                <div key={product.id} className="product-item">
-                    <div className="product-info">
-                        <h4>{product.name}</h4>
-                        <p className="sku-name">{product.sku}</p>
+                <div key={product.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                    <div>
+                        <h4 className="text-sm font-medium text-gray-900">{product.name}</h4>
+                        <p className="text-sm text-gray-500">{product.sku}</p>
                     </div>
-                    <div className="product-stats">
-                        <span className="sold-count">{product.soldCount} đã bán</span>
-                        <span className="revenue">{formatCurrency(product.revenue)}₫</span>
+                    <div className="text-right">
+                        <span className="text-sm text-gray-600">{product.soldCount} đã bán</span>
+                        <div className="text-sm font-medium text-gray-900">
+                            {formatCurrency(product.revenue)}₫
+                        </div>
                     </div>
                 </div>
             ))}
@@ -100,14 +123,14 @@ const SalesChart = ({ data }) => {
     };
 
     return (
-        <div className="chart-wrapper">
-            <h3>Biểu đồ doanh thu</h3>
+        <div className="bg-white shadow rounded-lg p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Biểu đồ doanh thu</h3>
             <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={data}>
                     <defs>
                         <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#3498db" stopOpacity={0.8} />
-                            <stop offset="95%" stopColor="#3498db" stopOpacity={0} />
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -125,10 +148,10 @@ const SalesChart = ({ data }) => {
                     <Area
                         type="monotone"
                         dataKey="sales"
-                        stroke="#3498db"
+                        stroke="#10b981"
                         fill="url(#salesGradient)"
                     />
-                    <Brush dataKey="time" height={30} stroke="#3498db" />
+                    <Brush dataKey="time" height={30} stroke="#10b981" />
                 </AreaChart>
             </ResponsiveContainer>
         </div>
@@ -161,17 +184,22 @@ export default function SellerMonitor() {
         }
     };
 
-    if (loading || !stats) return <div className="loading-container"><Loading /></div>;
+    if (loading || !stats) return <div className="flex justify-center items-center min-h-96"><Loading /></div>;
 
     return (
-        <div className="seller-monitor">
-            <div className="monitor-header">
-                <h1>Tổng quan</h1>
-                <div className="time-filter">
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h1 className="text-2xl font-bold text-gray-900">Tổng quan</h1>
+                <div className="flex flex-wrap gap-2 mt-4 sm:mt-0">
                     {['today', 'week', 'month'].map(range => (
                         <button
                             key={range}
-                            className={`filter-btn ${timeRange === range ? 'active' : ''}`}
+                            className={`px-3 py-2 text-sm font-medium rounded-md ${
+                                timeRange === range 
+                                    ? 'bg-green-600 text-white' 
+                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            }`}
                             onClick={() => setTimeRange(range)}
                         >
                             {range === 'today' ? 'Hôm nay' :
@@ -181,39 +209,42 @@ export default function SellerMonitor() {
                 </div>
             </div>
 
-            <div className="metrics-grid">
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <MetricCard
-                    icon={["fas", "wallet"]}
+                    icon={Wallet}
                     title="Doanh thu"
                     value={stats.revenue[timeRange]}
                     change={stats.revenue.change}
                     format={formatCurrency}
                 />
                 <MetricCard
-                    icon={["fas", "shopping-cart"]}
+                    icon={ShoppingCart}
                     title="Đơn hàng"
                     value={stats.orders[timeRange]}
                     change={stats.orders.change}
                 />
                 <MetricCard
-                    icon={["fas", "box"]}
+                    icon={Package}
                     title="Sản phẩm đã bán"
                     value={stats.products.sold}
                     change={stats.products.change}
                 />
                 <MetricCard
-                    icon={["fa", "users"]}
+                    icon={Users}
                     title="Khách hàng mới"
                     value={stats.customers.new}
                     change={stats.customers.change}
                 />
             </div>
 
-            <div className="charts-section">
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 gap-6">
                 <SalesChart data={stats.salesChart[timeRange]} />
             </div>
 
-            <div className="details-grid">
+            {/* Details Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <RecentOrders orders={stats.recentOrders} />
                 <TopProducts products={stats.topProducts} />
             </div>

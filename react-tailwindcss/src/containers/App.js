@@ -134,7 +134,7 @@ export default function App() {
                     }
                 />
                 <Route
-                    path={path.SELLER_DASHBOARD}
+                    path="/dashboard/seller/*"
                     element={
                         <ProtectedRoute allowedRoles={['seller']}>
                             <SellerDashboard />
