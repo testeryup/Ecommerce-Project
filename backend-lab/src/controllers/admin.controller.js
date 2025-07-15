@@ -3,6 +3,7 @@ import User from '../models/user.js';
 import Product from '../models/product.js';
 import Order from '../models/order.js';
 import Transaction from '../models/transaction.js';
+import SKU from '../models/sku.js';
 import mongoose from 'mongoose';
 
 export const createSeller = async (req, res) => {
@@ -635,57 +636,62 @@ export const getProducts = async (req, res) => {
     const sortBy = req.query.sortBy || 'createdAt';
     const sortOrder = req.query.sortOrder || 'desc';
 
+    // Build match condition for SKU collection
     const matchCondition = {};
     
     if (status !== 'all') {
-      matchCondition.status = status;
-    }
-    
-    if (seller !== 'all') {
-      matchCondition.seller = new mongoose.Types.ObjectId(seller);
+      matchCondition.status = status === 'active' ? 'available' : 'hidden';
     }
     
     if (search) {
-      matchCondition.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { sku: { $regex: search, $options: 'i' } }
-      ];
+      // For search, we'll use a different approach since we need to search in Product name
+      matchCondition.name = { $regex: search, $options: 'i' };
     }
 
-    const products = await Product.aggregate([
+    // Query SKU collection and populate Product and Seller info
+    const products = await SKU.aggregate([
       { $match: matchCondition },
       {
         $lookup: {
+          from: 'products',
+          localField: 'product',
+          foreignField: '_id',
+          as: 'productInfo'
+        }
+      },
+      { $unwind: '$productInfo' },
+      {
+        $lookup: {
           from: 'users',
-          localField: 'seller',
+          localField: 'productInfo.seller',
           foreignField: '_id',
           as: 'sellerInfo'
         }
       },
+      { $unwind: '$sellerInfo' },
+      // Filter by seller if specified
+      ...(seller !== 'all' ? [{ $match: { 'sellerInfo._id': new mongoose.Types.ObjectId(seller) } }] : []),
+      // Filter by product name if search is specified
+      ...(search ? [{ $match: { 'productInfo.name': { $regex: search, $options: 'i' } } }] : []),
       {
         $lookup: {
           from: 'orders',
           localField: '_id',
-          foreignField: 'items.product',
+          foreignField: 'items.sku',
           as: 'orderStats'
         }
       },
       {
-        $addFields: {
-          sellerInfo: { $arrayElemAt: ['$sellerInfo', 0] },
-          totalSold: { $size: '$orderStats' }
-        }
-      },
-      {
         $project: {
-          name: 1,
-          price: 1,
-          status: 1,
-          sku: 1,
-          stock: 1,
-          createdAt: 1,
-          totalSold: 1,
+          _id: 1,
+          name: '$name',
+          price: '$price',
+          status: '$status',
+          sku: '$name', // Use SKU name as sku field
+          stock: '$stock',
+          createdAt: '$createdAt',
+          totalSold: { $size: '$orderStats' },
+          productName: '$productInfo.name',
           'sellerInfo.username': 1,
           'sellerInfo._id': 1
         }
@@ -695,7 +701,34 @@ export const getProducts = async (req, res) => {
       { $limit: limit }
     ]);
 
-    const total = await Product.countDocuments(matchCondition);
+    // Get total count
+    const totalPipeline = [
+      { $match: matchCondition },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'product',
+          foreignField: '_id',
+          as: 'productInfo'
+        }
+      },
+      { $unwind: '$productInfo' },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'productInfo.seller',
+          foreignField: '_id',
+          as: 'sellerInfo'
+        }
+      },
+      { $unwind: '$sellerInfo' },
+      ...(seller !== 'all' ? [{ $match: { 'sellerInfo._id': new mongoose.Types.ObjectId(seller) } }] : []),
+      ...(search ? [{ $match: { 'productInfo.name': { $regex: search, $options: 'i' } } }] : []),
+      { $count: 'total' }
+    ];
+
+    const totalResult = await SKU.aggregate(totalPipeline);
+    const total = totalResult[0]?.total || 0;
 
     res.status(200).json({
       errCode: 0,
@@ -712,6 +745,7 @@ export const getProducts = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Error in getProducts:', error);
     res.status(500).json({
       errCode: 1,
       message: error.message
