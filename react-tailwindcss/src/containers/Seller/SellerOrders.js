@@ -268,7 +268,7 @@ export default function SellerOrders() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {orders.map((order) => {
+                            {Array.isArray(orders) && orders.map((order) => {
                                 const statusInfo = getStatusInfo(order.status);
                                 const StatusIcon = statusInfo.icon;
                                 

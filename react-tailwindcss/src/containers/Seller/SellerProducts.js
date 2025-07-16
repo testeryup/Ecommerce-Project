@@ -75,11 +75,12 @@ export default function SellerProducts() {
         const fetchCategories = async () => {
             try {
                 console.log('🔧 Fetching categories...');
-                const categories = await getCategory();
-                console.log('🔧 Categories response:', categories);
+                const response = await getCategory();
+                console.log('🔧 Categories response:', response);
                 
-                // Match react-lab behavior exactly - set categories directly
-                setCategoriesList(categories || []);
+                // Extract categories from response.data or response directly
+                const categories = response?.data || response || [];
+                setCategoriesList(Array.isArray(categories) ? categories : []);
                 console.log('✅ Categories set:', categories);
             } catch (error) {
                 console.error('❌ Error fetching categories:', error);
@@ -149,7 +150,7 @@ export default function SellerProducts() {
                                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none"
                             >
                                 <option value="all">Tất cả danh mục</option>
-                                {categoriesList.map(category => (
+                                {Array.isArray(categoriesList) && categoriesList.map(category => (
                                     <option key={category._id} value={category._id}>
                                         {category.name}
                                     </option>
