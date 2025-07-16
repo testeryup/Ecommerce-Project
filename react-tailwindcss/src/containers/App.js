@@ -29,6 +29,7 @@ import AllProducts from '../components/AllProducts.js'
 import NotFound from '../components/NotFound';
 import ScrollToTop from '../components/ScrollToTop';
 import { Toaster } from 'react-hot-toast';
+import UserSubscriptions from './Header/User/UserSubscriptions';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -56,7 +57,7 @@ export default function App() {
             setIsInitialized(true);
         };
         initializeAuth();
-    }, [dispatch, auth.token]);
+    }, [dispatch, auth]);
 
     if (!isInitialized) return <Loading></Loading>;
 
@@ -165,6 +166,14 @@ export default function App() {
                 <Route path={path.TOPUP} element={<Topup />}></Route>
                 <Route path="/products" element={<AllProducts />} />
                 <Route path="/about" element={<About />} />
+                <Route
+                    path="/user/subscriptions"
+                    element={
+                        <ProtectedRoute allowedRoles={['user']}>
+                            <UserSubscriptions />
+                        </ProtectedRoute>
+                    }
+                />
 
                 {/* Catch-All Route */}
                 <Route path='*' element={<NotFound />} />

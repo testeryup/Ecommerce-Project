@@ -214,6 +214,38 @@ const OrderDetail = () => {
                           </button>
                         </div>
                       </div>
+
+                      {/* Subscription Information */}
+                      {inventory.currentSubscription && (
+                        <div className="subscription-info">
+                          <div className="subscription-status">
+                            <label>Trạng thái Subscription</label>
+                            <span className={`status-badge ${inventory.currentSubscription.status === 'active' ? 'active' : 'inactive'}`}>
+                              {inventory.currentSubscription.status === 'active' ? 'Đang hoạt động' : 'Đã hết hạn'}
+                            </span>
+                          </div>
+                          <div className="subscription-dates">
+                            <div className="date-field">
+                              <label>Ngày bắt đầu</label>
+                              <span>{formatDate(inventory.currentSubscription.startDate)}</span>
+                            </div>
+                            <div className="date-field">
+                              <label>Ngày hết hạn</label>
+                              <span>{formatDate(inventory.currentSubscription.endDate)}</span>
+                            </div>
+                          </div>
+                          {inventory.currentSubscription.status === 'active' && (
+                            <div className="subscription-actions">
+                              <button 
+                                className="renew-btn"
+                                onClick={() => window.location.href = '/user/subscriptions'}
+                              >
+                                Gia hạn Subscription
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}

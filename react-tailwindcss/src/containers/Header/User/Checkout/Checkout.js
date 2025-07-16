@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import Layout from '../../../../components/Layout';
@@ -12,6 +12,7 @@ export default function Checkout() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { profile } = useSelector(state => state.user);
+    const [orderDetails, setOrderDetails] = useState(null);
 
     useEffect(() => {
         // Check for items in location state
@@ -25,8 +26,6 @@ export default function Checkout() {
         const validateItems = async () => {
             try {
                 console.log('Validating items:', location.state.items);
-                console.log('User profile:', profile);
-                console.log('User authenticated:', !!profile);
                 
                 const result = await initOrder(location.state.items);
                 console.log('InitOrder result:', result);
@@ -34,14 +33,12 @@ export default function Checkout() {
                 if (result.errCode !== 0) {
                     console.error('InitOrder failed:', result);
                     toast.error(result.message || 'Mặt hàng bạn đang yêu cầu không tồn tại hoặc đã hết');
-                    // navigate(path.CART);
                 } else {
                     console.log('Order validation successful!');
+                    setOrderDetails(result.data);
                 }
             } catch (error) {
                 console.error('Validation error details:', error);
-                console.error('Error response:', error.response?.data);
-                console.error('Error status:', error.response?.status);
                 
                 let errorMessage = 'Có lỗi xảy ra khi kiểm tra đơn hàng';
                 

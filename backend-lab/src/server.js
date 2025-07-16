@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import PayOS from '@payos/node';
 import connectDB from './config/db.config.js';
+import SubscriptionService from './services/subscriptionService.js';
 
 import authRoutes from './routes/auth.routes.js';
 import productRoutes from './routes/product.routes.js';
@@ -183,7 +184,11 @@ app.use((err, req, res, next) => {
 
 connectDB();
 
+// Initialize subscription cron jobs after DB connection
+SubscriptionService.initializeCronJobs();
+
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
   console.log("running server at port:", port);
+  console.log("Subscription management system initialized");
 });

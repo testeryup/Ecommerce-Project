@@ -26,10 +26,12 @@ export const initOrder = (items) => {
     // Transform items to match backend expectations - only send skuId and quantity
     const transformedItems = items.map(item => ({
         skuId: item.skuId,
-        quantity: item.quantity
+        quantity: item.quantity,
+        subscriptionDuration: item.subscriptionDuration || 30 // Add subscription duration
     }));
-    console.log('Sending to initOrder API:', { items: transformedItems });
-    return api.post('/api/orders/init', {items: transformedItems});
+    
+    console.log('Sending initOrder request with items:', transformedItems);
+    return api.post('/api/orders/init', { items: transformedItems });
 } 
 
 export const createOrder = (items) => {
@@ -70,6 +72,22 @@ export const createPaymentLink = async (amount) => {
     return response.data;
 }
 
+// Subscription related services
+export const getUserSubscriptions = () => {
+    return api.get('/api/user/subscriptions');
+}
+
+export const getSubscriptionHistory = (accountId) => {
+    return api.get(`/api/user/subscriptions/history/${accountId}`);
+}
+
+export const requestRenewal = (accountId, duration) => {
+    return api.post('/api/user/subscriptions/renew', {
+        accountId,
+        duration
+    });
+}
+
 const userService = {
     getUserProfile, 
     updateUserProfile,
@@ -83,6 +101,9 @@ const userService = {
     getUserBalance,
     createPaymentLink,
     initOrder,
-    createOrder
+    createOrder,
+    getUserSubscriptions,
+    getSubscriptionHistory,
+    requestRenewal
 }
 export default userService;

@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { path } from "../../ultils";
 import { logout } from "../../features/auth/authSlice";
 import CartPreview from './User/CartPreview';
+import SubscriptionNotifications from '../../components/SubscriptionNotifications';
 import { formatCurrency } from '../../ultils';
 export default function UserHeader() {
     const dispatch = useDispatch();
@@ -109,6 +110,9 @@ export default function UserHeader() {
                                 (
                                     <div className="flex items-center space-x-4">
                                         {roleComponents[profile.role] || roleComponents.default}
+                                        
+                                        {/* Subscription Notifications - only for users */}
+                                        {profile.role === 'user' && <SubscriptionNotifications />}
 
                                         <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                                             <FontAwesomeIcon icon={faUserCircle} className="text-white text-lg" />
@@ -126,10 +130,16 @@ export default function UserHeader() {
                                                     </Link>
                                                     {
                                                         profile.role === 'user' &&
-                                                        (<Link to="/orders" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                                            <FontAwesomeIcon icon={faBoxOpen} className="mr-3 text-gray-500" />
-                                                            Orders
-                                                        </Link>)
+                                                        (<>
+                                                            <Link to="/orders" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                                                                <FontAwesomeIcon icon={faBoxOpen} className="mr-3 text-gray-500" />
+                                                                Orders
+                                                            </Link>
+                                                            <Link to="/user/subscriptions" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                                                                <FontAwesomeIcon icon={faBell} className="mr-3 text-gray-500" />
+                                                                My Subscriptions
+                                                            </Link>
+                                                        </>)
                                                     }
                                                     <Link to="/support" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                                         <FontAwesomeIcon icon={faHeart} className="mr-3 text-gray-500" />
