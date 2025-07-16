@@ -74,18 +74,23 @@ export default function SellerProducts() {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await getCategory('ALL');
-                if (response && response.errCode === 0) {
-                    setCategoriesList(response.data);
-                }
+                console.log('🔧 Fetching categories...');
+                const categories = await getCategory();
+                console.log('🔧 Categories response:', categories);
+                
+                // Match react-lab behavior exactly - set categories directly
+                setCategoriesList(categories || []);
+                console.log('✅ Categories set:', categories);
             } catch (error) {
-                console.error('Error fetching categories:', error);
+                console.error('❌ Error fetching categories:', error);
+                setCategoriesList([]);
             }
         };
         fetchCategories();
     }, []);
 
     const handleOpenModal = (modalType, mode = 'create', productId = null) => {
+        console.log('Opening modal:', { modalType, mode, productId });
         setActiveModal(modalType);
         setMode(mode);
         setSelectedProductId(productId);
@@ -267,11 +272,12 @@ export default function SellerProducts() {
             {/* Modals */}
             {activeModal === ModalTypes.NEW_PRODUCT && (
                 <NewProductModal
+                    key={`modal-${categoriesList.length}`} // Force re-render when categories load
                     isOpen={activeModal === ModalTypes.NEW_PRODUCT}
                     onClose={handleCloseModal}
-                    categories={categoriesList}
+                    categoriesList={categoriesList}
                     mode={mode}
-                    product={mode === 'edit' ? products.find(p => p._id === selectedProductId) : null}
+                    productId={mode === 'edit' ? selectedProductId : null}
                 />
             )}
             {activeModal === ModalTypes.INVENTORY && (
