@@ -3,6 +3,7 @@ import User from '../models/user.js';
 import Product from '../models/product.js';
 import Order from '../models/order.js';
 import Transaction from '../models/transaction.js';
+import SKU from '../models/sku.js';
 import Inventory from '../models/inventory.js';
 import mongoose from 'mongoose';
 
