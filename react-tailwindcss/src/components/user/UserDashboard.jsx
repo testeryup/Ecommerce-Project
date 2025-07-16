@@ -233,14 +233,12 @@ const UserDashboard = () => {
                     <Avatar className="h-16 w-16">
                       <AvatarImage src={user?.avatar} alt={user?.username} />
                       <AvatarFallback className="text-lg">
-                        {(user?.firstName || user?.username || 'U').charAt(0).toUpperCase()}
+                        {(user?.username || 'U').charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {user?.firstName && user?.lastName 
-                          ? `${user.firstName} ${user.lastName}` 
-                          : user?.username}
+                        {user?.username || 'Người dùng'}
                       </h3>
                       <div className="mt-2 space-y-1 text-sm text-gray-600">
                         <div className="flex items-center">

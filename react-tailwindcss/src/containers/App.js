@@ -11,9 +11,9 @@ import Home from '../components/Home';
 import Login from '../components/Login';
 import SignUp from '../components/SignUp';
 import ProtectedRoute from '../components/ProtectedRoute';
-import SellerDashboard from '../components/seller/SellerDashboard';
+import SellerDashboard from './System/SellerDashboard';
 import UserDashboard from '../components/user/UserDashboard';
-import AdminApp from '../components/admin/AdminApp.jsx';
+import AdminDashboard from './System/AdminDashboard';
 import UserProfile from './Header/User/UserProfile';
 import Loading from '../components/Loading';
 import ProductDetail from './HomePage/ProductDetail';
@@ -22,9 +22,9 @@ import Checkout from './Header/User/Checkout/Checkout';
 import PaymentSuccess from './Header/User/PaymentSuccess';
 import MyOrders from './Header/User/MyOrders';
 import OrderDetail from './Header/User/OrderDetail';
-import Support from './Header/User/Support';
 import Topup from './HomePage/Topup';
 import About from '../components/About';
+import Support from '../components/Support';
 import AllProducts from '../components/AllProducts.js'
 import NotFound from '../components/NotFound';
 import ScrollToTop from '../components/ScrollToTop';
@@ -38,21 +38,14 @@ export default function App() {
 
     useEffect(() => {
         const initializeAuth = async () => {
-            console.log('Initializing auth, token:', auth.token);
-            console.log('Auth state:', auth);
-            
             if (auth.token) {
-                console.log('Setting auth token on app initialization:', auth.token);
                 setAuthToken(auth.token);
                 
                 try {
                     await dispatch(fetchUserProfile());
-                    console.log('User profile fetched successfully');
                 } catch (error) {
                     console.error('Failed to fetch user profile:', error);
                 }
-            } else {
-                console.log('No token found in auth state');
             }
             setIsInitialized(true);
         };
@@ -142,7 +135,7 @@ export default function App() {
                     }
                 />
                 <Route
-                    path={path.SELLER_DASHBOARD}
+                    path="/dashboard/seller/*"
                     element={
                         <ProtectedRoute allowedRoles={['seller']}>
                             <SellerDashboard />
@@ -153,7 +146,7 @@ export default function App() {
                     path={`${path.ADMIN_DASHBOARD}/*`}
                     element={
                         <ProtectedRoute allowedRoles={['admin']}>
-                            <AdminApp />
+                            <AdminDashboard />
                         </ProtectedRoute>
                     }
                 />

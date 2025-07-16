@@ -1,6 +1,7 @@
 import Layout from '../../../components/Layout';
 import UserProfileComponent from '../../../components/user/UserProfile';
 import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 import { updateUserProfile } from '../../../services/userService';
 import { fetchUserProfile } from '../../../features/user/userSlice';
 import Loading from '../../../components/Loading';
@@ -9,6 +10,14 @@ import { AlertCircle } from 'lucide-react';
 export default function UserProfile() {
     const dispatch = useDispatch();
     const { profile, loading, error } = useSelector(state => state.user);
+    const { isAuthenticated, token } = useSelector(state => state.auth);
+
+    // Fetch profile when component mounts or when user becomes authenticated
+    useEffect(() => {
+        if (isAuthenticated && token && !profile) {
+            dispatch(fetchUserProfile());
+        }
+    }, [dispatch, isAuthenticated, token, profile]);
 
     const handleUpdateProfile = async (data) => {
         try {

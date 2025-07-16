@@ -1,3 +1,7 @@
-import AdminDashboard from "./AdminDashboard";
+import AdminDashboard from './AdminDashboard';
+import SellerDashboard from './SellerDashboard';
 
-export { AdminDashboard };
+export {
+    AdminDashboard,
+    SellerDashboard
+};

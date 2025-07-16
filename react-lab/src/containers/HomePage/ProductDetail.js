@@ -7,7 +7,7 @@ import { userGetProductById } from '../../services/userService';
 import { formatCurrency, path } from '../../ultils';
 import toast from 'react-hot-toast';
 import './ProductDetail.scss';
-import Layout from '../../components/Layout';
+import UserHeader from '../Header/UserHeader';
 
 export default function ProductDetail() {
     const [selectedImage, setSelectedImage] = useState(0);
@@ -81,32 +81,35 @@ export default function ProductDetail() {
     };
 
     if (loading) return (
-        <Layout>
+        <>
+            <UserHeader />
             <div className="loading-container">
                 <Loading />
             </div>
-        </Layout>
+        </>
     );
 
     if (error) return (
-        <Layout>
+        <>
+            <UserHeader />
             <div className="error-container">
                 <i className="fas fa-exclamation-circle"></i>
                 <h2>Đã có lỗi xảy ra</h2>
                 <p>{error}</p>
                 <button onClick={() => navigate(-1)}>Quay lại</button>
             </div>
-        </Layout>
+        </>
     );
 
     if (!product) return (
-        <Layout>
+        <>
+            <UserHeader />
             <div className="not-found-container">
                 <i className="fas fa-search"></i>
                 <h2>Không tìm thấy sản phẩm</h2>
                 <button onClick={() => navigate('/products')}>Xem sản phẩm khác</button>
             </div>
-        </Layout>
+        </>
     );
 
     const maxQuantity = Math.min(selectedSku.stock, 10);
@@ -117,7 +120,8 @@ export default function ProductDetail() {
     ));
 
     return (
-        <Layout>
+        <>
+            <UserHeader />
             <div className="product-detail-container">
                 <div className="breadcrumb">
                     <button onClick={() => navigate(-1)}>
@@ -282,6 +286,6 @@ export default function ProductDetail() {
                     </div>
                 </div>
             </div>
-        </Layout>
+        </>
     );
 }

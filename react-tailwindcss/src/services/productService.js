@@ -12,6 +12,11 @@ const productService = {
     }
   },
 
+  // Lấy tất cả sản phẩm (alias)
+  getAllProduct: async (params = {}) => {
+    return productService.getProducts(params);
+  },
+
   // Lấy sản phẩm theo ID
   getProductById: async (productId) => {
     try {
@@ -49,5 +54,10 @@ const productService = {
     }
   }
 };
+
+// Export individual functions for backward compatibility
+export const getAllProduct = productService.getAllProduct;
+export const getProductById = productService.getProductById;
+export const searchProducts = productService.searchProducts;
 
 export default productService;

@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Apple-inspired UI styles */
+@import './styles/apple-ui.css';
+
 @layer base {
   :root {
     --background: 0 0% 100%;

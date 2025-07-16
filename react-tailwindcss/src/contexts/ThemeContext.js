@@ -15,74 +15,45 @@ export const ThemeProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check localStorage first, then system preference
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    let shouldBeDark = false;
-    
-    if (savedTheme) {
-      shouldBeDark = savedTheme === 'dark';
-    } else {
-      shouldBeDark = systemPrefersDark;
-    }
-    
-    setIsDarkMode(shouldBeDark);
-    
-    // Apply theme to document
-    if (shouldBeDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    
+    // Force light mode always
+    setIsDarkMode(false);
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
     setIsLoading(false);
   }, []);
 
-  // Listen for system theme changes
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  // Disable system theme change listener
+  // useEffect(() => {
+  //   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
-    const handleChange = (e) => {
-      // Only update if user hasn't set a manual preference
-      if (!localStorage.getItem('theme')) {
-        setIsDarkMode(e.matches);
-        if (e.matches) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      }
-    };
+  //   const handleChange = (e) => {
+  //     // Only update if user hasn't set a manual preference
+  //     if (!localStorage.getItem('theme')) {
+  //       setIsDarkMode(e.matches);
+  //       if (e.matches) {
+  //         document.documentElement.classList.add('dark');
+  //       } else {
+  //         document.documentElement.classList.remove('dark');
+  //       }
+  //     }
+  //   };
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+  //   mediaQuery.addEventListener('change', handleChange);
+  //   return () => mediaQuery.removeEventListener('change', handleChange);
+  // }, []);
 
   const toggleTheme = () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-    
-    if (newTheme) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    // Force light mode - disable toggle
+    setIsDarkMode(false);
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
   };
 
   const setTheme = (theme) => {
-    const isDark = theme === 'dark';
-    setIsDarkMode(isDark);
-    
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    
-    localStorage.setItem('theme', theme);
+    // Force light mode regardless of input
+    setIsDarkMode(false);
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
   };
 
   const value = {

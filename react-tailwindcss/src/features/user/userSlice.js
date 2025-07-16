@@ -54,6 +54,7 @@ export const userSlice = createSlice({
             })
             .addCase(fetchUserProfile.rejected, (state, action) => {
                 state.loading = false;
+                state.error = action.payload;
             });
     }
 });
