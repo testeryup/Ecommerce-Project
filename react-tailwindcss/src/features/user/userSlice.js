@@ -6,15 +6,14 @@ export const fetchUserProfile = createAsyncThunk(
     async (_, thunkAPI) => {
         try {
             const response = await userService.getUserProfile();
-            console.log("check response from userSlide:", response);
-            return response; // Return response.data instead of the whole response
+            // Backend trả về user object trực tiếp, không có wrapper .data
+            return response; 
         } catch (error) {
-            const message =
-                (error.response &&
-                    error.response.data &&
+            const message = 
+                (error.response && 
+                    error.response.data && 
                     error.response.data.message) ||
                 error.message;
-            console.log("check catch from userSlide:", message);
             return thunkAPI.rejectWithValue(message);
         }
     }
@@ -47,10 +46,10 @@ export const userSlice = createSlice({
                 state.loading = true;
             })
             .addCase(fetchUserProfile.fulfilled, (state, action) => {
-                console.log("payload from fetch user profile:", action.payload);
                 state.loading = false;
                 state.profile = action.payload;
-                state.role = action.payload.role; // Set role from profile
+                // Set role from profile directly (not from nested user object)
+                state.role = action.payload?.role;
             })
             .addCase(fetchUserProfile.rejected, (state, action) => {
                 state.loading = false;

@@ -33,11 +33,6 @@ const PaymentSuccess = () => {
         navigate('/products');
     };
 
-    // Check if order contains subscription items
-    const hasSubscriptionItems = orderDetails?.orderItems?.some(item => 
-        item.sku?.subscriptionInfo
-    );
-
     if (!location.state || !location.state.detail) {
         return null;
     }
@@ -160,34 +155,6 @@ const PaymentSuccess = () => {
                                         {orderDetails.total ? formatCurrency(orderDetails.total) : 'N/A'}₫
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Subscription Information */}
-                    {hasSubscriptionItems && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8">
-                            <div className="flex items-center justify-center mb-4">
-                                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                                    <Clock className="w-6 h-6 text-blue-600" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-blue-900 mb-2">
-                                        Thông tin Subscription
-                                    </h3>
-                                    <p className="text-blue-700">
-                                        Bạn đã mua các tài khoản subscription. Vui lòng kiểm tra thông tin chi tiết 
-                                        trong đơn hàng và quản lý subscription của bạn.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex gap-4 justify-center">
-                                <Link to="/user/subscriptions">
-                                    <Button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl">
-                                        <User className="w-4 h-4 mr-2" />
-                                        Quản lý Subscriptions
-                                    </Button>
-                                </Link>
                             </div>
                         </div>
                     )}

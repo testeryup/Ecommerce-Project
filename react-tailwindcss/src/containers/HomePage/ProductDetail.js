@@ -17,13 +17,13 @@ import {
     faHeadset,
     faMinus,
     faPlus,
+    faCheckCircle,
     faTimesCircle,
     faStar,
     faHeart,
     faShare
 } from '@fortawesome/free-solid-svg-icons';
 import Layout from '../../components/Layout';
-import SubscriptionInfo from '../../components/SubscriptionInfo';
 
 export default function ProductDetail() {
     const [selectedImage, setSelectedImage] = useState(0);
@@ -328,14 +328,6 @@ export default function ProductDetail() {
                                     ))}
                                 </div>
                             </div>
-
-                            {/* Subscription Information */}
-                            {selectedSku && selectedSku.subscriptionInfo && (
-                                <SubscriptionInfo 
-                                    sku={selectedSku}
-                                    product={product}
-                                />
-                            )}
 
                             {/* Quantity */}
                             <div className="space-y-4">

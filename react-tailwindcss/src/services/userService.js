@@ -1,9 +1,7 @@
 import api from '../axios';
 
-export const getUserProfile = async () => {
-    const response = await api.get('/api/user/profile');
-    console.log("check response from userService:", response);
-    return response;
+export const getUserProfile = () => {
+    return api.get('/api/user/profile');
 }
 
 export const getCategory = () => {
@@ -26,12 +24,10 @@ export const initOrder = (items) => {
     // Transform items to match backend expectations - only send skuId and quantity
     const transformedItems = items.map(item => ({
         skuId: item.skuId,
-        quantity: item.quantity,
-        subscriptionDuration: item.subscriptionDuration || 30 // Add subscription duration
+        quantity: item.quantity
     }));
-    
-    console.log('Sending initOrder request with items:', transformedItems);
-    return api.post('/api/orders/init', { items: transformedItems });
+    console.log('Sending to initOrder API:', { items: transformedItems });
+    return api.post('/api/orders/init', {items: transformedItems});
 } 
 
 export const createOrder = (items) => {
@@ -72,22 +68,6 @@ export const getAllUser = () => {
     return api.get('/api/admin/users');
 }
 
-// Subscription related services
-export const getUserSubscriptions = () => {
-    return api.get('/api/user/subscriptions');
-}
-
-export const getSubscriptionHistory = (accountId) => {
-    return api.get(`/api/user/subscriptions/history/${accountId}`);
-}
-
-export const requestRenewal = (accountId, duration) => {
-    return api.post('/api/user/subscriptions/renew', {
-        accountId,
-        duration
-    });
-}
-
 const userService = {
     getUserProfile, 
     updateUserProfile,
@@ -102,9 +82,6 @@ const userService = {
     createPaymentLink,
     initOrder,
     createOrder,
-    getUserSubscriptions,
-    getSubscriptionHistory,
-    requestRenewal,
     getAllUser
 }
 export default userService;

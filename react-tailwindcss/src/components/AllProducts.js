@@ -88,8 +88,8 @@ const Products = () => {
                     setProducts(productsResponse.data);
                     setFilteredProducts(productsResponse.data);
                 }
-                if (categoriesResponse && categoriesResponse.data) {
-                    setCategories(categoriesResponse.data);
+                if (categoriesResponse) {
+                    setCategories(categoriesResponse);
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);

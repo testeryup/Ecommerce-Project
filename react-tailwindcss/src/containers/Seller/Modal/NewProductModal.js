@@ -256,7 +256,7 @@ export default function NewProductModal({ isOpen, onClose, categoriesList, mode 
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
                                 >
                                     <option value="">Chọn danh mục mặt hàng</option>
-                                    {Array.isArray(categoriesList) && categoriesList.map(cat => (
+                                    {categoriesList.map(cat => (
                                         <option key={cat._id} value={cat._id}>
                                             {cat.name}
                                         </option>
@@ -278,7 +278,7 @@ export default function NewProductModal({ isOpen, onClose, categoriesList, mode 
                                     disabled={!formData.category}
                                 >
                                     <option value="">Chọn loại mặt hàng</option>
-                                    {Array.isArray(subcategoriesList) && subcategoriesList.map(sub => (
+                                    {subcategoriesList.map(sub => (
                                         <option key={sub._id} value={sub.name}>
                                             {sub.name}
                                         </option>
