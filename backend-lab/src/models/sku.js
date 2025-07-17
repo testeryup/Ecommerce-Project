@@ -19,26 +19,6 @@ const skuSchema = new mongoose.Schema({
             validator: Number.isInteger
         }
     },
-    // Thông tin subscription
-    subscriptionInfo: {
-        duration: {
-            type: Number, // Số ngày
-            required: true,
-            default: 30
-        },
-        autoRenewable: {
-            type: Boolean,
-            default: true
-        },
-        maxRenewals: {
-            type: Number,
-            default: -1 // -1 = unlimited
-        },
-        discountForRenewal: {
-            type: Number,
-            default: 0 // % discount
-        }
-    },
     stock: {
         type: Number,
         required: true,
