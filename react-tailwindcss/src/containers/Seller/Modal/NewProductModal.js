@@ -65,13 +65,15 @@ export default function NewProductModal({ isOpen, onClose, categoriesList, mode 
                 const result = await getProductById(productId);
                 setProductStateOnUpdate(result.data);
             } catch (error) {
-                console.error("Error fetching product:", error);
                 toast.error("Failed to fetch product data");
             }
         };
 
-        if (mode === 'update' && productId) {
+        if (mode === 'edit' && productId) {
             fetchProduct();
+        } else if (mode === 'create') {
+            // Reset form when creating new product
+            resetForm();
         }
     }, [mode, productId, setProductStateOnUpdate, isOpen]);
 
@@ -189,7 +191,10 @@ export default function NewProductModal({ isOpen, onClose, categoriesList, mode 
     if (!isOpen) return null;
 
     const handleClose = () => {
-        resetForm();
+        // Only reset form when creating new product
+        if (mode === 'create') {
+            resetForm();
+        }
         onClose();
     }
     return createPortal(
