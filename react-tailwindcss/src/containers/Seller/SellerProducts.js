@@ -78,11 +78,22 @@ export default function SellerProducts() {
                 const categories = await getCategory();
                 console.log('🔧 Categories response:', categories);
                 
-                // Match react-lab behavior exactly - set categories directly
-                setCategoriesList(categories || []);
-                console.log('✅ Categories set:', categories);
+                // Handle different response formats
+                let categoriesArray = [];
+                if (Array.isArray(categories)) {
+                    categoriesArray = categories;
+                } else if (categories && categories.data && Array.isArray(categories.data)) {
+                    categoriesArray = categories.data;
+                } else if (categories && categories.errCode === 0 && Array.isArray(categories.data)) {
+                    categoriesArray = categories.data;
+                } else {
+                    categoriesArray = [];
+                }
+                
+                setCategoriesList(categoriesArray);
+                console.log('Categories set:', categoriesArray);
             } catch (error) {
-                console.error('❌ Error fetching categories:', error);
+                console.error('Error fetching categories:', error);
                 setCategoriesList([]);
             }
         };
@@ -149,7 +160,7 @@ export default function SellerProducts() {
                                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none"
                             >
                                 <option value="all">Tất cả danh mục</option>
-                                {categoriesList.map(category => (
+                                {Array.isArray(categoriesList) && categoriesList.map(category => (
                                     <option key={category._id} value={category._id}>
                                         {category.name}
                                     </option>
@@ -272,7 +283,7 @@ export default function SellerProducts() {
             {/* Modals */}
             {activeModal === ModalTypes.NEW_PRODUCT && (
                 <NewProductModal
-                    key={`modal-${categoriesList.length}`} // Force re-render when categories load
+                    key={`modal-${Array.isArray(categoriesList) ? categoriesList.length : 0}`} // Force re-render when categories load
                     isOpen={activeModal === ModalTypes.NEW_PRODUCT}
                     onClose={handleCloseModal}
                     categoriesList={categoriesList}
