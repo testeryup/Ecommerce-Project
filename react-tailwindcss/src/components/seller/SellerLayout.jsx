@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../../features/auth/authSlice';
 import { cn } from '../../lib/utils';
 import Button from '../ui/Button';
 import { Badge } from '../ui/badge';
@@ -27,12 +29,18 @@ import {
   User,
   LogOut,
   Settings,
-  HelpCircle
+  HelpCircle,
+  Home,
+  Store
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const SellerLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.auth);
 
   useEffect(() => {
     // Force light mode for seller panel
@@ -40,6 +48,16 @@ const SellerLayout = ({ children }) => {
     document.body.classList.remove('dark');
     localStorage.setItem('theme', 'light');
   }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success('Đăng xuất thành công!');
+    navigate('/login');
+  };
+
+  const handleViewShop = () => {
+    navigate('/');
+  };
 
   const menuItems = [
     { 
@@ -86,159 +104,6 @@ const SellerLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/50">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white shadow-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            {/* Left Section - Logo & Mobile Menu */}
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden hover:bg-gray-100"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-              
-              <Link to="/dashboard/seller" className="flex items-center space-x-3 group">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
-                  <Package className="h-5 w-5" />
-                </div>
-                <div className="hidden sm:block">
-                  <div className="font-semibold text-lg text-gray-900">Seller Center</div>
-                </div>
-              </Link>
-            </div>
-
-            {/* Center Section - Search */}
-            <div className="flex-1 max-w-md mx-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-9 pr-4 text-sm placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Tìm kiếm sản phẩm, đơn hàng..."
-                  type="search"
-                />
-              </div>
-            </div>
-
-            {/* Right Section - Actions & User */}
-            <div className="flex items-center space-x-3">
-              {/* Quick Stats (Mobile Hidden) */}
-              <div className="hidden xl:flex items-center space-x-3 mr-4">
-                <div className="text-center">
-                  <div className="text-xs text-gray-500">Doanh thu</div>
-                  <div className="text-sm font-semibold text-blue-600">₫2.5M</div>
-                </div>
-                <div className="h-8 w-px bg-gray-200"></div>
-                <div className="text-center">
-                  <div className="text-xs text-gray-500">Đơn mới</div>
-                  <div className="text-sm font-semibold text-green-600">12</div>
-                </div>
-                <div className="h-8 w-px bg-gray-200"></div>
-                <div className="text-center">
-                  <div className="text-xs text-gray-500">Sản phẩm</div>
-                  <div className="text-sm font-semibold text-gray-900">156</div>
-                </div>
-              </div>
-
-              {/* Notifications */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    <Badge className="absolute -top-1 -right-1 h-4 w-4 rounded-full p-0 text-xs bg-red-500 text-white">
-                      3
-                    </Badge>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80">
-                  <DropdownMenuLabel>Thông báo</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <div className="max-h-64 overflow-y-auto">
-                    <DropdownMenuItem className="flex items-start space-x-3 p-3">
-                      <div className="h-2 w-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
-                      <div>
-                        <p className="text-sm font-medium">Đơn hàng mới #12345</p>
-                        <p className="text-xs text-gray-500">Khách hàng vừa đặt mua sản phẩm</p>
-                        <p className="text-xs text-gray-400">5 phút trước</p>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-start space-x-3 p-3">
-                      <div className="h-2 w-2 rounded-full bg-green-500 mt-2 flex-shrink-0"></div>
-                      <div>
-                        <p className="text-sm font-medium">Thanh toán thành công</p>
-                        <p className="text-xs text-gray-500">₫250,000 đã được chuyển</p>
-                        <p className="text-xs text-gray-400">1 giờ trước</p>
-                      </div>
-                    </DropdownMenuItem>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-center text-blue-600">
-                    Xem tất cả
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* User Profile */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2 px-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder-avatar.jpg" alt="Seller" />
-                      <AvatarFallback className="bg-blue-600 text-white text-sm">
-                        SC
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="hidden lg:block text-left">
-                      <div className="text-sm font-medium">Cửa hàng ABC</div>
-                      <div className="text-xs text-gray-500">Pro Seller</div>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-blue-600 text-white">SC</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">Cửa hàng ABC</div>
-                        <div className="text-xs text-gray-500">seller123@example.com</div>
-                      </div>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    Hồ sơ cửa hàng
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Thu nhập
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Cài đặt
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <HelpCircle className="mr-2 h-4 w-4" />
-                    Trợ giúp
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Đăng xuất
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="flex">
         {/* Sidebar */}
         <aside className={cn(
@@ -246,18 +111,28 @@ const SellerLayout = ({ children }) => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <div className="flex h-full flex-col">
-            {/* Mobile Header */}
-            <div className="flex items-center justify-between p-6 lg:hidden border-b border-gray-200">            <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-                <Package className="h-5 w-5" />
-              </div>
-              <span className="font-bold text-lg">Seller Center</span>
-            </div>
+            {/* Sidebar Header with Logo */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <Link to="/dashboard/seller" className="flex items-center space-x-3 group hover:opacity-90 transition-opacity">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg group-hover:shadow-xl transition-shadow">
+                  <Store className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
+                    Seller Center
+                  </div>
+                  <div className="text-xs text-blue-600 font-medium -mt-1">
+                    Trung tâm bán hàng
+                  </div>
+                </div>
+              </Link>
+              
+              {/* Mobile close button */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setSidebarOpen(false)}
-                className="hover:bg-gray-100"
+                className="lg:hidden hover:bg-gray-100"
               >
                 <X className="h-6 w-6" />
               </Button>
@@ -316,17 +191,28 @@ const SellerLayout = ({ children }) => {
 
             {/* Footer */}
             <div className="border-t border-gray-200 p-4">
-              <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder-avatar.jpg" alt="Seller" />
-                  <AvatarFallback className="bg-blue-600 text-white font-semibold text-sm">
-                    SC
+              <div className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={user?.avatar} alt={user?.firstName || 'Seller'} />
+                  <AvatarFallback className="bg-blue-600 text-white font-semibold">
+                    {user?.firstName?.charAt(0) || 'S'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 truncate">Cửa hàng ABC</div>
-                  <div className="text-xs text-gray-500 truncate">Pro Seller</div>
+                  <div className="text-sm font-medium text-gray-900 truncate">
+                    {user?.firstName ? `${user.firstName} ${user.lastName || ''}` : 'Seller Account'}
+                  </div>
+                  <div className="text-xs text-blue-600 font-medium">Seller</div>
                 </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleLogout}
+                  className="text-gray-500 hover:text-red-600 hover:bg-red-50 p-1"
+                  title="Đăng xuất"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
@@ -334,6 +220,18 @@ const SellerLayout = ({ children }) => {
 
         {/* Main Content */}
         <main className="flex-1 lg:ml-0 min-h-screen">
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden sticky top-0 z-30 bg-white border-b border-gray-200 p-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-gray-100"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
+          
           <div className="p-6 lg:p-8">
             {children}
           </div>
