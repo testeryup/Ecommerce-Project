@@ -84,15 +84,33 @@ const Products = () => {
                     getCategory()
                 ]);
 
-                if (productsResponse.errCode === 0) {
-                    setProducts(productsResponse.data);
-                    setFilteredProducts(productsResponse.data);
+                if (productsResponse && productsResponse.errCode === 0) {
+                    setProducts(productsResponse.data || []);
+                    setFilteredProducts(productsResponse.data || []);
+                } else {
+                    console.warn('Products API response:', productsResponse);
+                    setProducts([]);
+                    setFilteredProducts([]);
                 }
+                
                 if (categoriesResponse) {
-                    setCategories(categoriesResponse);
+                    // Ensure categories is always an array
+                    const categoriesData = Array.isArray(categoriesResponse) 
+                        ? categoriesResponse 
+                        : categoriesResponse.data 
+                        ? (Array.isArray(categoriesResponse.data) ? categoriesResponse.data : [])
+                        : [];
+                    setCategories(categoriesData);
+                } else {
+                    console.warn('Categories API response:', categoriesResponse);
+                    setCategories([]);
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
+                // Set default empty arrays on error
+                setProducts([]);
+                setCategories([]);
+                setFilteredProducts([]);
             } finally {
                 setLoading(false);
             }
@@ -115,7 +133,9 @@ const Products = () => {
 
     useEffect(() => {
         if (filters.category !== 'all') {
-            const category = categories.find(cat => cat._id === filters.category);
+            const category = Array.isArray(categories) 
+                ? categories.find(cat => cat._id === filters.category)
+                : null;
             setActiveSubcategories(category?.subcategories || []);
         } else {
             setActiveSubcategories([]);
@@ -233,7 +253,7 @@ const Products = () => {
                                             <span className="text-lg">🌟</span>
                                             <span>Tất cả danh mục</span>
                                         </button>
-                                        {categories.map(category => (
+                                        {Array.isArray(categories) && categories.map(category => (
                                             <button
                                                 key={category._id}
                                                 onClick={() => setFilters({ 
@@ -266,7 +286,7 @@ const Products = () => {
                                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gray-300 focus:border-transparent text-gray-900 font-medium"
                                         >
                                             <option value="all">Tất cả loại</option>
-                                            {activeSubcategories.map(sub => (
+                                            {Array.isArray(activeSubcategories) && activeSubcategories.map(sub => (
                                                 <option key={sub._id} value={sub.name}>
                                                     {sub.name}
                                                 </option>

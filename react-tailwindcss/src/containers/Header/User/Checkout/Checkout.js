@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import Layout from '../../../../components/Layout';
@@ -6,6 +6,8 @@ import { formatCurrency, path } from '../../../../ultils';
 import toast from 'react-hot-toast';
 import { removeFromCart } from '../../../../features/cart/cartSlice';
 import { initOrder, createOrder } from '../../../../services/userService';
+import { createOrderWithProtection, initOrderWithProtection } from '../../../../services/orderService';
+import { parseRaceConditionError } from '../../../../ultils/raceConditionHelper';
 import { 
     FiShoppingCart, 
     FiShield, 
@@ -24,6 +26,11 @@ export default function Checkout() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { profile } = useSelector(state => state.user);
+    
+    // State for better UX during race condition protection
+    const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+    const [orderAttempts, setOrderAttempts] = useState(0);
+    const [lastError, setLastError] = useState(null);
 
     useEffect(() => {
         // Check for items in location state
@@ -36,7 +43,7 @@ export default function Checkout() {
         // Validate items
         const validateItems = async () => {
             try {
-                const result = await initOrder(location.state.items);
+                const result = await initOrderWithProtection(location.state.items);
                 
                 if (result.errCode !== 0) {
                     toast.error(result.message || 'Mặt hàng bạn đang yêu cầu không tồn tại hoặc đã hết');
@@ -44,7 +51,9 @@ export default function Checkout() {
             } catch (error) {
                 let errorMessage = 'Có lỗi xảy ra khi kiểm tra đơn hàng';
                 
-                if (error.response?.status === 401) {
+                if (error.userMessage) {
+                    errorMessage = error.userMessage;
+                } else if (error.response?.status === 401) {
                     errorMessage = 'Bạn cần đăng nhập để thực hiện đặt hàng';
                 } else if (error.response?.status === 400) {
                     errorMessage = error.response?.data?.message || 'Dữ liệu đơn hàng không hợp lệ';
@@ -67,15 +76,34 @@ export default function Checkout() {
     const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const handlePlaceOrder = async () => {
+        if (isPlacingOrder) {
+            toast.error('Đơn hàng đang được xử lý, vui lòng chờ...');
+            return;
+        }
+
+        setIsPlacingOrder(true);
+        setLastError(null);
+        const currentAttempt = orderAttempts + 1;
+        setOrderAttempts(currentAttempt);
+
         try {
             if (profile.balance < total) {
                 toast.error('Số dư không đủ');
                 return;
             }
 
-            const result = await createOrder(items);
+            // Show processing message for better UX
+            const toastId = toast.loading('Đang xử lý đơn hàng...');
+
+            const result = await createOrderWithProtection(items, {
+                maxRetries: 3,
+                enableRetry: true
+            });
+            
+            toast.dismiss(toastId);
+            
             if(result.errCode !== 0){
-                throw new Error(result);
+                throw new Error(result.message || 'Đặt hàng thất bại');
             }
 
             toast.success('Đặt hàng thành công');
@@ -86,7 +114,24 @@ export default function Checkout() {
                 detail: result.data
             }});
         } catch (error) {
-            toast.error('Đặt hàng thất bại');
+            setLastError(error.message || 'Đặt hàng thất bại');
+            
+            // Enhanced error handling for race condition scenarios
+            if (error.userMessage) {
+                toast.error(error.userMessage);
+            } else if (error.response?.status === 429) {
+                toast.error('Có quá nhiều yêu cầu đặt hàng. Vui lòng thử lại sau ít phút.');
+            } else if (error.response?.status === 409) {
+                toast.error('Sản phẩm đã được mua bởi người khác. Vui lòng thử lại.');
+            } else if (error.response?.status === 400 && error.response?.data?.message?.includes('stock')) {
+                toast.error('Số lượng sản phẩm không đủ. Vui lòng kiểm tra lại giỏ hàng.');
+            } else if (error.response?.status === 503) {
+                toast.error('Hệ thống đang bận. Vui lòng thử lại sau ít giây.');
+            } else {
+                toast.error(error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
+            }
+        } finally {
+            setIsPlacingOrder(false);
         }
     };
 
@@ -259,18 +304,34 @@ export default function Checkout() {
                                     {/* Place Order Button */}
                                     <button
                                         onClick={handlePlaceOrder}
-                                        disabled={profile?.balance < total}
+                                        disabled={profile?.balance < total || isPlacingOrder}
                                         className={`w-full py-4 px-6 rounded-full font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
-                                            profile?.balance < total
+                                            profile?.balance < total || isPlacingOrder
                                                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                                 : 'bg-gray-900 text-white hover:bg-gray-800 shadow-lg hover:shadow-xl'
                                         }`}
                                     >
-                                        <FiCheckCircle className="w-5 h-5" />
-                                        <span>
-                                            {profile?.balance < total ? 'Số dư không đủ' : 'Xác nhận đặt hàng'}
-                                        </span>
+                                        {isPlacingOrder ? (
+                                            <>
+                                                <div className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
+                                                <span>Đang xử lý...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FiCheckCircle className="w-5 h-5" />
+                                                <span>
+                                                    {profile?.balance < total ? 'Số dư không đủ' : 'Xác nhận đặt hàng'}
+                                                </span>
+                                            </>
+                                        )}
                                     </button>
+
+                                    {/* Error message display */}
+                                    {lastError && (
+                                        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <p className="text-sm text-red-600 text-center">{lastError}</p>
+                                        </div>
+                                    )}
 
                                     {/* Additional Info */}
                                     <div className="mt-4 text-center">

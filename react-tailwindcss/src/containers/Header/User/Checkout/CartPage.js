@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, updateQuantity } from '../../../../features/cart/cartSlice';
 import { formatCurrency } from '../../../../ultils';
+import { throttle } from '../../../../ultils/raceConditionHelper';
 import Layout from '../../../../components/Layout';
 import { path } from '../../../../ultils';
 import { 
@@ -31,9 +32,15 @@ export default function CartPage() {
     const navigate = useNavigate();
     const [selectedItems, setSelectedItems] = useState(new Set());
     const [savedForLater, setSavedForLater] = useState(new Set());
+    const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
+
+    // Throttled quantity change to prevent rapid updates that could cause race conditions
+    const throttledQuantityChange = throttle((skuId, newQuantity) => {
+        dispatch(updateQuantity({ skuId, quantity: parseInt(newQuantity) }));
+    }, 500); // Limit to once per 500ms
 
     const handleQuantityChange = (skuId, newQuantity) => {
-        dispatch(updateQuantity({ skuId, quantity: parseInt(newQuantity) }));
+        throttledQuantityChange(skuId, newQuantity);
     };
 
     const handleRemoveItem = (skuId) => {
@@ -74,9 +81,16 @@ export default function CartPage() {
     };
 
     const handleSubmitItemsToCheckout = () => {
+        if (isProcessingCheckout) {
+            return; // Prevent duplicate checkout submissions
+        }
+        
         if(selectedItems.size > 0){
+            setIsProcessingCheckout(true);
             const checkOutItems = items.filter(item => selectedItems.has(item.skuId));
             navigate(path.CHECKOUT, {state: {items: checkOutItems}});
+            // Reset processing state after navigation
+            setTimeout(() => setIsProcessingCheckout(false), 1000);
         }
     }
     
