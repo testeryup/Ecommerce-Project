@@ -1,7 +1,7 @@
 import { createPortal } from "react-dom"
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { userGetProductById } from "../../../services/userService";
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { uploadInventory, getInventoryList, deleteInventoryById } from "../../../services/sellerService";
 
 export default function InventoryModal({ isOpen, onClose, productId }) {
@@ -10,25 +10,22 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
         inventoryList: [],
         skus: [],
         subcategory: '',
-        inventoryDataToUpload: [],
+        inventoryDataToUpload: '',
         inventoryTextArea: ''
     })
-    const setProductState = (data) => {
-        setFormData({
-            selectedSKU: '',
-            inventoryList: ''
-        })
-    }
+    const [isLoading, setIsLoading] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(null) // Track which item is being deleted
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 const result = await userGetProductById(productId);
                 if (result.errCode === 0 && result.data) {
-                    setFormData({
-                        ...formData,
+                    setFormData(prev => ({
+                        ...prev,
                         skus: result.data.skus,
                         subcategory: result.data.subcategory
-                    })
+                    }))
                 }
             } catch (error) {
                 console.error("Error fetching product:", error);
@@ -42,7 +39,11 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
     const resetForm = () => {
         setFormData({
             selectedSKU: '',
-            inventoryList: []
+            inventoryList: [],
+            skus: [],
+            subcategory: '',
+            inventoryDataToUpload: '',
+            inventoryTextArea: ''
         })
     }
 
@@ -58,21 +59,48 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
         onClose();
     }
 
-    const handleSubmit = () => {
-
-    }
-
     const validateData = () => {
-
+        if (!productId) {
+            toast.error("Không có thông tin sản phẩm");
+            return false;
+        }
+        if (!formData.selectedSKU) {
+            toast.error("Vui lòng chọn phân loại sản phẩm");
+            return false;
+        }
+        if (!formData.inventoryDataToUpload || formData.inventoryDataToUpload.trim() === '') {
+            toast.error("Vui lòng nhập thông tin tài khoản");
+            return false;
+        }
+        
+        const accounts = parseAccounts(formData.inventoryDataToUpload);
+        if (accounts.length === 0) {
+            toast.error("Không có tài khoản hợp lệ để thêm");
+            return false;
+        }
+        
+        return true;
     }
     const handleSelectedSkuChange = async (skuId) => {
         setField('selectedSKU', skuId);
         setField('inventoryList', []);
-        const inventoryData = await getInventoryList(skuId);
-        if (inventoryData?.errCode === 0 && inventoryData.data) {
-            setField('inventoryList', inventoryData.data);
+        
+        if (!skuId) return;
+        
+        setIsLoading(true);
+        try {
+            const inventoryData = await getInventoryList(skuId);
+            if (inventoryData?.errCode === 0 && inventoryData.data) {
+                setField('inventoryList', inventoryData.data);
+            } else {
+                throw new Error(inventoryData?.message || "Không thể lấy danh sách kho hàng");
+            }
+        } catch (error) {
+            console.error("Error fetching inventory:", error);
+            toast.error("Không thể lấy danh sách kho hàng");
+        } finally {
+            setIsLoading(false);
         }
-
     }
 
     const handleInventoryChange = (event) => {
@@ -87,10 +115,16 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
 
     const handleDeleteInventory = async (inventoryId) => {
         if (!inventoryId) {
-            toast.error("Không có thông tin tài khoản để xoá")
+            toast.error("Không có thông tin tài khoản để xóa");
             return;
         }
-        console.log("check inventory to delete:", inventoryId);
+        
+        if (!formData.selectedSKU) {
+            toast.error("Vui lòng chọn phân loại sản phẩm");
+            return;
+        }
+        
+        setIsDeleting(inventoryId);
         try {
             const result = await deleteInventoryById(inventoryId, formData.selectedSKU);
             if (result.errCode === 0) {
@@ -99,47 +133,53 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
                     inventoryList: prev.inventoryList.filter(inv => inv._id !== inventoryId)
                 }));
                 toast.success('Xóa tài khoản thành công');
-            }
-            else {
-                throw new Error("Xoá tài khoản thất bại [1]");
-
+            } else {
+                throw new Error(result.message || "Xóa tài khoản thất bại");
             }
         } catch (error) {
-            toast.error("Xoá tài khoản thất bại")
+            console.error("Error deleting inventory:", error);
+            const errorMessage = error.response?.data?.message || 
+                               error.message || 
+                               "Xóa tài khoản thất bại";
+            toast.error(errorMessage);
+        } finally {
+            setIsDeleting(null);
         }
-
     }
     const handleUpload = async () => {
-        console.log("check inventory to upload:", formData.inventoryDataToUpload);
+        if (!validateData()) return;
+        
         const dataToUpload = parseAccounts(formData.inventoryDataToUpload);
-        if(!productId || !formData.selectedSKU || !dataToUpload){
-            toast.error("Vui lòng nhập thông tin hợp lệ");
-            return;
-        }
+        
+        setIsUploading(true);
         try {
-            
             const result = await uploadInventory({
                 productId,
                 skuId: formData.selectedSKU,
                 credentialsList: dataToUpload
             });
+            
             if (result.errCode === 0) {
-                console.log("check to upload:", dataToUpload);
                 setFormData(prev => ({
                     ...prev,
-                    // inventoryList: [...prev.inventoryList, ...formData.inventoryDataToUpload],
                     inventoryDataToUpload: '' // Clear upload data
-                }))
-                handleSelectedSkuChange(formData.selectedSKU);
-                toast.success("Bổ sung kho hàng thành công");
-                console.log("successfully upload new data:", result);
-            }
-            else {
-                throw new Error("Bổ sung kho hàng thất bại");
+                }));
+                
+                // Refresh inventory list
+                await handleSelectedSkuChange(formData.selectedSKU);
+                
+                toast.success(`Đã thêm thành công ${dataToUpload.length} tài khoản vào kho hàng`);
+            } else {
+                throw new Error(result.message || "Bổ sung kho hàng thất bại");
             }
         } catch (error) {
-            toast.error("Bổ sung kho hàng thất bại");
-            console.log("error when uploading inventory:", error);
+            console.error("Error uploading inventory:", error);
+            const errorMessage = error.response?.data?.message || 
+                               error.message || 
+                               "Bổ sung kho hàng thất bại";
+            toast.error(errorMessage);
+        } finally {
+            setIsUploading(false);
         }
     }
 
@@ -213,9 +253,17 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
                                 </div>
                                 <button 
                                     onClick={handleUpload}
-                                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                                    disabled={isUploading || !formData.selectedSKU}
+                                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                                 >
-                                    Thêm tài khoản
+                                    {isUploading ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            Đang thêm...
+                                        </>
+                                    ) : (
+                                        'Thêm tài khoản'
+                                    )}
                                 </button>
                             </div>
 
@@ -224,66 +272,84 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
                                 <div className="border border-gray-200 rounded-lg overflow-hidden">
                                     <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
                                         <h3 className="text-sm font-medium text-gray-900">Danh sách tài khoản</h3>
+                                        {formData.inventoryList && formData.inventoryList.some(inv => !inv.credentials && !inv.credential) && (
+                                            <p className="text-xs text-orange-600 mt-1">
+                                                ⚠️ Một số tài khoản hiển thị "Dữ liệu cũ" - đây là dữ liệu từ phiên bản cũ của hệ thống
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="max-h-96 overflow-y-auto">
-                                        <table className="min-w-full divide-y divide-gray-200">
-                                            <thead className="bg-gray-50">
-                                                <tr>
-                                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Tài khoản
-                                                    </th>
-                                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Trạng thái
-                                                    </th>
-                                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Ngày tạo
-                                                    </th>
-                                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Thao tác
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
-                                                {formData.inventoryList && formData.inventoryList.length > 0 ? (
-                                                    formData.inventoryList.map(inventory => (
-                                                        <tr key={inventory._id} className="hover:bg-gray-50">
-                                                            <td className="px-4 py-3 text-sm text-gray-900 font-mono">
-                                                                {inventory.credentials ?? 'error'}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-sm text-gray-900">
-                                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                                    inventory.status === 'available' ? 'bg-green-100 text-green-800' :
-                                                                    inventory.status === 'sold' ? 'bg-red-100 text-red-800' :
-                                                                    'bg-gray-100 text-gray-800'
-                                                                }`}>
-                                                                    {getStatusLabel(inventory.status)}
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-4 py-3 text-sm text-gray-900">
-                                                                {inventory?.createdAt ? new Date(inventory.createdAt).toLocaleDateString('vi-VN') : 'error'}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-sm text-gray-900">
-                                                                <button
-                                                                    onClick={() => handleDeleteInventory(inventory._id)}
-                                                                    className="text-red-600 hover:text-red-900 focus:outline-none"
-                                                                    title="Xóa tài khoản"
-                                                                >
-                                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                    </svg>
-                                                                </button>
+                                        {isLoading ? (
+                                            <div className="flex items-center justify-center py-8">
+                                                <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                                <span className="ml-2 text-gray-500">Đang tải danh sách...</span>
+                                            </div>
+                                        ) : (
+                                            <table className="min-w-full divide-y divide-gray-200">
+                                                <thead className="bg-gray-50">
+                                                    <tr>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Tài khoản
+                                                        </th>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Trạng thái
+                                                        </th>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Ngày tạo
+                                                        </th>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Thao tác
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="bg-white divide-y divide-gray-200">
+                                                    {formData.inventoryList && formData.inventoryList.length > 0 ? (
+                                                        formData.inventoryList.map(inventory => (
+                                                            <tr key={inventory._id} className={`hover:bg-gray-50 ${!inventory.credentials && !inventory.credential ? 'bg-yellow-50' : ''}`}>
+                                                                <td className="px-4 py-3 text-sm text-gray-900 font-mono">
+                                                                    {inventory.credentials || inventory.credential || 
+                                                                     <span className="text-orange-600 italic">Dữ liệu cũ - ID: {inventory._id?.slice(-6)}</span>}
+                                                                </td>
+                                                                <td className="px-4 py-3 text-sm text-gray-900">
+                                                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                                                        inventory.status === 'available' ? 'bg-green-100 text-green-800' :
+                                                                        inventory.status === 'sold' ? 'bg-red-100 text-red-800' :
+                                                                        'bg-gray-100 text-gray-800'
+                                                                    }`}>
+                                                                        {getStatusLabel(inventory.status)}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-sm text-gray-900">
+                                                                    {inventory?.createdAt ? new Date(inventory.createdAt).toLocaleDateString('vi-VN') : 'Không có dữ liệu'}
+                                                                </td>
+                                                                <td className="px-4 py-3 text-sm text-gray-900">
+                                                                    <button
+                                                                        onClick={() => handleDeleteInventory(inventory._id)}
+                                                                        disabled={isDeleting === inventory._id}
+                                                                        className="text-red-600 hover:text-red-900 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                                                                        title="Xóa tài khoản"
+                                                                    >
+                                                                        {isDeleting === inventory._id ? (
+                                                                            <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                                                                        ) : (
+                                                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                            </svg>
+                                                                        )}
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan="4" className="px-4 py-8 text-center text-gray-500">
+                                                                {formData.selectedSKU ? 'Chưa có tài khoản nào' : 'Vui lòng chọn phân loại sản phẩm'}
                                                             </td>
                                                         </tr>
-                                                    ))
-                                                ) : (
-                                                    <tr>
-                                                        <td colSpan="4" className="px-4 py-8 text-center text-gray-500">
-                                                            {formData.selectedSKU ? 'Chưa có tài khoản nào' : 'Vui lòng chọn phân loại sản phẩm'}
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        )}
                                     </div>
                                 </div>
                             </div>

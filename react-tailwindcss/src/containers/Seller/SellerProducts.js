@@ -295,7 +295,7 @@ export default function SellerProducts() {
                 <InventoryModal
                     isOpen={activeModal === ModalTypes.INVENTORY}
                     onClose={handleCloseModal}
-                    product={products.find(p => p._id === selectedProductId)}
+                    productId={selectedProductId}
                 />
             )}
         </div>
