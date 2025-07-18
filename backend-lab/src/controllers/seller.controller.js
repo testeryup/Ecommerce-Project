@@ -1032,9 +1032,16 @@ const generateTimelineSeries = async (data, startDate, endDate) => {
                 }
             },
             {
+                $addFields: {
+                    localTime: {
+                        $add: ['$updatedAt', 7 * 60 * 60 * 1000] // Add 7 hours in milliseconds for UTC+7
+                    }
+                }
+            },
+            {
                 $group: {
                     _id: {
-                        hour: { $hour: '$updatedAt' }
+                        hour: { $hour: '$localTime' }
                     },
                     sales: { $sum: '$total' }
                 }
