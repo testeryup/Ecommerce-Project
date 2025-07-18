@@ -8,6 +8,8 @@ import connectDB from './config/db.config.js';
 import authRoutes from './routes/auth.routes.js';
 import productRoutes from './routes/product.routes.js';
 import orderRoutes from './routes/order.routes.js'; // Uncomment this line
+import orderProtectedRoutes from './routes/order-protected.routes.js'; // Race condition protected routes
+import testRoutes from './routes/test.routes.js'; // Test routes for race condition
 import adminRoutes from './routes/admin.routes.js';
 import userRoutes from './routes/user.routes.js';
 import sellerRoutes from './routes/seller.routes.js';
@@ -15,6 +17,11 @@ import inventoryRoutes from './routes/inventory.routes.js';
 import transactionRoutes from './routes/transaction.routes.js'; // Import transaction routes
 import categoryRoutes from './routes/category.routes.js'
 import skuRoutes from './routes/sku.routes.js';
+<<<<<<< Updated upstream
+=======
+import promoRoutes from './routes/promo.routes.js';
+import { idempotencyMiddleware } from './middlewares/race-condition.middleware.js';
+>>>>>>> Stashed changes
 
 // import seedCategories from './seeds/categorySeed.js';
 
@@ -29,6 +36,26 @@ const app = express();
 app.use(express.json({limit: '50mb'})); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true, limit: '50mb', parameterLimit: 50000 })); // Parse URL-encoded bodies
 app.use(cookieParser());
+<<<<<<< Updated upstream
+=======
+
+// Apply idempotency middleware globally for POST/PUT/PATCH requests
+app.use((req, res, next) => {
+  if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    idempotencyMiddleware(req, res, next);
+  } else {
+    next();
+  }
+});
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://my.payos.vn',
+  process.env.FRONTEND_URL,
+  process.env.ADMIN_URL
+].filter(Boolean);
+
+>>>>>>> Stashed changes
 app.use(cors({
     origin: function(origin, callback) {
       // Allow requests with no origin (like mobile apps, curl, etc)
@@ -53,6 +80,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes); // Use order routes
+app.use('/api/orders-protected', orderProtectedRoutes); // Race condition protected order routes
+app.use('/api/test', testRoutes); // Test endpoints for race condition
 app.use('/api/admin', adminRoutes);
 app.use('/api/seller', sellerRoutes);
 app.use('/api/user', userRoutes);

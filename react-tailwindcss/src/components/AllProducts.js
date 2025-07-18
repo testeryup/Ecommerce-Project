@@ -88,8 +88,21 @@ const Products = () => {
                     setProducts(productsResponse.data);
                     setFilteredProducts(productsResponse.data);
                 }
+                
+                // Handle categories response - could be array directly or wrapped in object
                 if (categoriesResponse) {
-                    setCategories(categoriesResponse);
+                    if (Array.isArray(categoriesResponse)) {
+                        setCategories(categoriesResponse);
+                    } else if (categoriesResponse.data && Array.isArray(categoriesResponse.data)) {
+                        setCategories(categoriesResponse.data);
+                    } else if (categoriesResponse.errCode === 0 && Array.isArray(categoriesResponse.data)) {
+                        setCategories(categoriesResponse.data);
+                    } else {
+                        console.warn('Categories response is not an array:', categoriesResponse);
+                        setCategories([]);
+                    }
+                } else {
+                    setCategories([]);
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -114,7 +127,7 @@ const Products = () => {
     }, [location.search]);
 
     useEffect(() => {
-        if (filters.category !== 'all') {
+        if (filters.category !== 'all' && Array.isArray(categories)) {
             const category = categories.find(cat => cat._id === filters.category);
             setActiveSubcategories(category?.subcategories || []);
         } else {
@@ -233,7 +246,7 @@ const Products = () => {
                                             <span className="text-lg">🌟</span>
                                             <span>Tất cả danh mục</span>
                                         </button>
-                                        {categories.map(category => (
+                                        {Array.isArray(categories) && categories.map(category => (
                                             <button
                                                 key={category._id}
                                                 onClick={() => setFilters({ 
@@ -255,7 +268,7 @@ const Products = () => {
                                 </div>
 
                                 {/* Subcategory Filter */}
-                                {activeSubcategories.length > 0 && (
+                                {Array.isArray(activeSubcategories) && activeSubcategories.length > 0 && (
                                     <div className="mb-10">
                                         <h4 className="text-sm font-medium text-gray-700 mb-6 uppercase tracking-wide">
                                             Loại sản phẩm
@@ -266,7 +279,7 @@ const Products = () => {
                                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gray-300 focus:border-transparent text-gray-900 font-medium"
                                         >
                                             <option value="all">Tất cả loại</option>
-                                            {activeSubcategories.map(sub => (
+                                            {Array.isArray(activeSubcategories) && activeSubcategories.map(sub => (
                                                 <option key={sub._id} value={sub.name}>
                                                     {sub.name}
                                                 </option>

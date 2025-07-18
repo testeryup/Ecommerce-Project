@@ -27,6 +27,13 @@ const skuSchema = new mongoose.Schema({
             validator: Number.isInteger
         }
     },
+    reserved: {
+        type: Number,
+        default: 0,
+        validate: {
+            validator: Number.isInteger
+        }
+    },
     status: {
         type: String,
         enum: ['available', 'hidden'],
