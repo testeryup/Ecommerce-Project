@@ -132,6 +132,11 @@ const OrderDetailComponent = ({
     );
   }
 
+  // Debug logs
+  console.log('OrderDetailComponent - orderData:', orderData);
+  console.log('OrderDetailComponent - user:', orderData.user);
+  console.log('OrderDetailComponent - items:', orderData.items);
+
   const statusConfig = getStatusConfig(orderData.status);
   const StatusIcon = statusConfig.icon;
 
@@ -196,7 +201,7 @@ const OrderDetailComponent = ({
                             </p>
                           </div>
                           <span className="text-xl font-bold text-gray-900">
-                            {formatCurrency(sku.price)}₫
+                            {formatCurrency(sku.price)}
                           </span>
                         </div>
                       </div>
@@ -307,12 +312,12 @@ const OrderDetailComponent = ({
                       <div>
                         <p className="text-sm text-gray-600">Tổng số sản phẩm</p>
                         <p className="font-medium text-gray-900">
-                          {orderData.orderItems?.length || 0} sản phẩm
+                          {orderData.items?.reduce((total, item) => total + (item.quantity || 1), 0) || 0} sản phẩm
                         </p>
                       </div>
                     </div>
                     
-                    {orderData.updatedAt && (
+                    {/* {orderData.updatedAt && (
                       <div className="flex items-center gap-3">
                         <RefreshCw className="h-5 w-5 text-gray-400" />
                         <div>
@@ -328,7 +333,7 @@ const OrderDetailComponent = ({
                           </p>
                         </div>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>
@@ -352,7 +357,10 @@ const OrderDetailComponent = ({
                     <div>
                       <p className="text-sm text-gray-600">Tên khách hàng</p>
                       <p className="font-medium text-gray-900">
-                        {orderData.user?.firstName} {orderData.user?.lastName}
+                        {orderData.user?.firstName && orderData.user?.lastName 
+                          ? `${orderData.user.firstName} ${orderData.user.lastName}`
+                          : orderData.user?.email?.split('@')[0] || 'Chưa có thông tin'
+                        }
                       </p>
                     </div>
                   </div>
@@ -362,7 +370,7 @@ const OrderDetailComponent = ({
                     <div>
                       <p className="text-sm text-gray-600">Email</p>
                       <p className="font-medium text-gray-900">
-                        {orderData.user?.email}
+                        {orderData.user?.email || 'Chưa có thông tin'}
                       </p>
                     </div>
                   </div>

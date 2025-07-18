@@ -401,6 +401,25 @@ export const getOrderById = async (req, res) => {
             },
             {
                 $lookup: {
+                    from: 'users',
+                    localField: 'buyer',
+                    foreignField: '_id',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                firstName: 1,
+                                lastName: 1,
+                                email: 1,
+                                phone: 1
+                            }
+                        }
+                    ],
+                    as: 'userDetails'
+                }
+            },
+            {
+                $lookup: {
                     from: 'skus',
                     localField: 'items.sku',
                     foreignField: '_id',
@@ -462,13 +481,16 @@ export const getOrderById = async (req, res) => {
                     paymentMethod: 1,
                     status: 1,
                     paymentStatus: 1,
+                    items: 1,
+                    user: { $arrayElemAt: ['$userDetails', 0] },
                     skuDetails: 1,
                     inventoryDetails: 1,
                     createdAt: {
                         $dateToString: {
                             date: { $toDate: "$_id" }
                         }
-                    }
+                    },
+                    updatedAt: 1
                 }
             },
             { $limit: 1 }

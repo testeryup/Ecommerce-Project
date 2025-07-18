@@ -25,7 +25,11 @@ const OrderDetail = () => {
     const fetchOrderData = async (orderId) => {
       try {
         const response = await getOrderById(orderId);
+        console.log('Order API Response:', response); // Debug log
         if (response.errCode === 0 && response.data) {
+          console.log('Order Data:', response.data); // Debug log
+          console.log('User Data:', response.data.user); // Debug log
+          console.log('Items Data:', response.data.items); // Debug log
           setOrderData(response.data);
         } else {
           toast.error('Không tìm thấy thông tin đơn hàng');
