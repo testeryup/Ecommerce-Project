@@ -28,7 +28,6 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
                     }))
                 }
             } catch (error) {
-                console.error("Error fetching product:", error);
                 toast.error("Failed to fetch product data");
             }
         };
@@ -96,7 +95,6 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
                 throw new Error(inventoryData?.message || "Không thể lấy danh sách kho hàng");
             }
         } catch (error) {
-            console.error("Error fetching inventory:", error);
             toast.error("Không thể lấy danh sách kho hàng");
         } finally {
             setIsLoading(false);
@@ -137,7 +135,6 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
                 throw new Error(result.message || "Xóa tài khoản thất bại");
             }
         } catch (error) {
-            console.error("Error deleting inventory:", error);
             const errorMessage = error.response?.data?.message || 
                                error.message || 
                                "Xóa tài khoản thất bại";
@@ -173,7 +170,6 @@ export default function InventoryModal({ isOpen, onClose, productId }) {
                 throw new Error(result.message || "Bổ sung kho hàng thất bại");
             }
         } catch (error) {
-            console.error("Error uploading inventory:", error);
             const errorMessage = error.response?.data?.message || 
                                error.message || 
                                "Bổ sung kho hàng thất bại";
