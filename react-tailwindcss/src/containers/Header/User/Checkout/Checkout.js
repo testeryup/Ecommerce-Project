@@ -154,7 +154,7 @@ export default function Checkout() {
             <div className="min-h-screen bg-gray-50">
                 {/* Header Section */}
                 <div className="bg-white border-b border-gray-100">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                         <div className="flex items-center space-x-4">
                             <button
                                 onClick={() => navigate(path.CART)}
@@ -171,10 +171,10 @@ export default function Checkout() {
                     </div>
                 </div>
 
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                         {/* Order Items - 2/3 width */}
-                        <div className="lg:col-span-2">
+                        <div className="lg:col-span-3">
                             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                                 <div className="p-6 border-b border-gray-100">
                                     <div className="flex items-center space-x-3">
@@ -249,14 +249,14 @@ export default function Checkout() {
                         </div>
 
                         {/* Order Summary - 1/3 width */}
-                        <div className="lg:col-span-1">
+                        <div className="lg:col-span-2">
                             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 sticky top-8">
                                 <div className="p-6">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Tóm tắt đơn hàng</h3>
                                     
                                     {/* Balance Info */}
                                     <div className="mb-6 p-4 bg-gray-50 rounded-xl">
-                                        <div className="flex items-center justify-between mb-2">
+                                        <div className="mb-2">
                                             <span className="text-gray-600">Số dư hiện tại:</span>
                                             <div className="flex items-center space-x-2">
                                                 <FiCreditCard className="w-4 h-4 text-gray-500" />

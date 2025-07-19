@@ -218,6 +218,7 @@
           .menu-item {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 12px;
             padding: 12px 20px;
             color: #1f2937;
@@ -248,7 +249,8 @@
 
           .logout-btn {
             color: #ef4444;
-
+            width: 100%;
+            
             &:hover {
               background: #fef2f2;
               color: #dc2626;
