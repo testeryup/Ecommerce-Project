@@ -160,6 +160,8 @@ import Promo from "../models/promo.js";
 // };
 
 export const createOrderWithOptimisticLocking = async (req, res) => {
+    console.log("check var order:", req.body);
+    return;
     const MAX_RETRIES = 3;
     let retryCount = 0;
     while (retryCount < MAX_RETRIES) {
@@ -211,7 +213,7 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
                     throw new Error(`Invalid SKU ID format: ${item.skuId}`);
                 }
                 if (!Number.isInteger(item.quantity) || item.quantity > 1000) {
-                    throw new Error(`Invalid quantity for SKU ${item.skuId}: must be integer between 1-1000`);
+                    throw new Error(`Không đủ số lượng SKU ${item.skuId}: must be integer between 1-1000`);
                 }
                 const sku = skuMap.get(item.skuId);
                 if (!sku) {

@@ -103,12 +103,12 @@ export default function CartPage() {
     const getProductType = (item) => {
         if (item.name?.toLowerCase().includes('office') || item.name?.toLowerCase().includes('microsoft')) {
             return { type: 'productivity', icon: FiEdit3, color: 'blue' };
-        } else if (item.name?.toLowerCase().includes('adobe') || item.name?.toLowerCase().includes('design')) {
-            return { type: 'design', icon: FiMonitor, color: 'purple' };
+        } else if (item.name?.toLowerCase().includes('adobe') || item.name?.toLowerCase().includes('design') || item.name?.toLowerCase().includes('canva')) {
+            return { type: 'thiết kế', icon: FiMonitor, color: 'purple' };
         } else if (item.name?.toLowerCase().includes('antivirus') || item.name?.toLowerCase().includes('security')) {
             return { type: 'security', icon: FiShield, color: 'green' };
-        } else if (item.name?.toLowerCase().includes('netflix') || item.name?.toLowerCase().includes('spotify')) {
-            return { type: 'entertainment', icon: FiStar, color: 'red' };
+        } else if (item.name?.toLowerCase().includes('netflix') || item.name?.toLowerCase().includes('spotify') || item.name?.toLowerCase().includes('youtube')) {
+            return { type: 'giải trí', icon: FiStar, color: 'red' };
         }
         return { type: 'software', icon: FiKey, color: 'gray' };
     };

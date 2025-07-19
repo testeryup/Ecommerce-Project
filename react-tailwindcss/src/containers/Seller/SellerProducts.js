@@ -85,7 +85,7 @@ export default function SellerProducts() {
             <div className="seller-product-wrapper">
                 <div className="seller-product">
                     <div className='heading'>
-                        <span><h1 className='title'>Sản phẩm</h1></span>
+
                         <button className='btn-add-product' onClick={openCreateModal}>
                             <span className="material-symbols-outlined">add</span>
                             Thêm sản phẩm</button>

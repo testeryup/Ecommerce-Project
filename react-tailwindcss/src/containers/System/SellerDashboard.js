@@ -35,7 +35,7 @@ export default function SellerDashboard() {
             <div className="dashboard-container">
                 <aside className={`sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
                     <div className="sidebar-header">
-                        <h2>{isSidebarCollapsed ? 'S' : 'Seller'}</h2>
+                        <h2>{isSidebarCollapsed ? 'S' : 'Người bán hàng'}</h2>
                         <button className="toggle-btn" onClick={toggleSidebar}>
                             <FontAwesomeIcon icon={isSidebarCollapsed ? 'angle-right' : 'angle-left'} />
                         </button>
