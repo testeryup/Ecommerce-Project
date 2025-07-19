@@ -1,0 +1,347 @@
+// AdminHeader.scss - Modern Admin Header Design
+
+.admin-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  // Header Left Section
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+
+    // Logo Section
+    .logo-section {
+      display: flex;
+      align-items: center;
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: #1f2937;
+        font-weight: 700;
+        font-size: 18px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: #0a59cc;
+        }
+
+        .logo-icon {
+          font-size: 24px;
+          color: #0a59cc;
+        }
+
+        .logo-text {
+          font-family: 'Inter', sans-serif;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+        }
+
+        .admin-badge {
+          background: linear-gradient(135deg, #0a59cc, #1e40af);
+          color: white;
+          padding: 4px 10px;
+          border-radius: 16px;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          box-shadow: 0 2px 8px rgba(10, 89, 204, 0.2);
+        }
+      }
+    }
+  }
+
+  // Header Right Section
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    // User Section
+    .user-section {
+      position: relative;
+
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: #e7f0ff;
+          border-color: #0a59cc;
+        }
+
+        .user-avatar {
+          position: relative;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          overflow: hidden;
+          background: #e5e7eb;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .avatar-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background: #0a59cc;
+            color: white;
+            font-size: 14px;
+          }
+        }
+
+        .user-info {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+
+          .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            line-height: 1.2;
+          }
+
+          .user-role {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.2;
+          }
+        }
+
+        .dropdown-arrow {
+          color: #6b7280;
+          font-size: 12px;
+          transition: transform 0.2s;
+        }
+
+        &:hover .dropdown-arrow {
+          transform: rotate(180deg);
+        }
+      }
+
+      .user-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 280px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        margin-top: 8px;
+        z-index: 1000;
+        animation: slideDown 0.2s ease;
+
+        .user-detail {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 20px;
+          border-bottom: 1px solid #f3f4f6;
+
+          .user-avatar-large {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #e5e7eb;
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+
+          .user-detail-info {
+            flex: 1;
+
+            h4 {
+              margin: 0 0 4px 0;
+              font-size: 16px;
+              font-weight: 600;
+              color: #1f2937;
+            }
+
+            p {
+              margin: 0;
+              font-size: 14px;
+              color: #6b7280;
+            }
+          }
+
+          .role-badge {
+            background: linear-gradient(135deg, #0a59cc, #1e40af);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+          }
+        }
+
+        .dropdown-menu {
+          padding: 8px 0;
+
+          .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #1f2937;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            font-size: 14px;
+
+            svg {
+              width: 16px;
+              color: #6b7280;
+            }
+
+            &:hover {
+              background: #f8f9fa;
+              color: #0a59cc;
+
+              svg {
+                color: #0a59cc;
+              }
+            }
+          }
+
+          .menu-divider {
+            height: 1px;
+            background: #f3f4f6;
+            margin: 8px 0;
+          }
+
+          .logout-btn {
+            color: #ef4444;
+
+            &:hover {
+              background: #fef2f2;
+              color: #dc2626;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Dropdown Overlay
+.dropdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 999;
+}
+
+// Animations
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .admin-header {
+    padding: 0 16px;
+
+    .header-left {
+      gap: 16px;
+    }
+
+    .header-right {
+      gap: 8px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    height: 60px;
+    padding: 0 12px;
+
+    .header-left {
+      gap: 12px;
+
+      .logo-section {
+        .logo {
+          .logo-text {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .header-right {
+      .user-section {
+        .user-profile {
+          .user-info {
+            display: none;
+          }
+        }
+      }
+
+      .user-dropdown {
+        width: 280px;
+        right: -12px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-header {
+    .header-left {
+      .logo-section {
+        .logo {
+          .admin-badge {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+} 

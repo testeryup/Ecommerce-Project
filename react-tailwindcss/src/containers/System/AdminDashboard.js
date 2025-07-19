@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import UserHeader from '../Header/UserHeader';
+import AdminHeader from '../Header/AdminHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './AdminDashboard.scss';
 
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
 
     return (
         <div className="admin-dashboard">
-            <UserHeader />
+            <AdminHeader onToggleSidebar={toggleSidebar} isSidebarCollapsed={isSidebarCollapsed} />
             <div className="dashboard-container">
                 <aside className={`sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
                     <div className="sidebar-header">
