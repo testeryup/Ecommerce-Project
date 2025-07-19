@@ -1,52 +1,65 @@
-import UserHeader from "../Header/UserHeader";
+import React, { useState } from 'react';
+import SellerHeader from '../Header/SellerHeader';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './SellerDashboard.scss';
-import { useState } from "react";
-import Menu from "../Seller";
+import Menu from '../Seller';
+
+
 
 export default function SellerDashboard() {
     const [selectedMenu, setSelectedMenu] = useState('monitor');
+    const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     const menuItems = [
-        { id: 'monitor', label: 'Tổng quan', icon: 'monitoring', component: Menu.SellerMonitor },
-        { id: 'products', label: 'Quản lý gian hàng', icon: 'inventory_2', component: Menu.SellerProducts },
-        { id: 'orders', label: 'Đơn hàng', icon: 'orders', component: Menu.SellerOrders },
-        { id: 'message', label: 'Tin nhắn', icon: 'inbox', component: Menu.SellerMessage },
-        { id: 'coupon', label: 'Khuyến mãi', icon: 'loyalty', component: Menu.SellerCoupon },
-        { id: 'payment', label: 'Thanh toán', icon: 'payments', component: Menu.SellerPayment }
+        { id: 'monitor', label: 'Tổng quan', icon: 'chart-line', component: Menu.SellerMonitor },
+        { id: 'products', label: 'Quản lý gian hàng', icon: 'box', component: Menu.SellerProducts },
+        { id: 'orders', label: 'Đơn hàng', icon: 'shopping-bag', component: Menu.SellerOrders },
+        { id: 'message', label: 'Tin nhắn', icon: 'envelope', component: Menu.SellerMessage },
+        { id: 'coupon', label: 'Khuyến mãi', icon: 'gift', component: Menu.SellerCoupon },
+        { id: 'payment', label: 'Thanh toán', icon: 'credit-card', component: Menu.SellerPayment }
     ];
 
     const handleMenuClick = (menuId) => {
         setSelectedMenu(menuId);
     };
 
+    const toggleSidebar = () => {
+        setSidebarCollapsed(!isSidebarCollapsed);
+    };
+
     const SelectedComponent = menuItems.find(item => item.id === selectedMenu)?.component || Menu.SellerMonitor;
 
     return (
-        <>
-            <UserHeader></UserHeader>
+        <div className="seller-dashboard">
+            <SellerHeader onToggleSidebar={toggleSidebar} isSidebarCollapsed={isSidebarCollapsed} />
             <div className="dashboard-container">
-                <div className="dashboard-wrapper">
-                    <div className="dashboard-content">
-                        <div className="nav-taskbar">
-                            <div className="nav-taskbar-wrapper">
-                                {menuItems.map(item => (
-                                    <div
-                                        key={item.id}
-                                        className={`menu-item ${selectedMenu === item.id ? 'active' : ''}`}
-                                        onClick={() => handleMenuClick(item.id)}
-                                    >
-                                        <span className="material-symbols-outlined">{item.icon}</span>
-                                        <span>{item.label}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="component">
-                            <SelectedComponent />
-                        </div>
+                <aside className={`sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+                    <div className="sidebar-header">
+                        <h2>{isSidebarCollapsed ? 'S' : 'Seller'}</h2>
+                        <button className="toggle-btn" onClick={toggleSidebar}>
+                            <FontAwesomeIcon icon={isSidebarCollapsed ? 'angle-right' : 'angle-left'} />
+                        </button>
                     </div>
-                </div>
+                    <nav className="sidebar-nav">
+                        {menuItems.map(item => (
+                            <button
+                                key={item.id}
+                                className={`nav-item ${selectedMenu === item.id ? 'active' : ''}`}
+                                onClick={() => handleMenuClick(item.id)}
+                            >
+                                <FontAwesomeIcon icon={item.icon} />
+                                {!isSidebarCollapsed && <span>{item.label}</span>}
+                            </button>
+                        ))}
+                    </nav>
+                </aside>
+
+                <main className="dashboard-main">
+                    <React.Suspense fallback={<div className="loading">Loading...</div>}>
+                        <SelectedComponent />
+                    </React.Suspense>
+                </main>
             </div>
-        </>
-    )
+        </div>
+    );
 }

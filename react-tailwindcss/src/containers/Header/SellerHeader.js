@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { logout } from '../../features/auth/authSlice';
 import { path } from '../../ultils';
-import './AdminHeader.scss';
+import { formatCurrency } from '../../ultils';
+import './SellerHeader.scss';
 
-const AdminHeader = ({ onToggleSidebar, isSidebarCollapsed }) => {
+const SellerHeader = ({ onToggleSidebar, isSidebarCollapsed }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { profile } = useSelector(state => state.user);
@@ -18,22 +18,41 @@ const AdminHeader = ({ onToggleSidebar, isSidebarCollapsed }) => {
     navigate(path.HOME);
   };
 
-
-
   return (
-    <header className="admin-header">
+    <header className="seller-header">
       <div className="header-left">
+        {/* Sidebar Toggle */}
+        <button 
+          className="sidebar-toggle"
+          onClick={onToggleSidebar}
+          title={isSidebarCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+        >
+          <FontAwesomeIcon icon={isSidebarCollapsed ? 'bars' : 'times'} />
+        </button>
+
         {/* Logo */}
         <div className="logo-section">
-          <Link to="/dashboard/admin" className="logo">
+          <Link to="/" className="logo">
             <span className="logo-icon">🐙</span>
             <span className="logo-text">OCTOPUS</span>
-            <span className="admin-badge">Admin</span>
+            <span className="seller-badge">Seller</span>
           </Link>
         </div>
       </div>
 
       <div className="header-right">
+        {/* Balance Display */}
+        <div className="balance-section">
+          <div className="balance-info">
+            <span className="balance-label">Số dư:</span>
+            <span className="balance-amount">
+              {profile?.balance >= 0 ? formatCurrency(profile.balance) : 'N/A'}
+            </span>
+          </div>
+          <div className="balance-icon">
+            <FontAwesomeIcon icon="wallet" />
+          </div>
+        </div>
 
         {/* User Menu */}
         <div className="user-section">
@@ -55,8 +74,8 @@ const AdminHeader = ({ onToggleSidebar, isSidebarCollapsed }) => {
               </div>
             </div>
             <div className="user-info">
-              <span className="user-name">{profile?.username || 'Admin'}</span>
-              <span className="user-role">Quản trị viên</span>
+              <span className="user-name">{profile?.username || 'Seller'}</span>
+              <span className="user-role">Người bán</span>
             </div>
             <FontAwesomeIcon icon="ellipsis-v" className="dropdown-arrow" />
           </button>
@@ -78,35 +97,27 @@ const AdminHeader = ({ onToggleSidebar, isSidebarCollapsed }) => {
                   </div>
                 </div>
                 <div className="user-detail-info">
-                  <h4>{profile?.username || 'Admin'}</h4>
-                  <p>{profile?.email || 'admin@octopus.com'}</p>
-                  <span className="role-badge">Quản trị viên</span>
+                  <h4>{profile?.username || 'Seller'}</h4>
+                  <p>{profile?.email || 'seller@octopus.com'}</p>
+                  <span className="role-badge">Người bán</span>
                 </div>
               </div>
 
               <div className="dropdown-menu">
-                {/* <Link to="/admin/profile" className="menu-item">
+                <Link to="/seller/profile" className="menu-item">
                   <FontAwesomeIcon icon="user" />
                   <span>Hồ sơ cá nhân</span>
                 </Link>
                 
-                <Link to="/admin/settings" className="menu-item">
+                <Link to="/seller/settings" className="menu-item">
                   <FontAwesomeIcon icon="cog" />
-                  <span>Cài đặt hệ thống</span>
+                  <span>Cài đặt cửa hàng</span>
                 </Link>
                 
-                <Link to="/admin/security" className="menu-item">
-                  <FontAwesomeIcon icon="shield-alt" />
-                  <span>Bảo mật</span>
+                <Link to="/support" className="menu-item">
+                  <FontAwesomeIcon icon="headset" />
+                  <span>Trung tâm hỗ trợ</span>
                 </Link>
-                
-                <Link to="/admin/appearance" className="menu-item">
-                  <FontAwesomeIcon icon="palette" />
-                  <span>Giao diện</span>
-                </Link> */}
-                
-                {/* <hr className="menu-divider" /> */}
-              
                 
                 <button className="menu-item logout-btn" onClick={handleLogout}>
                   <FontAwesomeIcon icon="sign-out-alt" />
@@ -131,4 +142,4 @@ const AdminHeader = ({ onToggleSidebar, isSidebarCollapsed }) => {
   );
 };
 
-export default AdminHeader;
+export default SellerHeader; 
