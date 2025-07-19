@@ -12,9 +12,13 @@ import {
   faReceipt,
   faHeart,
   faHeadset,
-  faTimes
+  faTimes,
+  faCog,
+  faStore
 } from '@fortawesome/free-solid-svg-icons';
 import { logout } from '../features/auth/authSlice';
+import { path } from '../ultils';
+import { fetchUserProfile } from '../features/user/userSlice';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,9 +33,17 @@ const Header = () => {
   // Add safe selectors with default values
   const auth = useSelector(state => state.auth || {});
   const cart = useSelector(state => state.cart || {});
+  const user = useSelector(state => state.user || {});
   
-  const { user, isAuthenticated = false } = auth;
+  const { isAuthenticated = false } = auth;
   const { items = [] } = cart;
+  const { role } = user;
+  
+  // Debug: Log role value
+  // console.log('Header Debug - Role:', role, 'User:', user, 'Auth:', auth);
+  
+  // Fallback: Check role from both sources
+  const userRole = role || auth.user?.role;
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -100,6 +112,10 @@ const Header = () => {
   const handleLogout = () => {
     dispatch(logout());
     navigate('/');
+  };
+
+  const handleForceFetchProfile = () => {
+    dispatch(fetchUserProfile());
   };
 
   const cartItemCount = items?.reduce((total, item) => total + item.quantity, 0) || 0;
@@ -209,6 +225,7 @@ const Header = () => {
 
           {/* Right Actions */}
           <div className="flex items-center space-x-4">
+            
             {/* Cart */}
             <Link to="/cart" className="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
               <FontAwesomeIcon icon={faShoppingCart} className="w-5 h-5" />
@@ -258,6 +275,22 @@ const Header = () => {
                         <FontAwesomeIcon icon={faHeadset} className="w-4 h-4 mr-3" />
                         Hỗ trợ
                       </Link>
+                      
+                      {/* Admin Dashboard Link */}
+                      {userRole === 'admin' && (
+                        <Link to={path.ADMIN_DASHBOARD} className="flex items-center px-4 py-3 text-blue-600 hover:bg-blue-50 transition-colors">
+                          <FontAwesomeIcon icon={faCog} className="w-4 h-4 mr-3" />
+                          Admin Dashboard
+                        </Link>
+                      )}
+                      
+                      {/* Seller Dashboard Link */}
+                      {userRole === 'seller' && (
+                        <Link to={path.SELLER_DASHBOARD} className="flex items-center px-4 py-3 text-green-600 hover:bg-green-50 transition-colors">
+                          <FontAwesomeIcon icon={faStore} className="w-4 h-4 mr-3" />
+                          Seller Dashboard
+                        </Link>
+                      )}
                     </div>
                     
                     <div className="border-t border-gray-100 pt-2">
@@ -363,7 +396,7 @@ const Header = () => {
             </nav>
 
             {/* Mobile Auth */}
-            {!isAuthenticated && (
+            {!isAuthenticated ? (
               <div className="pt-4 border-t border-gray-100 space-y-3">
                 <Link 
                   to="/login" 
@@ -379,6 +412,55 @@ const Header = () => {
                 >
                   Đăng ký
                 </Link>
+              </div>
+            ) : (
+              <div className="pt-4 border-t border-gray-100 space-y-3">
+                <Link 
+                  to="/profile" 
+                  className="block w-full text-center py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Thông tin cá nhân
+                </Link>
+                <Link 
+                  to="/orders" 
+                  className="block w-full text-center py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Đơn hàng của tôi
+                </Link>
+                
+                {/* Admin Dashboard Link - Mobile */}
+                {userRole === 'admin' && (
+                  <Link 
+                    to={path.ADMIN_DASHBOARD} 
+                    className="block w-full text-center py-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
+                
+                {/* Seller Dashboard Link - Mobile */}
+                {userRole === 'seller' && (
+                  <Link 
+                    to={path.SELLER_DASHBOARD} 
+                    className="block w-full text-center py-2 text-green-600 hover:text-green-700 font-medium transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Seller Dashboard
+                  </Link>
+                )}
+                
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
+                  className="block w-full text-center py-2 text-red-600 hover:text-red-700 font-medium transition-colors"
+                >
+                  Đăng xuất
+                </button>
               </div>
             )}
           </div>
