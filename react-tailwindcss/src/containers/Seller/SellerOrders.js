@@ -3,95 +3,7 @@ import { getOrders, refundOrder, reportOrder, getOrderDetail } from '../../servi
 import Loading from '../../components/Loading';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../ultils';
-import { 
-    Eye, 
-    RotateCw, 
-    Undo, 
-    Flag, 
-    Check, 
-    Clock, 
-    List,
-    ChevronLeft,
-    ChevronRight,
-    Package,
-    User,
-    Calendar
-} from 'lucide-react';
-
-const RefundModal = ({ order, isOpen, onClose, onConfirm }) => {
-    if (!isOpen || !order) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Xác nhận hoàn tiền</h3>
-                <p className="text-sm text-gray-600 mb-6">
-                    Bạn có chắc chắn muốn hoàn tiền cho đơn hàng #{order.orderId}?
-                </p>
-                <div className="flex space-x-3 justify-end">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                    >
-                        Hủy
-                    </button>
-                    <button
-                        onClick={() => onConfirm(order)}
-                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-                    >
-                        Xác nhận hoàn tiền
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const ReportModal = ({ order, isOpen, onClose, onConfirm }) => {
-    const [reason, setReason] = useState('');
-
-    if (!isOpen || !order) return null;
-
-    const handleSubmit = () => {
-        if (!reason.trim()) {
-            toast.error('Vui lòng nhập lý do báo cáo');
-            return;
-        }
-        onConfirm(order, reason);
-        setReason('');
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Báo cáo đơn hàng</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                    Đơn hàng #{order.orderId}
-                </p>
-                <textarea
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    placeholder="Nhập lý do báo cáo..."
-                    className="w-full p-3 border border-gray-300 rounded-md resize-none h-24 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-                <div className="flex space-x-3 justify-end mt-6">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                    >
-                        Hủy
-                    </button>
-                    <button
-                        onClick={handleSubmit}
-                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-                    >
-                        Gửi báo cáo
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
+import './SellerOrders.scss';
 
 export default function SellerOrders() {
     const [orders, setOrders] = useState([]);
@@ -99,6 +11,9 @@ export default function SellerOrders() {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [reportReason, setReportReason] = useState('');
+    const [orderDetail, setOrderDetail] = useState(null);
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
@@ -110,21 +25,19 @@ export default function SellerOrders() {
     const [activeFilter, setActiveFilter] = useState('all');
 
     const filterOptions = [
-        { value: 'all', label: 'Tất cả', icon: List, color: 'bg-gray-100 text-gray-800' },
-        { value: 'completed', label: 'Hoàn thành', icon: Check, color: 'bg-green-100 text-green-800' },
-        { value: 'processing', label: 'Đang xử lý', icon: Clock, color: 'bg-yellow-100 text-yellow-800' },
-        { value: 'refunded', label: 'Đã hoàn tiền', icon: Undo, color: 'bg-blue-100 text-blue-800' },
-        { value: 'reported', label: 'Đã báo cáo', icon: Flag, color: 'bg-red-100 text-red-800' }
+        { value: 'all', label: 'Tất cả', icon: 'fas fa-list-ul' },
+        { value: 'completed', label: 'Hoàn thành', icon: 'fas fa-check-circle' },
+        { value: 'processing', label: 'Đang xử lý', icon: 'fas fa-clock' },
+        { value: 'refunded', label: 'Đã hoàn tiền', icon: 'fas fa-undo' },
+        { value: 'reported', label: 'Đã báo cáo', icon: 'fas fa-flag' }
     ];
 
-    const getStatusInfo = (status) => {
-        const statusMap = {
-            completed: { label: 'Hoàn thành', color: 'bg-green-100 text-green-800', icon: Check },
-            refunded: { label: 'Đã hoàn tiền', color: 'bg-blue-100 text-blue-800', icon: Undo },
-            processing: { label: 'Đang xử lý', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-            reported: { label: 'Đã báo cáo', color: 'bg-red-100 text-red-800', icon: Flag }
-        };
-        return statusMap[status] || { label: 'Không xác định', color: 'bg-gray-100 text-gray-800', icon: Package };
+    const orderStatus = {
+        completed: { label: 'Hoàn thành', color: 'success', icon: 'fas fa-check-circle' },
+        refunded: { label: 'Đã hoàn tiền', color: 'info', icon: 'fas fa-undo' },
+        processing: { label: 'Đang xử lý', color: 'warning', icon: 'fas fa-clock' },
+        reported: { label: 'Đã báo cáo', color: 'danger', icon: 'fas fa-flag' },
+        default: { label: 'Không xác định', color: 'default', icon: 'fas fa-question-circle' }
     };
 
     useEffect(() => {
@@ -168,254 +81,334 @@ export default function SellerOrders() {
         setPagination(prev => ({ ...prev, currentPage: 1 }));
     };
 
-    const handleRefund = async (order) => {
+    const handleViewDetail = async (orderId) => {
         try {
-            const response = await refundOrder(order.orderId);
-            if (response.errCode === 0) {
-                toast.success('Đã hoàn tiền thành công');
-                setIsRefundModalOpen(false);
-                setSelectedOrder(null);
-                fetchOrders(pagination.currentPage, activeFilter);
+            setLoading(true);
+            const result = await getOrderDetail(orderId);
+            if (result.errCode === 0) {
+                setOrderDetail(result.data);
+                setIsDetailModalOpen(true);
             } else {
-                toast.error('Không thể hoàn tiền');
+                toast.error('Không thể tải chi tiết đơn hàng');
             }
         } catch (error) {
-            console.error('Failed to refund order:', error);
             toast.error('Đã có lỗi xảy ra');
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleReport = async (order, reason) => {
+    const handleRefund = async (orderId) => {
         try {
-            const response = await reportOrder(order.orderId, reason);
-            if (response.errCode === 0) {
-                toast.success('Đã gửi báo cáo thành công');
-                setIsReportModalOpen(false);
-                setSelectedOrder(null);
+            const result = await refundOrder(orderId);
+            if (result.errCode === 0) {
+                toast.success('Hoàn tiền thành công');
                 fetchOrders(pagination.currentPage, activeFilter);
             } else {
-                toast.error('Không thể gửi báo cáo');
+                toast.error('Hoàn tiền thất bại');
             }
         } catch (error) {
-            console.error('Failed to report order:', error);
             toast.error('Đã có lỗi xảy ra');
         }
+        setIsRefundModalOpen(false);
     };
 
-    if (loading && orders.length === 0) return <Loading />;
+    const handleReport = async (orderId) => {
+        try {
+            const result = await reportOrder(orderId, reportReason);
+            if (result.errCode === 0) {
+                toast.success('Báo cáo thành công');
+                fetchOrders(pagination.currentPage, activeFilter);
+            } else {
+                toast.error('Báo cáo thất bại');
+            }
+        } catch (error) {
+            toast.error('Đã có lỗi xảy ra');
+        }
+        setIsReportModalOpen(false);
+        setReportReason('');
+    };
+
+    const RefundModal = () => (
+        <div className={`modal ${isRefundModalOpen ? 'show' : ''}`}>
+            <div className="modal-content">
+                <h3>Xác nhận hoàn tiền</h3>
+                <p>Bạn có chắc chắn muốn hoàn tiền cho đơn hàng #{selectedOrder?.orderId}?</p>
+                <div className="modal-actions">
+                    <button className="confirm-btn" onClick={() => handleRefund(selectedOrder?.orderId)}>
+                        Xác nhận
+                    </button>
+                    <button className="cancel-btn" onClick={() => setIsRefundModalOpen(false)}>
+                        Hủy
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+
+    const ReportModal = () => (
+        <div className={`modal ${isReportModalOpen ? 'show' : ''}`}>
+            <div className="modal-content">
+                <h3>Báo cáo đơn hàng</h3>
+                <textarea
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    placeholder="Nhập lý do báo cáo..."
+                    rows={4}
+                />
+                <div className="modal-actions">
+                    <button
+                        className="confirm-btn"
+                        onClick={() => handleReport(selectedOrder?.orderId)}
+                        disabled={!reportReason.trim()}
+                    >
+                        Gửi báo cáo
+                    </button>
+                    <button className="cancel-btn" onClick={() => setIsReportModalOpen(false)}>
+                        Hủy
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+
+    const OrderDetailModal = () => (
+        <div className={`modal ${isDetailModalOpen ? 'show' : ''}`}>
+            <div className="modal-content detail-modal">
+                <div className="modal-header">
+                    <div className="header-content">
+                        <h3>Chi tiết đơn hàng #{orderDetail?.orderId}</h3>
+                        <span className={`status-badge ${orderStatus[orderDetail?.status]?.color}`}>
+                            <i className={orderStatus[orderDetail?.status]?.icon}></i>
+                            {orderStatus[orderDetail?.status]?.label}
+                        </span>
+                    </div>
+                    <button className="close-btn" onClick={() => setIsDetailModalOpen(false)}>
+                        <i className="fas fa-times"></i>
+                    </button>
+                </div>
+                {orderDetail && (
+                    <div className="detail-content">
+                        <div className="info-grid">
+                            <div className="detail-section customer-info">
+                                <h4><i className="fas fa-user"></i> Thông tin khách hàng</h4>
+                                <div className="info-item">
+                                    <span className="label">Email:</span>
+                                    <span className="value">{orderDetail.buyer.email}</span>
+                                </div>
+                                <div className="info-item">
+                                    <span className="label">Username:</span>
+                                    <span className="value">{orderDetail.buyer.username}</span>
+                                </div>
+                                <div className="info-item">
+                                    <span className="label">Ngày đặt:</span>
+                                    <span className="value">{new Date(orderDetail.createdAt).toLocaleString('vi-VN')}</span>
+                                </div>
+                            </div>
+
+                            <div className="detail-section order-info">
+                                <h4><i className="fas fa-info-circle"></i> Thông tin đơn hàng</h4>
+                                <div className="info-item">
+                                    <span className="label">Tổng tiền:</span>
+                                    <span className="value highlight">{formatCurrency(orderDetail.total)}₫</span>
+                                </div>
+                                <div className="info-item">
+                                    <span className="label">Trạng thái thanh toán:</span>
+                                    <span className={`value payment-status ${orderDetail.paymentStatus}`}>
+                                        {orderDetail.paymentStatus === 'completed' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="detail-section products-section">
+                            <h4><i className="fas fa-shopping-cart"></i> Sản phẩm đã mua</h4>
+                            <div className="products-list">
+                                {orderDetail.items.map((item, index) => (
+                                    <div key={index} className="product-card">
+                                        <div className="product-info">
+                                            <h5>{item.skuDetails.productName}</h5>
+                                            <span className="sku-name">{item.skuDetails.name}</span>
+                                            <span className="price">{formatCurrency(item.skuDetails.price)}₫</span>
+                                        </div>
+
+                                        <div className="accounts-section">
+                                            <h6>Tài khoản:</h6>
+                                            {item.soldAccounts.map((account, idx) => {
+                                                const [username, password] = account.credentials.split('|');
+                                                return (
+                                                    <div key={idx} className="account-item">
+                                                        <div className="credential">
+                                                            <span className="label">Username:</span>
+                                                            <span className="value">{username}</span>
+                                                        </div>
+                                                        <div className="credential">
+                                                            <span className="label">Password:</span>
+                                                            <span className="value">{password}</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+
+    const Pagination = () => (
+        <div className="pagination">
+            <button
+                className="pagination-btn"
+                onClick={() => handlePageChange(1)}
+                disabled={!pagination.hasPrev}
+            >
+                <i className="fas fa-angle-double-left" />
+            </button>
+            <button
+                className="pagination-btn"
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                disabled={!pagination.hasPrev}
+            >
+                <i className="fas fa-angle-left" />
+            </button>
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(num => (
+                <button
+                    key={num}
+                    className={`pagination-btn ${pagination.currentPage === num ? 'active' : ''}`}
+                    onClick={() => handlePageChange(num)}
+                >
+                    {num}
+                </button>
+            ))}
+            <button
+                className="pagination-btn"
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                disabled={!pagination.hasNext}
+            >
+                <i className="fas fa-angle-right" />
+            </button>
+            <button
+                className="pagination-btn"
+                onClick={() => handlePageChange(pagination.totalPages)}
+                disabled={!pagination.hasNext}
+            >
+                <i className="fas fa-angle-double-right" />
+            </button>
+        </div>
+    );
+
+    if (loading) {
+        return <div className="loading-container"><Loading /></div>;
+    }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Quản lý đơn hàng</h1>
-                <button
-                    onClick={handleRefresh}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4 sm:mt-0"
-                >
-                    <RotateCw className="h-4 w-4 mr-2" />
-                    Làm mới
-                </button>
-            </div>
-
-            {/* Filters */}
-            <div className="bg-white shadow rounded-lg p-6">
-                <div className="flex flex-wrap gap-3">
-                    {filterOptions.map((filter) => {
-                        const Icon = filter.icon;
-                        return (
-                            <button
-                                key={filter.value}
-                                onClick={() => handleFilterChange(filter.value)}
-                                className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                                    activeFilter === filter.value
-                                        ? filter.color
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                }`}
-                            >
-                                <Icon className="h-4 w-4 mr-2" />
-                                {filter.label}
-                            </button>
-                        );
-                    })}
+        <div className="seller-orders">
+            <div className="orders-header">
+                <div className="header-main">
+                    <h1>Quản lý đơn hàng</h1>
+                    <button className="refresh-btn" onClick={handleRefresh}>
+                        <i className="fas fa-sync-alt"></i>
+                        Làm mới
+                    </button>
                 </div>
+                <div className="filter-section">
+                    {filterOptions.map(filter => (
+                        <button
+                            key={filter.value}
+                            className={`filter-button ${activeFilter === filter.value ? 'active' : ''}`}
+                            onClick={() => handleFilterChange(filter.value)}
+                        >
+                            <i className={filter.icon}></i>
+                            {filter.label}
+                        </button>
+                    ))}
+                    <Pagination />
+                </div>
+
             </div>
 
-            {/* Orders Table */}
-            <div className="bg-white shadow overflow-hidden rounded-md">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Đơn hàng
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Khách hàng
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Tổng tiền
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Trạng thái
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Ngày tạo
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Thao tác
-                                </th>
+            <div className="table-container">
+                <table className="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Ngày đặt</th>
+                            <th>Sản phẩm</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {orders.map(order => (
+                            <tr key={order.orderId}>
+                                <td>#{order.orderId}</td>
+                                <td>{new Date(order.createdAt).toLocaleString('vi-VN')}</td>
+                                <td>
+                                    <div className="products-cell">
+                                        {order.items.map((item, idx) => (
+                                            <div key={idx} className="product-item">
+                                                <span className="product-name">{item.productName}</span>
+                                                <span className="product-variant">({item.skuName} x{item.quantity})</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </td>
+                                <td className="amount-cell">{formatCurrency(order.total)}₫</td>
+                                <td>
+                                    <span className={`status-badge ${orderStatus[order.status]?.color}`}>
+                                        <i className={orderStatus[order.status]?.icon}></i>
+                                        {orderStatus[order.status]?.label}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div className="action-buttons">
+                                        <button
+                                            className="action-btn view"
+                                            onClick={() => handleViewDetail(order.orderId)}
+                                            title="Xem chi tiết"
+                                        >
+                                            <i className="fas fa-eye"></i>
+                                        </button>
+                                        {/* {order.status === 'completed' && (
+                                            <button
+                                                className="action-btn refund"
+                                                onClick={() => {
+                                                    setSelectedOrder(order);
+                                                    setIsRefundModalOpen(true);
+                                                }}
+                                                title="Hoàn tiền"
+                                            >
+                                                <i className="fas fa-undo"></i>
+                                            </button>
+                                        )}
+                                        <button
+                                            className="action-btn report"
+                                            onClick={() => {
+                                                setSelectedOrder(order);
+                                                setIsReportModalOpen(true);
+                                            }}
+                                            title="Báo cáo"
+                                        >
+                                            <i className="fas fa-flag"></i>
+                                        </button> */}
+                                    </div>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {orders.map((order) => {
-                                const statusInfo = getStatusInfo(order.status);
-                                const StatusIcon = statusInfo.icon;
-                                
-                                return (
-                                    <tr key={order.orderId} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <Package className="h-5 w-5 text-gray-400 mr-3" />
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-900">
-                                                        #{order.orderId}
-                                                    </div>
-                                                    <div className="text-sm text-gray-500">
-                                                        {order.itemCount || 1} sản phẩm
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <User className="h-5 w-5 text-gray-400 mr-3" />
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-900">
-                                                        {order.buyerName}
-                                                    </div>
-                                                    <div className="text-sm text-gray-500">
-                                                        {order.buyerEmail}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {formatCurrency(order.total)}₫
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
-                                                <StatusIcon className="h-3 w-3 mr-1" />
-                                                {statusInfo.label}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center text-sm text-gray-500">
-                                                <Calendar className="h-4 w-4 mr-2" />
-                                                {new Date(order.createdAt).toLocaleDateString('vi-VN')}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex items-center justify-end space-x-2">
-                                                {order.status === 'completed' && (
-                                                    <button
-                                                        onClick={() => {
-                                                            setSelectedOrder(order);
-                                                            setIsRefundModalOpen(true);
-                                                        }}
-                                                        className="text-blue-600 hover:text-blue-900 p-1 rounded-md hover:bg-blue-50"
-                                                        title="Hoàn tiền"
-                                                    >
-                                                        <Undo className="h-4 w-4" />
-                                                    </button>
-                                                )}
-                                                {order.status !== 'reported' && (
-                                                    <button
-                                                        onClick={() => {
-                                                            setSelectedOrder(order);
-                                                            setIsReportModalOpen(true);
-                                                        }}
-                                                        className="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50"
-                                                        title="Báo cáo"
-                                                    >
-                                                        <Flag className="h-4 w-4" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                        ))}
+                    </tbody>
+                </table>
             </div>
 
-            {/* Pagination */}
-            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-lg shadow">
-                <div className="flex-1 flex justify-between sm:hidden">
-                    <button
-                        className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={!pagination.hasPrev}
-                        onClick={() => handlePageChange(pagination.currentPage - 1)}
-                    >
-                        Trước
-                    </button>
-                    <button
-                        className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={!pagination.hasNext}
-                        onClick={() => handlePageChange(pagination.currentPage + 1)}
-                    >
-                        Sau
-                    </button>
-                </div>
-                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                    <div>
-                        <p className="text-sm text-gray-700">
-                            Hiển thị <span className="font-medium">{Math.min((pagination.currentPage - 1) * pagination.itemsPerPage + 1, pagination.totalItems)}</span> đến{' '}
-                            <span className="font-medium">{Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)}</span> trong{' '}
-                            <span className="font-medium">{pagination.totalItems}</span> kết quả
-                        </p>
-                    </div>
-                    <div className="flex space-x-1">
-                        <button
-                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={!pagination.hasPrev}
-                            onClick={() => handlePageChange(pagination.currentPage - 1)}
-                        >
-                            <ChevronLeft className="h-5 w-5" />
-                        </button>
-                        <button
-                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={!pagination.hasNext}
-                            onClick={() => handlePageChange(pagination.currentPage + 1)}
-                        >
-                            <ChevronRight className="h-5 w-5" />
-                        </button>
-                    </div>
-                </div>
-            </div>
 
-            {/* Modals */}
-            <RefundModal
-                order={selectedOrder}
-                isOpen={isRefundModalOpen}
-                onClose={() => {
-                    setIsRefundModalOpen(false);
-                    setSelectedOrder(null);
-                }}
-                onConfirm={handleRefund}
-            />
-
-            <ReportModal
-                order={selectedOrder}
-                isOpen={isReportModalOpen}
-                onClose={() => {
-                    setIsReportModalOpen(false);
-                    setSelectedOrder(null);
-                }}
-                onConfirm={handleReport}
-            />
+            <RefundModal />
+            <ReportModal />
+            <OrderDetailModal />
         </div>
     );
 }

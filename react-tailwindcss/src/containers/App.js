@@ -134,7 +134,7 @@ export default function App() {
                     }
                 />
                 <Route
-                    path="/dashboard/seller/*"
+                    path={path.SELLER_DASHBOARD}
                     element={
                         <ProtectedRoute allowedRoles={['seller']}>
                             <SellerDashboard />
@@ -142,7 +142,7 @@ export default function App() {
                     }
                 />
                 <Route
-                    path={`${path.ADMIN_DASHBOARD}/*`}
+                    path={path.ADMIN_DASHBOARD}
                     element={
                         <ProtectedRoute allowedRoles={['admin']}>
                             <AdminDashboard />
