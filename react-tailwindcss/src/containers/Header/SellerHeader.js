@@ -21,15 +21,6 @@ const SellerHeader = ({ onToggleSidebar, isSidebarCollapsed }) => {
   return (
     <header className="seller-header">
       <div className="header-left">
-        {/* Sidebar Toggle */}
-        <button 
-          className="sidebar-toggle"
-          onClick={onToggleSidebar}
-          title={isSidebarCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
-        >
-          <FontAwesomeIcon icon={isSidebarCollapsed ? 'bars' : 'times'} />
-        </button>
-
         {/* Logo */}
         <div className="logo-section">
           <Link to="/" className="logo">

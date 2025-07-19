@@ -23,31 +23,7 @@
     gap: 20px;
     flex: 1;
 
-    // Sidebar Toggle Button
-    .sidebar-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: #f8f9fa;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      color: #6b7280;
-      cursor: pointer;
-      transition: all 0.2s ease;
 
-      &:hover {
-        background: #f0fdf4;
-        color: #059669;
-        border-color: #059669;
-        transform: translateY(-1px);
-      }
-
-      &:active {
-        transform: translateY(0);
-      }
-    }
 
     // Logo Section
     .logo-section {
