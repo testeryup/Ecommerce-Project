@@ -200,6 +200,8 @@ export const getSellerOrders = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
         const status = req.query.status?.toLowerCase() || 'all';
+        const startDate = req.query.startDate ? new Date(req.query.startDate) : null;
+        const endDate = req.query.endDate ? new Date(req.query.endDate) : null;
 
         // 2. Validate status
         if (status !== 'all' && !VALID_ORDER_STATUSES.includes(status)) {
@@ -215,6 +217,13 @@ export const getSellerOrders = async (req, res) => {
         };
         if (status !== 'all') {
             matchCondition.status = status;
+        }
+        if (startDate && endDate) {
+            matchCondition.createdAt = { $gte: startDate, $lte: endDate };
+        } else if (startDate) {
+            matchCondition.createdAt = { $gte: startDate };
+        } else if (endDate) {
+            matchCondition.createdAt = { $lte: endDate };
         }
 
         // 4. Get total count

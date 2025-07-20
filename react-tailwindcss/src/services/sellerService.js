@@ -24,8 +24,14 @@ export const deleteInventoryById = (inventoryId, skuId) => {
     });
 }
 
-export const getOrders = ({ page, limit, status = 'all' }) => {
-    return api.get(`/api/seller/orders?page=${page}&limit=${limit}&status=${status}`);
+export const getOrders = ({ page, limit, status = 'all', startDate, endDate }) => {
+    const params = new URLSearchParams();
+    params.append('page', page);
+    params.append('limit', limit);
+    params.append('status', status);
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    return api.get(`/api/seller/orders?${params.toString()}`);
 }
 
 export const refundOrder = () => {
