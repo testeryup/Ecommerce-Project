@@ -36,7 +36,7 @@ const PaymentSuccess = () => {
     if (!location.state || !location.state.detail) {
         return null;
     }
-
+    console.log("check orderDetails:", orderDetails);
     return (
         <Layout>
             <div className="min-h-screen bg-white">
@@ -91,10 +91,10 @@ const PaymentSuccess = () => {
                                                     minute: '2-digit'
                                                 }) : 'Vừa xong'}
                                             </div>
-                                            <div className="flex items-center gap-1">
+                                            {/* <div className="flex items-center gap-1">
                                                 <Package className="h-4 w-4" />
                                                 {orderDetails.items?.length || 0} sản phẩm
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </div>
                                     

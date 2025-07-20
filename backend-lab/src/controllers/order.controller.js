@@ -161,7 +161,7 @@ import Promo from "../models/promo.js";
 
 export const createOrderWithOptimisticLocking = async (req, res) => {
     console.log("check var order:", req.body);
-    return;
+    // return;
     const MAX_RETRIES = 3;
     let retryCount = 0;
     while (retryCount < MAX_RETRIES) {
@@ -169,11 +169,13 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
         session.startTransaction();
         try {
             const { items, promoCode } = req.body;
+            console.log("check items:", items);
             if (!items || !Array.isArray(items) || items.length === 0) {
                 throw new Error("Items array is required and cannot be empty");
             }
             const userId = req.user.id;
             const skuIds = items.map(item => item.skuId);
+            console.log("check skuIds:", skuIds);
             let discount = 1;
             let promo = null;
             if (promoCode) {
@@ -260,6 +262,7 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
 
             const failedUpdates = updateResults.filter(result => result.modifiedCount === 0);
             if (failedUpdates.length > 0) {
+                console.log("failedUpdates", failedUpdates);
                 throw new Error("OPTIMISTIC_LOCK_CONFLICT");
             }
 
@@ -285,7 +288,7 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
                     status: 'available',
                     isDeleted: false
                 }).limit(item.quantity).session(session);
-
+                console.log("check inventories:", inventories);
                 if (inventories.length < item.quantity) {
                     throw new Error(`Not enough inventory for SKU: ${item.sku}`);
                 }
@@ -316,7 +319,7 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
             );
 
             await Promise.all(sellerUpdatePromises);
-
+            console.log("check order._id:", order._id);
             await Order.findByIdAndUpdate(order._id, {
                 status: 'completed'
             }).session(session);
@@ -358,6 +361,7 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
             });
         } catch (error) {
             await session.abortTransaction();
+            console.log("error:", error);
             if (error.message === 'OPTIMISTIC_LOCK_CONFLICT' && retryCount < MAX_RETRIES - 1) {
                 ++retryCount
                 console.log(`Optimistic lock conflict, retrying (${retryCount}/${MAX_RETRIES})`);

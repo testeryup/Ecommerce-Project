@@ -358,7 +358,7 @@ const TopupComponent = () => {
             </div>
 
             {/* Payment Container */}
-            <div id="embedded-payment-container" className="rounded-3xl overflow-hidden shadow-sm"></div>
+            <div id="embedded-payment-container" className="rounded-5xl overflow-hidden shadow-sm h-[600px]"></div>
           </div>
 
           {/* Sidebar */}
