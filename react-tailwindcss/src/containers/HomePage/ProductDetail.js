@@ -54,7 +54,7 @@ export default function ProductDetail() {
                 if (result.errCode === 0) {
                     const sortedSkus = [...result.data.skus].sort((a, b) => a.price - b.price);
                     setProduct({ ...result.data, skus: sortedSkus });
-                    setSelectedSku(sortedSkus[0]);
+                    setSelectedSku(sortedSkus[0] || {});
                 }
             } catch (error) {
                 setError(error.message);
@@ -158,14 +158,13 @@ export default function ProductDetail() {
             </div>
         </Layout>
     );
-
     const maxQuantity = Math.min(selectedSku.stock || 0, 10);
 
     return (
         <Layout>
             <div className="min-h-screen bg-white">
                 {/* Header Navigation */}
-                <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+                <div className="top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center justify-between h-16">
                             <button 
@@ -310,8 +309,8 @@ export default function ProductDetail() {
                                         >
                                             <div className="flex justify-between items-center">
                                                 <div>
-                                                    <div className="font-medium text-gray-900">{sku.name}</div>
-                                                    <div className="text-sm text-gray-500">Còn {sku.stock} sản phẩm</div>
+                                                    <div className="font-medium text-gray-900">{sku.name ?? 'skuname undefined'}</div>
+                                                    <div className="text-sm text-gray-500">Còn {sku.stock ?? 0} sản phẩm</div>
                                                 </div>
                                                 <div className="text-right">
                                                     <div className="font-semibold text-gray-900">
@@ -377,7 +376,7 @@ export default function ProductDetail() {
                             <div className="space-y-4 pt-4">
                                 <button 
                                     onClick={handleBuyNow}
-                                    disabled={selectedSku.stock === 0}
+                                    disabled={selectedSku.stock === 0 || selectedSku.stock === undefined}
                                     className="w-full bg-gray-900 text-white py-4 rounded-xl font-medium text-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-3"
                                 >
                                     <FontAwesomeIcon icon={faBolt} className="w-5 h-5" />
@@ -386,7 +385,7 @@ export default function ProductDetail() {
                                 
                                 <button 
                                     onClick={handleAddToCart}
-                                    disabled={selectedSku.stock === 0}
+                                    disabled={selectedSku.stock === 0 || selectedSku.stock === undefined}
                                     className="w-full border-2 border-gray-900 text-gray-900 py-4 rounded-xl font-medium text-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-3"
                                 >
                                     <FontAwesomeIcon icon={faShoppingCart} className="w-5 h-5" />
