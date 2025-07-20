@@ -139,6 +139,12 @@ export default function SellerMonitor() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [timeRange, setTimeRange] = useState('today');
+    const timeRanges = [
+        { key: 'today', label: 'Hôm nay' },
+        { key: 'week', label: 'Tuần này' },
+        { key: 'month', label: 'Tháng này' },
+        { key: 'all', label: 'Toàn bộ' },
+    ];
 
     useEffect(() => {
         fetchStats();
@@ -168,14 +174,13 @@ export default function SellerMonitor() {
             <div className="monitor-header">
                 <h1>Tổng quan</h1>
                 <div className="time-filter">
-                    {['today', 'week', 'month'].map(range => (
+                    {timeRanges.map(range => (
                         <button
-                            key={range}
-                            className={`filter-btn ${timeRange === range ? 'active' : ''}`}
-                            onClick={() => setTimeRange(range)}
+                            key={range.key}
+                            className={`filter-btn ${timeRange === range.key ? 'active' : ''}`}
+                            onClick={() => setTimeRange(range.key)}
                         >
-                            {range === 'today' ? 'Hôm nay' :
-                                range === 'week' ? 'Tuần này' : 'Tháng này'}
+                            {range.label}
                         </button>
                     ))}
                 </div>
@@ -201,12 +206,12 @@ export default function SellerMonitor() {
                     value={stats.products.sold}
                     change={stats.products.change}
                 />
-                <MetricCard
+                {/* <MetricCard
                     icon={["fa", "users"]}
                     title="Khách hàng mới"
                     value={stats.customers.new}
                     change={stats.customers.change}
-                />
+                /> */}
             </div>
 
             <div className="charts-section">
