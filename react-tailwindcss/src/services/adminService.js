@@ -1,8 +1,15 @@
 import api from "../axios";
 
-export const getAdminStats = () => {
-    return api.get(`/api/admin/stats`);
+export const getAdminStats = (params = {}) => {
+    const queryString = new URLSearchParams({
+        timeRange: params.timeRange || 'month',
+        ...(params.startDate && { startDate: params.startDate }),
+        ...(params.endDate && { endDate: params.endDate })
+    }).toString();
+    
+    return api.get(`/api/admin/stats?${queryString}`);
 }
+
 export const getUserStats = (page = 1, limit = 10, role = 'all', status = 'all', search = '') => {
     return api.get(`/api/admin/users?page=${page}&limit=${limit}&role=${role}&status=${status}&search=${search}`);
 }
@@ -45,8 +52,14 @@ export const getSellers = () => {
     return api.get('/api/admin/sellers');
 };
 
-export const getTransactionStats = () => {
-    return api.get('/api/admin/transactions/stats');
+export const getTransactionStats = (params = {}) => {
+    const queryString = new URLSearchParams({
+        timeRange: params.timeRange || 'month',
+        ...(params.startDate && { startDate: params.startDate }),
+        ...(params.endDate && { endDate: params.endDate })
+    }).toString();
+    
+    return api.get(`/api/admin/transactions/stats?${queryString}`);
 };
 
 export const getTransactions = (params) => {

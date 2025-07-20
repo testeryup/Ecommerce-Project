@@ -55,20 +55,50 @@ export const deleteSeller = async (req, res) => {
 
 export const getAdminStats = async (req, res) => {
   try {
+    const { timeRange = 'month', startDate, endDate } = req.query;
+    
     const now = new Date();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const thisWeek = new Date(today);
-    thisWeek.setDate(today.getDate() - 7);
-
-    const thisMonth = new Date(today);
-    thisMonth.setDate(today.getDate() - 30);
+    let startDateTime, endDateTime;
+    
+    // Xử lý bộ lọc thời gian
+    if (startDate && endDate) {
+      // Nếu có startDate và endDate, sử dụng chúng
+      startDateTime = new Date(startDate);
+      startDateTime.setHours(0, 0, 0, 0);
+      endDateTime = new Date(endDate);
+      endDateTime.setHours(23, 59, 59, 999);
+    } else {
+      // Sử dụng timeRange mặc định
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      switch (timeRange) {
+        case 'today':
+          startDateTime = today;
+          endDateTime = new Date(today);
+          endDateTime.setHours(23, 59, 59, 999);
+          break;
+        case 'week':
+          startDateTime = new Date(today);
+          startDateTime.setDate(today.getDate() - 7);
+          endDateTime = new Date(today);
+          endDateTime.setHours(23, 59, 59, 999);
+          break;
+        case 'month':
+        default:
+          startDateTime = new Date(today);
+          startDateTime.setDate(today.getDate() - 30);
+          endDateTime = new Date(today);
+          endDateTime.setHours(23, 59, 59, 999);
+          break;
+      }
+    }
 
     console.log('Date ranges:', {
-      today: today.toISOString().split('T')[0],
-      thisWeek: thisWeek.toISOString().split('T')[0],
-      thisMonth: thisMonth.toISOString().split('T')[0]
+      startDate: startDateTime.toISOString(),
+      endDate: endDateTime.toISOString(),
+      timeRange: startDate && endDate ? 'custom' : timeRange,
+      customDates: startDate && endDate ? { startDate, endDate } : null
     });
 
     // User Statistics
@@ -92,7 +122,7 @@ export const getAdminStats = async (req, res) => {
           newUsers: [
             {
               $match: {
-                createdAt: { $gte: thisMonth }
+                createdAt: { $gte: startDateTime, $lte: endDateTime }
               }
             },
             {
@@ -108,12 +138,13 @@ export const getAdminStats = async (req, res) => {
         }
       }
     ]);
+    
     // Revenue Statistics from Orders
     const revenueStats = await Order.aggregate([
       {
         $match: {
           status: 'completed',
-          updatedAt: { $gte: thisMonth }
+          updatedAt: { $gte: startDateTime, $lte: endDateTime }
         }
       },
       {
@@ -134,7 +165,7 @@ export const getAdminStats = async (req, res) => {
         $match: {
           type: 'deposit',
           status: 'completed',
-          createdAt: { $gte: thisMonth }
+          createdAt: { $gte: startDateTime, $lte: endDateTime }
         }
       },
       {
@@ -169,10 +200,10 @@ export const getAdminStats = async (req, res) => {
     ]);
 
     // Process and format the data for response
-    const formatTimeSeriesData = (data, startDate) => {
+    const formatTimeSeriesData = (data, startDate, endDate) => {
       const dates = {};
       let currentDate = new Date(startDate);
-      while (currentDate <= now) {
+      while (currentDate <= endDate) {
         const dateStr = currentDate.toISOString().split('T')[0];
         dates[dateStr] = 0;
         currentDate.setDate(currentDate.getDate() + 1);
@@ -188,10 +219,10 @@ export const getAdminStats = async (req, res) => {
       }));
     };
 
-    const formatTimeSeriesDataForUsers = (data, startDate) => {
+    const formatTimeSeriesDataForUsers = (data, startDate, endDate) => {
       const dates = {};
       let currentDate = new Date(startDate);
-      while (currentDate <= now) {
+      while (currentDate <= endDate) {
         const dateStr = currentDate.toISOString().split('T')[0];
         dates[dateStr] = 0;
         currentDate.setDate(currentDate.getDate() + 1);
@@ -206,14 +237,12 @@ export const getAdminStats = async (req, res) => {
         value
       }));
     };
-    // console.log("revenueStats:", revenueStats, today.toISOString().split('T')[0]);
-    // Debug logging - uncomment if needed
-    // console.log('Raw data:', {
-    //   userStats: JSON.stringify(userStats[0], null, 2),
-    //   revenueStats: JSON.stringify(revenueStats, null, 2),
-    //   depositStats: JSON.stringify(depositStats, null, 2),
-    //   productStats: JSON.stringify(productStats[0], null, 2)
-    // });
+
+    // Tính toán tổng số liệu cho khoảng thời gian được chọn
+    const totalRevenue = revenueStats.reduce((sum, r) => sum + r.revenue, 0);
+    const totalOrders = revenueStats.reduce((sum, r) => sum + r.count, 0);
+    const totalDeposits = depositStats.reduce((sum, d) => sum + d.total, 0);
+    const totalNewUsers = userStats[0].newUsers.reduce((sum, u) => sum + u.count, 0);
 
     const response = {
       users: {
@@ -223,36 +252,34 @@ export const getAdminStats = async (req, res) => {
           admins: userStats[0].roleStats.find(r => r._id === 'admin')?.count || 0,
           suspended: userStats[0].suspendedCount[0]?.total || 0
         },
-        timeline: formatTimeSeriesDataForUsers(userStats[0].newUsers, thisMonth)
+        timeline: formatTimeSeriesDataForUsers(userStats[0].newUsers, startDateTime, endDateTime),
+        periodTotal: totalNewUsers
       },
       revenue: {
-        timeline: formatTimeSeriesData(revenueStats, thisMonth),
-        today: revenueStats.find(r => r._id.date === today.toISOString().split('T')[0])?.revenue || 0,
-        week: revenueStats.filter(r => new Date(r._id.date) >= thisWeek).reduce((sum, r) => sum + r.revenue, 0),
-        month: revenueStats.reduce((sum, r) => sum + r.revenue, 0)
+        timeline: formatTimeSeriesData(revenueStats, startDateTime, endDateTime),
+        periodTotal: totalRevenue
       },
       orders: {
-        timeline: formatTimeSeriesData(revenueStats.map(r => ({ _id: r._id, count: r.count })), thisMonth),
-        today: revenueStats.find(r => r._id.date === today.toISOString().split('T')[0])?.count || 0,
-        week: revenueStats.filter(r => new Date(r._id.date) >= thisWeek).reduce((sum, r) => sum + r.count, 0),
-        month: revenueStats.reduce((sum, r) => sum + r.count, 0)
+        timeline: formatTimeSeriesData(revenueStats.map(r => ({ _id: r._id, count: r.count })), startDateTime, endDateTime),
+        periodTotal: totalOrders
       },
       deposits: {
-        timeline: formatTimeSeriesData(depositStats, thisMonth),
-        today: depositStats.find(d => d._id.date === today.toISOString().split('T')[0])?.total || 0,
-        week: depositStats.filter(d => new Date(d._id.date) >= thisWeek).reduce((sum, d) => sum + d.total, 0),
-        month: depositStats.reduce((sum, d) => sum + d.total, 0)
+        timeline: formatTimeSeriesData(depositStats, startDateTime, endDateTime),
+        periodTotal: totalDeposits
       },
       products: {
         total: productStats[0].total[0]?.count || 0,
         active: productStats[0].byStatus.find(s => s._id === 'active')?.count || 0,
         inactive: productStats[0].byStatus.find(s => s._id === 'inactive')?.count || 0,
         pending: productStats[0].byStatus.find(s => s._id === 'pending')?.count || 0
+      },
+      filter: {
+        timeRange: startDate && endDate ? 'custom' : timeRange,
+        startDate: startDateTime.toISOString().split('T')[0],
+        endDate: endDateTime.toISOString().split('T')[0],
+        customDates: startDate && endDate ? { startDate, endDate } : null
       }
     };
-
-    // Debug logging - uncomment if needed
-    // console.log('Final response:', JSON.stringify(response, null, 2));
 
     res.status(200).json({
       errCode: 0,
@@ -896,12 +923,51 @@ export const getProductStats = async (req, res) => {
 
 export const getTransactionStats = async (req, res) => {
   try {
+    const { timeRange = 'month', startDate, endDate } = req.query;
+    
     const now = new Date();
-    const today = new Date(now);
-    today.setUTCHours(0, 0, 0, 0); // Use UTC time to avoid timezone issues
+    let startDateTime, endDateTime;
+    
+    // Xử lý bộ lọc thời gian
+    if (startDate && endDate) {
+      // Nếu có startDate và endDate, sử dụng chúng
+      startDateTime = new Date(startDate);
+      startDateTime.setHours(0, 0, 0, 0);
+      endDateTime = new Date(endDate);
+      endDateTime.setHours(23, 59, 59, 999);
+    } else {
+      // Sử dụng timeRange mặc định
+      const today = new Date(now);
+      today.setUTCHours(0, 0, 0, 0);
+      
+      switch (timeRange) {
+        case 'today':
+          startDateTime = today;
+          endDateTime = new Date(today);
+          endDateTime.setUTCHours(23, 59, 59, 999);
+          break;
+        case 'week':
+          startDateTime = new Date(today);
+          startDateTime.setDate(today.getDate() - 7);
+          endDateTime = new Date(today);
+          endDateTime.setUTCHours(23, 59, 59, 999);
+          break;
+        case 'month':
+        default:
+          startDateTime = new Date(today);
+          startDateTime.setDate(today.getDate() - 30);
+          endDateTime = new Date(today);
+          endDateTime.setUTCHours(23, 59, 59, 999);
+          break;
+      }
+    }
 
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    console.log('Transaction Stats Date ranges:', {
+      startDate: startDateTime.toISOString(),
+      endDate: endDateTime.toISOString(),
+      timeRange: startDate && endDate ? 'custom' : timeRange,
+      customDates: startDate && endDate ? { startDate, endDate } : null
+    });
 
     const stats = await Transaction.aggregate([
       {
@@ -925,11 +991,11 @@ export const getTransactionStats = async (req, res) => {
               }
             }
           ],
-          // Last 30 days timeline data
+          // Timeline data for selected period
           timeline: [
             {
               $match: {
-                createdAt: { $gte: thirtyDaysAgo }
+                createdAt: { $gte: startDateTime, $lte: endDateTime }
               }
             },
             {
@@ -1003,12 +1069,12 @@ export const getTransactionStats = async (req, res) => {
       }
     ]);
 
-    // Create date range for last 30 days with empty values
+    // Create date range for selected period with empty values
     const dates = {};
     const dateArray = [];
-    let currentDate = new Date(thirtyDaysAgo);
+    let currentDate = new Date(startDateTime);
 
-    while (currentDate <= now) {
+    while (currentDate <= endDateTime) {
       const dateStr = currentDate.toISOString().split('T')[0];
       dates[dateStr] = {
         deposit: 0,
@@ -1062,7 +1128,13 @@ export const getTransactionStats = async (req, res) => {
           createdAt: t.createdAt,
           username: t.username,
           email: t.email
-        }))
+        })),
+        filter: {
+          timeRange: startDate && endDate ? 'custom' : timeRange,
+          startDate: startDateTime.toISOString().split('T')[0],
+          endDate: endDateTime.toISOString().split('T')[0],
+          customDates: startDate && endDate ? { startDate, endDate } : null
+        }
       }
     });
 

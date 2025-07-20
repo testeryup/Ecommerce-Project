@@ -75,7 +75,6 @@ const ProductsManagement = () => {
         toast.error('Không thể tải thống kê sản phẩm');
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
       toast.error('Không thể tải danh sách sản phẩm');
     } finally {
       setLoading(false);

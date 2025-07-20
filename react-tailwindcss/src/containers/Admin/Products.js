@@ -30,16 +30,12 @@ export default function Products() {
         try {
             setLoading(true);
             setError(null);
-            console.log('Fetching products with filters:', filters);
-            console.log('Token available:', !!token);
             
             const [productsResponse, statsResponse] = await Promise.all([
                 getAdminProducts(filters),
                 getProductStats()
             ]);
 
-            console.log('Products response:', productsResponse);
-            console.log('Stats response:', statsResponse);
 
             if (productsResponse.errCode === 0) {
                 setProducts(productsResponse.data);
@@ -51,7 +47,6 @@ export default function Products() {
                 setStats(statsResponse.data);
             }
         } catch (error) {
-            console.error('Error fetching products:', error);
             setError('Không thể tải danh sách sản phẩm');
             toast.error('Không thể tải danh sách sản phẩm');
         } finally {
@@ -62,12 +57,11 @@ export default function Products() {
     const fetchSellers = useCallback(async () => {
         try {
             const response = await getSellers();
-            console.log('Sellers response:', response);
             if (response.errCode === 0) {
                 setSellers(response.data);
             }
         } catch (error) {
-            console.error('Error fetching sellers:', error);
+            // Error fetching sellers
         }
     }, []);
 
@@ -78,27 +72,20 @@ export default function Products() {
         }
     }, [isAuthenticated, token, fetchProducts, fetchSellers]);
 
-    // Debug effect for filters
-    useEffect(() => {
-        console.log('Filters changed:', filters);
-    }, [filters]);
 
     const handleStatusChange = async (productId, newStatus, event) => {
         event.preventDefault();
         event.stopPropagation();
         
         try {
-            console.log('Changing status for product:', productId, 'to:', newStatus);
             
             // Validate productId
             if (!productId) {
-                console.error('Product ID is missing');
                 toast.error('Không tìm thấy ID sản phẩm');
                 return;
             }
             
             const response = await changeProductStatus(productId, newStatus);
-            console.log('Status change response:', response);
             
             if (response.errCode === 0) {
                 toast.success('Cập nhật trạng thái thành công');
@@ -132,7 +119,6 @@ export default function Products() {
                 toast.error(response.message || 'Không thể cập nhật trạng thái');
             }
         } catch (error) {
-            console.error('Error changing status:', error);
             toast.error('Đã xảy ra lỗi khi cập nhật trạng thái');
         }
     };
@@ -257,12 +243,6 @@ export default function Products() {
         );
     }
 
-    // Debug: Log the actual data structure
-    console.log('Products data structure:', products);
-    console.log('Products array:', products.products);
-    console.log('Products count:', products.products?.length || 0);
-    console.log('Stats data:', stats);
-    console.log('Current filters:', filters);
 
     return (
         <div className="admin-products">
