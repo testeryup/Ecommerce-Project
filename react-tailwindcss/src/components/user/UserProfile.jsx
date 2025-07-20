@@ -203,7 +203,7 @@ const UserProfile = ({ profile: profileProp, loading: loadingProp, onUpdateProfi
             <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4">
               <ShoppingBag className="h-6 w-6 text-green-600" />
             </div>
-            <div className="text-2xl font-bold text-green-600 mb-1">24</div>
+            {/* <div className="text-2xl font-bold text-green-600 mb-1">24</div> */}
             <div className="text-gray-600 text-sm">Tổng đơn hàng</div>
           </Card>
 

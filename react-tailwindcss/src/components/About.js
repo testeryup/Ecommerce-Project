@@ -47,10 +47,10 @@ const About = () => {
   ];
 
   const milestones = [
-    { year: "2020", title: "Thành lập", description: "Khởi đầu với tầm nhìn cung cấp tài khoản subscription chính hãng" },
-    { year: "2021", title: "Mở rộng", description: "Phát triển mạnh mẽ với hơn 10.000 khách hàng tin tưởng" },
-    { year: "2022", title: "Đổi mới", description: "Ra mắt hệ thống tự động hoàn toàn và ứng dụng mobile" },
-    { year: "2023", title: "Dẫn đầu", description: "Trở thành nền tảng hàng đầu tại Việt Nam với 50K+ khách hàng" }
+    { year: "2022", title: "Thành lập", description: "Khởi đầu với tầm nhìn cung cấp tài khoản subscription chính hãng" },
+    { year: "2023", title: "Mở rộng", description: "Phát triển mạnh mẽ với hơn 10.000 khách hàng tin tưởng" },
+    { year: "2024", title: "Đổi mới", description: "Ra mắt hệ thống tự động hoàn toàn và ứng dụng mobile" },
+    { year: "2025", title: "Dẫn đầu", description: "Trở thành nền tảng hàng đầu tại Việt Nam với 50K+ khách hàng" }
   ];
 
   const team = [

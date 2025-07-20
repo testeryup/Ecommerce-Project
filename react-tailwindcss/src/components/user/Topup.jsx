@@ -141,6 +141,8 @@ const TopupComponent = () => {
       }
       
       setIsCreatingLink(true);
+      
+      // Clear any existing payment session
       exit();
       
       const result = await createPaymentLink(amount);
@@ -163,6 +165,21 @@ const TopupComponent = () => {
     } finally {
       setIsCreatingLink(false);
     }
+  };
+
+  const handleClosePayment = () => {
+    setIsOpen(false);
+    exit();
+    // Clear the payment container
+    const container = document.getElementById('embedded-payment-container');
+    if (container) {
+      container.innerHTML = '';
+    }
+    // Reset PayOS config
+    setPayOSConfig((oldConfig) => ({
+      ...oldConfig,
+      CHECKOUT_URL: null,
+    }));
   };
 
   const formatCurrency = (amount) => {
@@ -337,10 +354,7 @@ const TopupComponent = () => {
               ) : (
                 <div className="space-y-4">
                   <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      exit();
-                    }}
+                    onClick={handleClosePayment}
                     className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-2xl transition-colors font-medium flex items-center justify-center gap-2"
                   >
                     <X className="h-5 w-5" />
@@ -358,7 +372,9 @@ const TopupComponent = () => {
             </div>
 
             {/* Payment Container */}
-            <div id="embedded-payment-container" className="rounded-5xl overflow-hidden shadow-sm h-[600px]"></div>
+            {isOpen && (
+              <div id="embedded-payment-container" className="rounded-5xl overflow-hidden shadow-sm h-[600px]"></div>
+            )}
           </div>
 
           {/* Sidebar */}
