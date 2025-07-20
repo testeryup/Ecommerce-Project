@@ -33,6 +33,7 @@ router.put('/users/:userId',
 router.get('/products', verifyToken, requireRole(['admin']), adminController.getProducts);
 router.put('/products/:productId/status', verifyToken, requireRole(['admin']), adminController.changeProductStatus);
 router.get('/products/stats', verifyToken, requireRole(['admin']), adminController.getProductStats);
+router.get('/sellers', verifyToken, requireRole(['admin']), adminController.getSellers);
 
 router.get('/transactions', verifyToken, requireRole(['admin']), adminController.getTransactions);
 router.get('/transactions/stats', verifyToken, requireRole(['admin']), adminController.getTransactionStats);

@@ -30,6 +30,11 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
     required: true
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active'
   }
 }, { timestamps: true });
 

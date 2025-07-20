@@ -93,7 +93,11 @@ export const getProducts = async (req, res) => {
             {
                 $match: {
                     category: { $exists: true },
-                    isDeleted: false
+                    isDeleted: false,
+                    $or: [
+                        { status: { $exists: false } },
+                        { status: 'active' }
+                    ]
                 }
             },
             {
@@ -200,7 +204,11 @@ export const getProductById = async (req, res) => {
             {
                 $match: {
                     _id: new mongoose.Types.ObjectId(productId),
-                    isDeleted: false
+                    isDeleted: false,
+                    $or: [
+                        { status: { $exists: false } },
+                        { status: 'active' }
+                    ]
                 }
             },
             {

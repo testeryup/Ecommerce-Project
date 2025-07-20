@@ -647,7 +647,21 @@ export const getProducts = async (req, res) => {
     const matchCondition = {};
     
     if (status !== 'all') {
-      matchCondition.status = status;
+      if (status === 'deleted') {
+        matchCondition.isDeleted = true;
+      } else if (status === 'active') {
+        matchCondition.isDeleted = false;
+        matchCondition.$or = [
+          { status: { $exists: false } },
+          { status: 'active' },
+          { status: { $ne: 'inactive' } }
+        ];
+      } else if (status === 'inactive') {
+        matchCondition.isDeleted = false;
+        matchCondition.status = 'inactive';
+      }
+    } else {
+      // Show all products including deleted ones
     }
     
     if (seller !== 'all') {
@@ -657,13 +671,47 @@ export const getProducts = async (req, res) => {
     if (search) {
       matchCondition.$or = [
         { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { sku: { $regex: search, $options: 'i' } }
+        { description: { $regex: search, $options: 'i' } }
       ];
     }
 
+    console.log('Match condition:', JSON.stringify(matchCondition, null, 2));
+    
     const products = await Product.aggregate([
       { $match: matchCondition },
+      {
+        $lookup: {
+          from: 'skus',
+          let: { productId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$product', '$$productId'] },
+                isDeleted: false
+              }
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                price: 1,
+                stock: 1,
+                status: 1,
+                sales: 1
+              }
+            }
+          ],
+          as: 'skus'
+        }
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'category',
+          foreignField: '_id',
+          as: 'categoryInfo'
+        }
+      },
       {
         $lookup: {
           from: 'users',
@@ -673,30 +721,39 @@ export const getProducts = async (req, res) => {
         }
       },
       {
-        $lookup: {
-          from: 'orders',
-          localField: '_id',
-          foreignField: 'items.product',
-          as: 'orderStats'
-        }
-      },
-      {
         $addFields: {
+          categoryName: { $arrayElemAt: ['$categoryInfo.name', 0] },
           sellerInfo: { $arrayElemAt: ['$sellerInfo', 0] },
-          totalSold: { $size: '$orderStats' }
+          totalStock: {
+            $ifNull: [{ $sum: '$skus.stock' }, 0]
+          },
+          minPrice: {
+            $ifNull: [{ $min: '$skus.price' }, 0]
+          },
+          totalSales: {
+            $ifNull: [{ $sum: '$skus.sales.count' }, 0]
+          }
         }
       },
       {
         $project: {
+          _id: 1,
           name: 1,
-          price: 1,
+          description: 1,
+          images: 1,
+          category: 1,
+          categoryName: 1,
+          subcategory: 1,
+          seller: 1,
+          sellerInfo: 1,
+          skus: 1,
+          totalStock: 1,
+          minPrice: 1,
+          totalSales: 1,
           status: 1,
-          sku: 1,
-          stock: 1,
+          isDeleted: 1,
           createdAt: 1,
-          totalSold: 1,
-          'sellerInfo.username': 1,
-          'sellerInfo._id': 1
+          updatedAt: 1
         }
       },
       { $sort: { [sortBy]: sortOrder === 'desc' ? -1 : 1 } },
@@ -741,9 +798,18 @@ export const changeProductStatus = async (req, res) => {
       });
     }
 
+    let updateData = {};
+    
+    if (status === 'deleted') {
+      updateData.isDeleted = true;
+    } else {
+      updateData.isDeleted = false;
+      updateData.status = status;
+    }
+
     const product = await Product.findByIdAndUpdate(
       productId,
-      { status },
+      updateData,
       { new: true }
     ).populate('seller', 'username');
 
@@ -775,7 +841,19 @@ export const getProductStats = async (req, res) => {
           statusStats: [
             {
               $group: {
-                _id: '$status',
+                _id: {
+                  $cond: {
+                    if: '$isDeleted',
+                    then: 'deleted',
+                    else: {
+                      $cond: {
+                        if: { $eq: ['$status', 'inactive'] },
+                        then: 'inactive',
+                        else: 'active'
+                      }
+                    }
+                  }
+                },
                 count: { $sum: 1 }
               }
             }
@@ -796,15 +874,8 @@ export const getProductStats = async (req, res) => {
               }
             }
           ],
-          priceStats: [
-            {
-              $group: {
-                _id: null,
-                avgPrice: { $avg: '$price' },
-                minPrice: { $min: '$price' },
-                maxPrice: { $max: '$price' }
-              }
-            }
+          totalProducts: [
+            { $count: 'count' }
           ]
         }
       }
@@ -1282,6 +1353,25 @@ export const getTransactions = async (req, res) => {
     res.status(500).json({
       errCode: 1,
       message: error.message || 'Internal server error'
+    });
+  }
+};
+
+export const getSellers = async (req, res) => {
+  try {
+    const sellers = await User.find({ role: 'seller', status: 'active' })
+      .select('_id username email')
+      .sort({ username: 1 });
+
+    res.status(200).json({
+      errCode: 0,
+      message: 'Get sellers successfully',
+      data: sellers
+    });
+  } catch (error) {
+    res.status(500).json({
+      errCode: 1,
+      message: error.message
     });
   }
 };

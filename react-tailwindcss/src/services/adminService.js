@@ -41,6 +41,10 @@ export const getProductStats = () => {
     return api.get('/api/admin/products/stats');
 };
 
+export const getSellers = () => {
+    return api.get('/api/admin/sellers');
+};
+
 export const getTransactionStats = () => {
     return api.get('/api/admin/transactions/stats');
 };
