@@ -15,6 +15,7 @@ const UserProfile = ({ profile: profileProp, loading: loadingProp, onUpdateProfi
   const dispatch = useDispatch();
   const { profile: reduxProfile, loading: reduxLoading } = useSelector((state) => state.user);
   const [isEditing, setIsEditing] = useState(false);
+  const [orderCount, setOrderCount] = useState(0);
   
   // Use props if provided, otherwise fall back to Redux state
   const profile = profileProp || reduxProfile;
@@ -34,8 +35,24 @@ const UserProfile = ({ profile: profileProp, loading: loadingProp, onUpdateProfi
         phone: profile.phone || '',
         address: profile.address || '',
       });
+      // Gọi API lấy số lượng đơn hàng
+      fetchOrderCount();
     }
+    // eslint-disable-next-line
   }, [profile]);
+
+  const fetchOrderCount = async () => {
+    try {
+      const res = await userService.getOrders({ page: 1, limit: 1 });
+      if (res?.data?.pagination?.totalItems !== undefined) {
+        setOrderCount(res.data.pagination.totalItems);
+      } else {
+        setOrderCount(0);
+      }
+    } catch (e) {
+      setOrderCount(0);
+    }
+  };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -203,7 +220,7 @@ const UserProfile = ({ profile: profileProp, loading: loadingProp, onUpdateProfi
             <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4">
               <ShoppingBag className="h-6 w-6 text-green-600" />
             </div>
-            {/* <div className="text-2xl font-bold text-green-600 mb-1">24</div> */}
+            <div className="text-2xl font-bold text-green-600 mb-1">{orderCount}</div>
             <div className="text-gray-600 text-sm">Tổng đơn hàng</div>
           </Card>
 
