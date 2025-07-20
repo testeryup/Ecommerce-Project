@@ -27,16 +27,36 @@ export default function Overview() {
     const [customDateRange, setCustomDateRange] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    // Thêm state lưu lại ngày đã áp dụng thực sự
+    const [appliedStartDate, setAppliedStartDate] = useState('');
+    const [appliedEndDate, setAppliedEndDate] = useState('');
 
     // Khởi tạo ngày mặc định
     useEffect(() => {
         const today = new Date();
         const thirtyDaysAgo = new Date(today);
         thirtyDaysAgo.setDate(today.getDate() - 30);
-        
         setEndDate(today.toISOString().split('T')[0]);
         setStartDate(thirtyDaysAgo.toISOString().split('T')[0]);
+        setAppliedEndDate(today.toISOString().split('T')[0]);
+        setAppliedStartDate(thirtyDaysAgo.toISOString().split('T')[0]);
     }, []);
+
+    // Khi chuyển về timeRange, fetch ngay
+    useEffect(() => {
+        if (!customDateRange) {
+            fetchData({ timeRange });
+        }
+        // eslint-disable-next-line
+    }, [timeRange, customDateRange]);
+
+    // Khi bấm Áp dụng, fetch với ngày đã chọn
+    useEffect(() => {
+        if (customDateRange && appliedStartDate && appliedEndDate) {
+            fetchData({ startDate: appliedStartDate, endDate: appliedEndDate });
+        }
+        // eslint-disable-next-line
+    }, [appliedStartDate, appliedEndDate, customDateRange]);
 
     const fetchData = async (params = {}) => {
         try {
@@ -45,7 +65,6 @@ export default function Overview() {
                 getAdminStats(params),
                 getTransactionStats(params)
             ]);
-
             if (statsResponse.errCode === 0) {
                 setStats(statsResponse.data);
             }
@@ -59,14 +78,6 @@ export default function Overview() {
         }
     };
 
-    useEffect(() => {
-        const params = customDateRange 
-            ? { startDate, endDate }
-            : { timeRange };
-        
-        fetchData(params);
-    }, [timeRange, customDateRange, startDate, endDate]);
-
     const handleTimeRangeChange = (range) => {
         setTimeRange(range);
         setCustomDateRange(false);
@@ -77,37 +88,34 @@ export default function Overview() {
             alert('Vui lòng chọn cả ngày bắt đầu và ngày kết thúc');
             return;
         }
-        
         if (startDate > endDate) {
             alert('Ngày bắt đầu không được lớn hơn ngày kết thúc');
             return;
         }
-
         const today = new Date().toISOString().split('T')[0];
         if (endDate > today) {
             alert('Ngày kết thúc không được lớn hơn ngày hiện tại');
             return;
         }
-
+        setAppliedStartDate(startDate);
+        setAppliedEndDate(endDate);
         setCustomDateRange(true);
     };
 
     const handleCustomDateToggle = () => {
         if (customDateRange) {
-            // Nếu đang ở chế độ custom, chuyển về chế độ timeRange
             setCustomDateRange(false);
         } else {
-            // Nếu đang ở chế độ timeRange, chuyển về chế độ custom
             setCustomDateRange(true);
         }
     };
 
     const handleRefresh = () => {
-        const params = customDateRange 
-            ? { startDate, endDate }
-            : { timeRange };
-        
-        fetchData(params);
+        if (customDateRange) {
+            fetchData({ startDate: appliedStartDate, endDate: appliedEndDate });
+        } else {
+            fetchData({ timeRange });
+        }
     };
 
     if (loading || !stats || !transactionStats) return <Loading />;
@@ -221,11 +229,6 @@ export default function Overview() {
                     <div className="metric-info">
                         <h3>Doanh thu</h3>
                         <p className="metric-value">{formatCurrency(stats.revenue.periodTotal)}₫</p>
-                        {customDateRange && (
-                            <div className="period-info">
-                                <small>Khoảng thời gian đã chọn</small>
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -236,11 +239,6 @@ export default function Overview() {
                     <div className="metric-info">
                         <h3>Đơn hàng</h3>
                         <p className="metric-value">{stats.orders.periodTotal}</p>
-                        {customDateRange && (
-                            <div className="period-info">
-                                <small>Khoảng thời gian đã chọn</small>
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -251,11 +249,6 @@ export default function Overview() {
                     <div className="metric-info">
                         <h3>Nạp tiền</h3>
                         <p className="metric-value">{formatCurrency(stats.deposits.periodTotal)}₫</p>
-                        {customDateRange && (
-                            <div className="period-info">
-                                <small>Khoảng thời gian đã chọn</small>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
