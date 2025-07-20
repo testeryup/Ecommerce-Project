@@ -16,18 +16,6 @@ const ProductCard = ({ product, onAddToCart }) => {
         return null;
     }
 
-    // Debug log to check product data structure
-    // console.log('ProductCard received product:', product);
-    // console.log('Product ID field:', product._id || product.id);
-    // console.log('Product image fields:', {
-    //     imageUrl: product.imageUrl,
-    //     images: product.images,
-    //     image: product.image,
-    //     thumbnail: product.thumbnail
-    // });
-    // console.log('Product SKUs structure:', product.skus);
-    // console.log('Product inventory:', product.inventory);
-
     const handleAddToCart = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -113,24 +101,28 @@ const ProductCard = ({ product, onAddToCart }) => {
     const getStockQuantity = () => {
         // Try multiple possible inventory structures
         if (product.skus && product.skus.length > 0) {
-            const sku = product.skus[0];
+            const stock = product.skus.reduce((stock, sku) => stock + sku.stock, 0)
+            // const sku = product.skus[0];
             
-            // Check if stock is in SKU (this is the actual structure based on logs)
-            if (typeof sku.stock === 'number') {
-                return sku.stock;
-            }
+            // // Check if stock is in SKU (this is the actual structure based on logs)
+            // if (typeof sku.stock === 'number') {
+            //     return sku.stock;
+            // }
             
-            // Check SKU inventory
-            if (sku.inventory && typeof sku.inventory.quantity === 'number') {
-                return sku.inventory.quantity;
-            }
+            // // Check SKU inventory
+            // if (sku.inventory && typeof sku.inventory.quantity === 'number') {
+            //     return sku.inventory.quantity;
+            // }
             
-            // Check if quantity is directly in SKU
-            if (typeof sku.quantity === 'number') {
-                return sku.quantity;
-            }
+            // // Check if quantity is directly in SKU
+            // if (typeof sku.quantity === 'number') {
+            //     return sku.quantity;
+            // }
+            return stock;
         }
-        
+        if (product.skus && product.skus.length === 0){
+            return 0;
+        }
         // Check if inventory is directly in product
         if (product.inventory && typeof product.inventory.quantity === 'number') {
             return product.inventory.quantity;
@@ -146,8 +138,6 @@ const ProductCard = ({ product, onAddToCart }) => {
             return product.stock;
         }
         
-        // Default to available if we can't determine
-        // console.log('Could not determine stock quantity for product:', product);
         return 1; // Default to available
     };
 

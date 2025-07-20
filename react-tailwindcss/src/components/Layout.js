@@ -13,7 +13,7 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <Header />
-      <main className="pt-16"> {/* Add padding top to account for fixed header if needed */}
+      <main> {/* Add padding top to account for fixed header if needed */}
         {children}
       </main>
       <Footer />

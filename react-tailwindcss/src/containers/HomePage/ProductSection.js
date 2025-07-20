@@ -53,7 +53,7 @@ export default function ProductSection() {
         }
         
         if (!product.skus || product.skus.length === 0) {
-            toast.error('Sản phẩm không có phiên bản để thêm vào giỏ');
+            toast.error('Sản phẩm tạm hết');
             return;
         }
         

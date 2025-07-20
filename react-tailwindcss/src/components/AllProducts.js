@@ -62,7 +62,7 @@ const Products = () => {
             }));
             toast.success('Đã thêm vào giỏ hàng');
         } else {
-            toast.error('Sản phẩm không có phiên bản để thêm vào giỏ');
+            toast.error('Sản phẩm tạm hết');
         }
     };
 
@@ -92,14 +92,14 @@ const Products = () => {
                     setProducts([]);
                     setFilteredProducts([]);
                 }
-                
+
                 if (categoriesResponse) {
                     // Ensure categories is always an array
-                    const categoriesData = Array.isArray(categoriesResponse) 
-                        ? categoriesResponse 
-                        : categoriesResponse.data 
-                        ? (Array.isArray(categoriesResponse.data) ? categoriesResponse.data : [])
-                        : [];
+                    const categoriesData = Array.isArray(categoriesResponse)
+                        ? categoriesResponse
+                        : categoriesResponse.data
+                            ? (Array.isArray(categoriesResponse.data) ? categoriesResponse.data : [])
+                            : [];
                     setCategories(categoriesData);
                 } else {
                     console.warn('Categories API response:', categoriesResponse);
@@ -122,7 +122,7 @@ const Products = () => {
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const searchQuery = searchParams.get('search');
-        
+
         if (searchQuery) {
             setFilters(prev => ({
                 ...prev,
@@ -133,7 +133,7 @@ const Products = () => {
 
     useEffect(() => {
         if (filters.category !== 'all') {
-            const category = Array.isArray(categories) 
+            const category = Array.isArray(categories)
                 ? categories.find(cat => cat._id === filters.category)
                 : null;
             setActiveSubcategories(category?.subcategories || []);
@@ -158,7 +158,7 @@ const Products = () => {
         // Apply search filter
         if (filters.search) {
             const searchLower = filters.search.toLowerCase();
-            result = result.filter(product => 
+            result = result.filter(product =>
                 product.name.toLowerCase().includes(searchLower) ||
                 product.description.toLowerCase().includes(searchLower)
             );
@@ -202,12 +202,12 @@ const Products = () => {
                         <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto font-light">
                             Tìm thấy {filteredProducts.length} sản phẩm chất lượng cao với thiết kế hiện đại
                         </p>
-                        
+
                         {/* Search Bar - Apple Style */}
                         <div className="max-w-2xl mx-auto relative">
                             <div className="flex items-center bg-gray-100 rounded-full transition-all duration-300 hover:bg-gray-200">
-                                <FontAwesomeIcon 
-                                    icon={faSearch} 
+                                <FontAwesomeIcon
+                                    icon={faSearch}
                                     className="w-4 h-4 text-gray-500 ml-6"
                                 />
                                 <input
@@ -231,7 +231,7 @@ const Products = () => {
                                 <h3 className="text-2xl font-semibold text-gray-900 mb-8 tracking-tight">
                                     Bộ lọc
                                 </h3>
-                                
+
                                 {/* Category Filter */}
                                 <div className="mb-10">
                                     <h4 className="text-sm font-medium text-gray-700 mb-6 uppercase tracking-wide">
@@ -239,16 +239,15 @@ const Products = () => {
                                     </h4>
                                     <div className="space-y-3">
                                         <button
-                                            onClick={() => setFilters({ 
-                                                ...filters, 
+                                            onClick={() => setFilters({
+                                                ...filters,
                                                 category: 'all',
                                                 subcategory: 'all'
                                             })}
-                                            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-left transition-all font-medium ${
-                                                filters.category === 'all'
+                                            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-left transition-all font-medium ${filters.category === 'all'
                                                     ? 'bg-gray-100 text-gray-900'
                                                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                                            }`}
+                                                }`}
                                         >
                                             <span className="text-lg">🌟</span>
                                             <span>Tất cả danh mục</span>
@@ -256,16 +255,15 @@ const Products = () => {
                                         {Array.isArray(categories) && categories.map(category => (
                                             <button
                                                 key={category._id}
-                                                onClick={() => setFilters({ 
-                                                    ...filters, 
+                                                onClick={() => setFilters({
+                                                    ...filters,
                                                     category: category._id,
                                                     subcategory: 'all'
                                                 })}
-                                                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-left transition-all font-medium ${
-                                                    filters.category === category._id
+                                                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-left transition-all font-medium ${filters.category === category._id
                                                         ? 'bg-gray-100 text-gray-900'
                                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                                                }`}
+                                                    }`}
                                             >
                                                 <span className="text-lg">{getCategoryIcon(category.name)}</span>
                                                 <span>{category.name}</span>
@@ -327,7 +325,7 @@ const Products = () => {
                                         {filteredProducts.length} sản phẩm
                                     </span>
                                 </div>
-                                
+
                                 {/* Clear search button if searching */}
                                 {filters.search && (
                                     <div className="flex items-center space-x-4">
@@ -348,18 +346,18 @@ const Products = () => {
                             {filteredProducts.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                                     {filteredProducts.map((product) => (
-                                        <div 
-                                            key={product._id} 
+                                        <div
+                                            key={product._id}
                                             className="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all duration-500 overflow-hidden border border-gray-100 group"
                                         >
                                             {/* Product Image */}
-                                            <div 
+                                            <div
                                                 className="aspect-[4/3] bg-gray-50 relative overflow-hidden cursor-pointer"
                                                 onClick={() => handleViewProduct(product._id)}
                                             >
                                                 {product.thumbnail ? (
-                                                    <img 
-                                                        src={product.thumbnail} 
+                                                    <img
+                                                        src={product.thumbnail}
                                                         alt={product.name}
                                                         className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-700"
                                                     />
@@ -368,7 +366,7 @@ const Products = () => {
                                                         <span className="text-6xl text-gray-300">📦</span>
                                                     </div>
                                                 )}
-                                                
+
                                                 {/* Product Badges */}
                                                 <div className="absolute top-4 left-4 flex flex-col space-y-2">
                                                     {product.featured && (
@@ -403,13 +401,13 @@ const Products = () => {
 
                                             {/* Product Info */}
                                             <div className="p-6">
-                                                <h3 
+                                                <h3
                                                     className="font-semibold text-gray-900 mb-3 line-clamp-2 cursor-pointer hover:text-gray-700 text-lg leading-snug tracking-tight"
                                                     onClick={() => handleViewProduct(product._id)}
                                                 >
                                                     {product.name}
                                                 </h3>
-                                                
+
                                                 <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed font-light">
                                                     {product.description || 'Sản phẩm chất lượng cao với thiết kế hiện đại và tính năng vượt trội'}
                                                 </p>
@@ -418,8 +416,8 @@ const Products = () => {
                                                 <div className="flex items-center space-x-2 mb-4">
                                                     <div className="flex items-center">
                                                         {[...Array(5)].map((_, i) => (
-                                                            <span 
-                                                                key={i} 
+                                                            <span
+                                                                key={i}
                                                                 className={`text-sm ${i < (product.rating || 4) ? 'text-yellow-400' : 'text-gray-200'}`}
                                                             >
                                                                 ⭐
@@ -456,13 +454,23 @@ const Products = () => {
 
                                                 {/* Stock Status */}
                                                 <div className="mb-6">
-                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
-                                                        ✅ Còn hàng
-                                                    </span>
+                                                    {
+                                                        product.skus && product.skus.length > 0 ? (
+                                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                                                                ✅ Còn hàng
+                                                            </span>
+                                                        ) :
+                                                        (
+                                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700">
+                                                                ❌ Tạm hết
+                                                            </span>
+                                                        )
+                                                    }
+
                                                 </div>
 
                                                 {/* Add to Cart Button - Apple Style */}
-                                                <button 
+                                                <button
                                                     onClick={() => handleAddToCart(product)}
                                                     disabled={!product.skus || product.skus.length === 0}
                                                     className="w-full bg-black text-white py-3 rounded-2xl font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
@@ -480,21 +488,21 @@ const Products = () => {
                                         {filters.search ? 'Không tìm thấy kết quả nào' : 'Không tìm thấy sản phẩm nào'}
                                     </h3>
                                     <p className="text-xl text-gray-600 mb-10 max-w-md mx-auto leading-relaxed font-light">
-                                        {filters.search 
+                                        {filters.search
                                             ? `Không có sản phẩm nào khớp với "${filters.search}". Thử tìm kiếm với từ khóa khác.`
                                             : 'Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc để xem thêm kết quả'
                                         }
                                     </p>
                                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                         {filters.search && (
-                                            <button 
+                                            <button
                                                 onClick={() => setFilters(prev => ({ ...prev, search: '' }))}
                                                 className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-medium hover:bg-blue-700 transition-colors shadow-sm"
                                             >
                                                 Xóa từ khóa tìm kiếm
                                             </button>
                                         )}
-                                        <button 
+                                        <button
                                             onClick={() => setFilters({
                                                 category: 'all',
                                                 subcategory: 'all',
