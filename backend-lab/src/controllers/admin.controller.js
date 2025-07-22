@@ -975,10 +975,15 @@ export const getTransactionStats = async (req, res) => {
           // Summary stats for all time
           summary: [
             {
+              $match: {
+                createdAt: { $gte: startDateTime, $lte: endDateTime }
+              }
+            },
+            {
               $group: {
                 _id: '$type',
-                count: { $sum: 1 },
-                total: { $sum: '$amount' },
+                count: { $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] } },
+                total: { $sum: { $cond: [{ $eq: ['$status', 'completed'] }, '$amount', 0] } },
                 completed: {
                   $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
                 },

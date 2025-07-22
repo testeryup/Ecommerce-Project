@@ -15,6 +15,8 @@ import {
 import Loading from '../../components/Loading';
 import toast from 'react-hot-toast';
 import './Transactions.scss';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default function Transactions() {
     const [stats, setStats] = useState(null);
@@ -22,11 +24,18 @@ export default function Transactions() {
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [rejectReason, setRejectReason] = useState('');
+    const [pendingStartDate, setPendingStartDate] = useState(null);
+    const [pendingEndDate, setPendingEndDate] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
 
-    const fetchStats = async () => {
+    const fetchStats = async (customStart = startDate, customEnd = endDate) => {
         try {
             setLoading(true);
-            const response = await getTransactionStats();
+            const response = await getTransactionStats({
+                startDate: customStart ? customStart.toISOString().slice(0, 10) : undefined,
+                endDate: customEnd ? customEnd.toISOString().slice(0, 10) : undefined
+            });
             if (response.errCode === 0) {
                 setStats(response.data);
             } else {
@@ -80,9 +89,47 @@ export default function Transactions() {
         <div className="admin-transactions">
             <div className="transactions-header">
                 <h1>Quản lý giao dịch</h1>
-                <button className="refresh-btn" onClick={fetchStats}>
-                    <FontAwesomeIcon icon="sync" /> Làm mới
-                </button>
+                <div className="date-filter" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                    <span>Lọc theo thời gian:</span>
+                    <DatePicker
+                        selected={pendingStartDate}
+                        onChange={date => setPendingStartDate(date)}
+                        selectsStart
+                        startDate={pendingStartDate}
+                        endDate={pendingEndDate}
+                        placeholderText="Từ ngày"
+                        dateFormat="yyyy-MM-dd"
+                        isClearable
+                        maxDate={new Date()}
+                    />
+                    <DatePicker
+                        selected={pendingEndDate}
+                        onChange={date => setPendingEndDate(date)}
+                        selectsEnd
+                        startDate={pendingStartDate}
+                        endDate={pendingEndDate}
+                        minDate={pendingStartDate}
+                        placeholderText="Đến ngày"
+                        dateFormat="yyyy-MM-dd"
+                        isClearable
+                        maxDate={new Date()}
+                    />
+                    <button
+                        className="apply-date-btn"
+                        onClick={() => { setStartDate(pendingStartDate); setEndDate(pendingEndDate); fetchStats(pendingStartDate, pendingEndDate); }}
+                    >
+                        Áp dụng
+                    </button>
+                    <button
+                        className="clear-date-btn"
+                        onClick={() => { setPendingStartDate(null); setPendingEndDate(null); setStartDate(null); setEndDate(null); fetchStats(null, null); }}
+                    >
+                        Xóa lọc
+                    </button>
+                    <button className="refresh-btn" onClick={() => fetchStats()}>
+                        <FontAwesomeIcon icon="sync" /> Làm mới
+                    </button>
+                </div>
             </div>
 
             <div className="stats-cards">
