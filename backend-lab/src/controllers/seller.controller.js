@@ -216,6 +216,8 @@ export const getSellerOrders = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
         const status = req.query.status?.toLowerCase() || 'all';
+        const startDate = req.query.startDate ? new Date(req.query.startDate) : null;
+        const endDate = req.query.endDate ? new Date(req.query.endDate) : null;
 
         // 2. Validate status
         if (status !== 'all' && !VALID_ORDER_STATUSES.includes(status)) {
@@ -231,6 +233,13 @@ export const getSellerOrders = async (req, res) => {
         };
         if (status !== 'all') {
             matchCondition.status = status;
+        }
+        if (startDate && endDate) {
+            matchCondition.createdAt = { $gte: startDate, $lte: endDate };
+        } else if (startDate) {
+            matchCondition.createdAt = { $gte: startDate };
+        } else if (endDate) {
+            matchCondition.createdAt = { $lte: endDate };
         }
 
         // 4. Get total count
@@ -800,6 +809,7 @@ export const getDashboardStats = async (req, res) => {
                                 _id: null,
                                 revenue: { $sum: '$total' },
                                 orders: { $sum: 1 },
+                                productsSold: { $sum: { $sum: '$items.quantity' } },
                                 customers: { $addToSet: '$buyer' }
                             }
                         }
@@ -817,7 +827,8 @@ export const getDashboardStats = async (req, res) => {
                             $group: {
                                 _id: null,
                                 revenue: { $sum: '$total' },
-                                orders: { $sum: 1 }
+                                orders: { $sum: 1 },
+                                productsSold: { $sum: { $sum: '$items.quantity' } }
                             }
                         }
                     ],
@@ -831,7 +842,8 @@ export const getDashboardStats = async (req, res) => {
                             $group: {
                                 _id: null,
                                 revenue: { $sum: '$total' },
-                                orders: { $sum: 1 }
+                                orders: { $sum: 1 },
+                                productsSold: { $sum: { $sum: '$items.quantity' } }
                             }
                         }
                     ],
@@ -845,7 +857,18 @@ export const getDashboardStats = async (req, res) => {
                             $group: {
                                 _id: null,
                                 revenue: { $sum: '$total' },
-                                orders: { $sum: 1 }
+                                orders: { $sum: 1 },
+                                productsSold: { $sum: { $sum: '$items.quantity' } }
+                            }
+                        }
+                    ],
+                    all: [
+                        {
+                            $group: {
+                                _id: null,
+                                revenue: { $sum: '$total' },
+                                orders: { $sum: 1 },
+                                productsSold: { $sum: { $sum: '$items.quantity' } }
                             }
                         }
                     ],
@@ -885,6 +908,21 @@ export const getDashboardStats = async (req, res) => {
                                 updatedAt: { $gte: monthStart }
                             }
                         },
+                        {
+                            $group: {
+                                _id: {
+                                    $dateToString: {
+                                        format: '%Y-%m-%d',
+                                        date: '$updatedAt'
+                                    }
+                                },
+                                sales: { $sum: '$total' },
+                                orders: { $sum: 1 }
+                            }
+                        },
+                        { $sort: { '_id': 1 } }
+                    ],
+                    salesChartAll: [
                         {
                             $group: {
                                 _id: {
@@ -944,12 +982,14 @@ export const getDashboardStats = async (req, res) => {
             change: previous ? ((current - previous) / previous * 100).toFixed(1) : 0
         });
 
-        const todayStats = stats[0].today[0] || { revenue: 0, orders: 0, customers: [] };
-        const yesterdayStats = stats[0].yesterday[0] || { revenue: 0, orders: 0 };
-        const weekStats = stats[0].week[0] || { revenue: 0, orders: 0 };
-        const monthStats = stats[0].month[0] || { revenue: 0, orders: 0 };
+        const todayStats = stats[0].today[0] || { revenue: 0, orders: 0, productsSold: 0, customers: [] };
+        const yesterdayStats = stats[0].yesterday[0] || { revenue: 0, orders: 0, productsSold: 0 };
+        const weekStats = stats[0].week[0] || { revenue: 0, orders: 0, productsSold: 0 };
+        const monthStats = stats[0].month[0] || { revenue: 0, orders: 0, productsSold: 0 };
+        const allStats = stats[0].all[0] || { revenue: 0, orders: 0, productsSold: 0 };
 
         const salesChartData = await generateTimelineSeries(stats[0].salesChart, monthStart, today);
+        const salesChartAllData = stats[0].salesChartAll || [];
 
         const response = {
             revenue: {
@@ -957,6 +997,7 @@ export const getDashboardStats = async (req, res) => {
                 yesterday: yesterdayStats.revenue,
                 week: weekStats.revenue,
                 month: monthStats.revenue,
+                all: allStats.revenue,
                 change: formatMetric(todayStats.revenue, yesterdayStats.revenue).change
             },
             orders: {
@@ -964,12 +1005,13 @@ export const getDashboardStats = async (req, res) => {
                 yesterday: yesterdayStats.orders,
                 week: weekStats.orders,
                 month: monthStats.orders,
+                all: allStats.orders,
                 change: formatMetric(todayStats.orders, yesterdayStats.orders).change
             },
             products: {
-                sold: weekStats.orders,
-                lastPeriod: yesterdayStats.orders,
-                change: formatMetric(weekStats.orders, yesterdayStats.orders).change,
+                sold: stats[0].today[0]?.productsSold || 0,
+                lastPeriod: yesterdayStats.productsSold,
+                change: formatMetric(weekStats.productsSold, yesterdayStats.productsSold).change,
                 inventory: await SKU.countDocuments({
                     'product.seller': sellerId,
                     status: 'available'
@@ -989,7 +1031,8 @@ export const getDashboardStats = async (req, res) => {
             salesChart: {
                 today: salesChartData.today,
                 week: salesChartData.week,
-                month: salesChartData.month
+                month: salesChartData.month,
+                all: salesChartAllData
             }
         };
 

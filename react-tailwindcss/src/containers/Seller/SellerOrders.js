@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getOrders, refundOrder, reportOrder, getOrderDetail } from '../../services/sellerService';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import Loading from '../../components/Loading';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../ultils';
@@ -23,6 +25,10 @@ export default function SellerOrders() {
         hasPrev: false
     });
     const [activeFilter, setActiveFilter] = useState('all');
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [pendingStartDate, setPendingStartDate] = useState(null);
+    const [pendingEndDate, setPendingEndDate] = useState(null);
 
     const filterOptions = [
         { value: 'all', label: 'Tất cả', icon: 'fas fa-list-ul' },
@@ -41,16 +47,18 @@ export default function SellerOrders() {
     };
 
     useEffect(() => {
-        fetchOrders(pagination.currentPage, activeFilter);
+        fetchOrders(pagination.currentPage, activeFilter, startDate, endDate);
     }, [pagination.currentPage, activeFilter]);
 
-    const fetchOrders = async (page, status = activeFilter) => {
+    const fetchOrders = async (page, status = activeFilter, start = startDate, end = endDate) => {
         try {
             setLoading(true);
             const response = await getOrders({
                 page,
                 limit: pagination.itemsPerPage,
-                status: status !== 'all' ? status : undefined
+                status: status !== 'all' ? status : undefined,
+                startDate: start ? start.toISOString().slice(0, 10) : undefined,
+                endDate: end ? end.toISOString().slice(0, 10) : undefined
             });
 
             if (response.errCode === 0) {
@@ -68,7 +76,7 @@ export default function SellerOrders() {
     };
 
     const handleRefresh = () => {
-        fetchOrders(pagination.currentPage, activeFilter);
+        fetchOrders(pagination.currentPage, activeFilter, startDate, endDate);
         toast.success('Đã cập nhật danh sách đơn hàng');
     };
 
@@ -317,6 +325,44 @@ export default function SellerOrders() {
                     </button>
                 </div>
                 <div className="filter-section">
+                    <div className="date-filter">
+                        <span>Lọc theo thời gian:</span>
+                        <DatePicker
+                            selected={pendingStartDate}
+                            onChange={date => setPendingStartDate(date)}
+                            selectsStart
+                            startDate={pendingStartDate}
+                            endDate={pendingEndDate}
+                            placeholderText="Từ ngày"
+                            dateFormat="yyyy-MM-dd"
+                            isClearable
+                            maxDate={new Date()}
+                        />
+                        <DatePicker
+                            selected={pendingEndDate}
+                            onChange={date => setPendingEndDate(date)}
+                            selectsEnd
+                            startDate={pendingStartDate}
+                            endDate={pendingEndDate}
+                            minDate={pendingStartDate}
+                            placeholderText="Đến ngày"
+                            dateFormat="yyyy-MM-dd"
+                            isClearable
+                            maxDate={new Date()}
+                        />
+                        <button
+                            className="apply-date-btn"
+                            onClick={() => { setStartDate(pendingStartDate); setEndDate(pendingEndDate); fetchOrders(1, activeFilter, pendingStartDate, pendingEndDate); setPagination(prev => ({ ...prev, currentPage: 1 })); }}
+                        >
+                            Áp dụng
+                        </button>
+                        <button
+                            className="clear-date-btn"
+                            onClick={() => { setPendingStartDate(null); setPendingEndDate(null); setStartDate(null); setEndDate(null); fetchOrders(1, activeFilter, null, null); setPagination(prev => ({ ...prev, currentPage: 1 })); }}
+                        >
+                            Xóa lọc
+                        </button>
+                    </div>
                     {filterOptions.map(filter => (
                         <button
                             key={filter.value}

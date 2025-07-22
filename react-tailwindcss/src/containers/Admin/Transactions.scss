@@ -3,6 +3,7 @@
 
     .transactions-header {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
@@ -13,8 +14,70 @@
             font-weight: 600;
         }
 
+        .date-filter {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.95rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+
+            span {
+                color: #2c3e50;
+                font-weight: 500;
+                margin-right: 0.25rem;
+                white-space: nowrap;
+                font-size: 0.97em;
+            }
+
+            .react-datepicker-wrapper {
+                width: auto;
+            }
+
+            input[type="text"] {
+                padding: 0.35rem 0.7rem;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                font-size: 0.97em;
+                min-width: 110px;
+                margin-right: 0;
+                transition: border 0.2s;
+                background: #f8f9fa;
+            }
+
+            .apply-date-btn, .clear-date-btn {
+                padding: 0.35rem 0.8rem;
+                border: none;
+                border-radius: 4px;
+                font-size: 0.97em;
+                font-weight: 500;
+                cursor: pointer;
+                margin-left: 0;
+                transition: background 0.2s, color 0.2s;
+                min-width: 70px;
+            }
+            .apply-date-btn {
+                background: #3498db;
+                color: #fff;
+                &:hover {
+                    background: #217dbb;
+                }
+            }
+            .clear-date-btn {
+                background: #eaeaea;
+                color: #495057;
+                &:hover {
+                    background: #d5d5d5;
+                }
+            }
+        }
+
         .refresh-btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.6rem 1.1rem;
             background: #f8f9fa;
             color: #2c3e50;
             border: none;
