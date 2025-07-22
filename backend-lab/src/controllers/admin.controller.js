@@ -5,6 +5,7 @@ import Order from '../models/order.js';
 import Transaction from '../models/transaction.js';
 import Inventory from '../models/inventory.js';
 import mongoose from 'mongoose';
+import Category from '../models/category.js';
 
 export const createSeller = async (req, res) => {
   try {
@@ -1451,5 +1452,99 @@ export const getSellers = async (req, res) => {
       errCode: 1,
       message: error.message
     });
+  }
+};
+
+// ADMIN CATEGORY MANAGEMENT
+export const getAdminCategories = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || '';
+    const match = { isDeleted: false };
+    if (search) {
+      match.name = { $regex: search, $options: 'i' };
+    }
+    const total = await Category.countDocuments(match);
+    const categories = await Category.find(match)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+    res.status(200).json({
+      errCode: 0,
+      data: {
+        categories,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalItems: total,
+          hasNext: page * limit < total,
+          hasPrev: page > 1
+        },
+        filters: { search }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ errCode: 1, message: error.message });
+  }
+};
+
+export const createAdminCategory = async (req, res) => {
+  try {
+    const { name, subcategories, description } = req.body;
+    if (!name || !Array.isArray(subcategories) || subcategories.length === 0) {
+      return res.status(400).json({ errCode: 1, message: 'Tên và subcategories là bắt buộc' });
+    }
+    const exists = await Category.findOne({ name, isDeleted: false });
+    if (exists) {
+      return res.status(400).json({ errCode: 1, message: 'Tên danh mục đã tồn tại' });
+    }
+    const subArr = subcategories.map(sub => typeof sub === 'string' ? { name: sub } : sub);
+    const category = await Category.create({ name, subcategories: subArr, description });
+    res.status(201).json({ errCode: 0, message: 'Tạo danh mục thành công', category });
+  } catch (error) {
+    res.status(500).json({ errCode: 1, message: error.message });
+  }
+};
+
+export const updateAdminCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const { name, subcategories, description } = req.body;
+    if (!name || !Array.isArray(subcategories) || subcategories.length === 0) {
+      return res.status(400).json({ errCode: 1, message: 'Tên và subcategories là bắt buộc' });
+    }
+    const category = await Category.findById(categoryId);
+    if (!category || category.isDeleted) {
+      return res.status(404).json({ errCode: 1, message: 'Không tìm thấy danh mục' });
+    }
+    // Kiểm tra trùng tên (trừ chính nó)
+    const exists = await Category.findOne({ name, _id: { $ne: categoryId }, isDeleted: false });
+    if (exists) {
+      return res.status(400).json({ errCode: 1, message: 'Tên danh mục đã tồn tại' });
+    }
+    const subArr = subcategories.map(sub => typeof sub === 'string' ? { name: sub } : sub);
+    category.name = name;
+    category.subcategories = subArr;
+    category.description = description;
+    await category.save();
+    res.status(200).json({ errCode: 0, message: 'Cập nhật danh mục thành công', category });
+  } catch (error) {
+    res.status(500).json({ errCode: 1, message: error.message });
+  }
+};
+
+export const deleteAdminCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const category = await Category.findById(categoryId);
+    if (!category || category.isDeleted) {
+      return res.status(404).json({ errCode: 1, message: 'Không tìm thấy danh mục' });
+    }
+    category.isDeleted = true;
+    await category.save();
+    res.status(200).json({ errCode: 0, message: 'Xóa danh mục thành công' });
+  } catch (error) {
+    res.status(500).json({ errCode: 1, message: error.message });
   }
 };

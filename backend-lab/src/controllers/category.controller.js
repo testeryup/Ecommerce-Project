@@ -14,11 +14,14 @@ export const getAllCategories = async (req, res) => {
 
 export const createNewCategory = async (req, res) => {
     const { categoryName, subCategories, description } = req.body;
-
     try {
+        // Đảm bảo subCategories là mảng object {name: string}
+        let subArr = Array.isArray(subCategories)
+            ? subCategories.map(sub => typeof sub === 'string' ? { name: sub } : sub)
+            : [];
         let result = await Category.create({
             name: categoryName,
-            subcategories: subCategories,
+            subcategories: subArr,
             description: description
         });
         res.status(200).json({ errCode: 0, result });
@@ -29,11 +32,14 @@ export const createNewCategory = async (req, res) => {
 
 export const updateCategory = async (req, res) => {
     const { categoryName, subcategories } = req.body;
-
     try {
+        // Đảm bảo subcategories là mảng object {name: string}
+        let subArr = Array.isArray(subcategories)
+            ? subcategories.map(sub => typeof sub === 'string' ? { name: sub } : sub)
+            : [];
         const result = await Category.updateOne(
             { name: categoryName },
-            { subcategories: subcategories }
+            { subcategories: subArr }
         );
         if (result.modifiedCount > 0) {
             return res.status(200).json({ errCode: 0, message: 'Update category successfully' })

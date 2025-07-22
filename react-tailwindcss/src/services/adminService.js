@@ -128,6 +128,22 @@ export const deletePromo = (code) => {
     return api.delete(`/api/promo/${code}`);
 }
 
+export const getAllCategories = () => {
+    return api.get('/api/category');
+};
+
+export const createCategory = (categoryName, subCategories, description) => {
+    return api.post('/api/category', { categoryName, subCategories, description });
+};
+
+export const updateCategory = (categoryName, subcategories) => {
+    return api.put('/api/category', { categoryName, subcategories });
+};
+
+export const deleteCategory = (categoryId) => {
+    return api.delete('/api/category', { data: { categoryId } });
+};
+
 const adminService = {
     getAdminStats
 }

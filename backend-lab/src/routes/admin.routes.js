@@ -41,4 +41,9 @@ router.put('/transactions/:transactionId/approve', verifyToken, requireRole(['ad
 router.put('/transactions/:transactionId/reject', verifyToken, requireRole(['admin']), adminController.rejectWithdraw);
 router.post('/refunds', verifyToken, requireRole(['admin']), adminController.processRefund);
 
+router.get('/categories', verifyToken, requireRole(['admin']), adminController.getAdminCategories);
+router.post('/categories', verifyToken, requireRole(['admin']), adminController.createAdminCategory);
+router.put('/categories/:categoryId', verifyToken, requireRole(['admin']), adminController.updateAdminCategory);
+router.delete('/categories/:categoryId', verifyToken, requireRole(['admin']), adminController.deleteAdminCategory);
+
 export default router;
