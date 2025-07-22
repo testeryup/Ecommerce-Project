@@ -61,8 +61,8 @@ export const getWithdrawalRequests = (params) => {
     return api.get(`/api/seller/transactions?${queryString}`);
 }
 
-export const createWithdrawalRequest = (amount) => {
-    return api.post(`/api/seller/transactions/withdraw`, {amount: amount});
+export const createWithdrawalRequest = (amount, bankAccount = null) => {
+    return api.post(`/api/seller/transactions/withdraw`, {amount: amount, bankAccount: bankAccount});
 }
 const sellerService = {
     getAllProducts, deleteProduct, uploadInventory, getInventoryList, deleteInventoryById, 

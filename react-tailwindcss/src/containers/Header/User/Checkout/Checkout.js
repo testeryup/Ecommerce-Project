@@ -5,7 +5,7 @@ import Layout from '../../../../components/Layout';
 import { formatCurrency, path } from '../../../../ultils';
 import toast from 'react-hot-toast';
 import { removeFromCart } from '../../../../features/cart/cartSlice';
-import { initOrder, createOrder } from '../../../../services/userService';
+import { initOrder, createOrder, validatePromo } from '../../../../services/userService';
 import { createOrderWithProtection, initOrderWithProtection } from '../../../../services/orderService';
 import { parseRaceConditionError } from '../../../../ultils/raceConditionHelper';
 import { 
@@ -18,7 +18,9 @@ import {
     FiPackage,
     FiStar,
     FiGift,
-    FiZap
+    FiZap,
+    FiPercent,
+    FiX
 } from 'react-icons/fi';
 
 export default function Checkout() {
@@ -31,6 +33,12 @@ export default function Checkout() {
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [orderAttempts, setOrderAttempts] = useState(0);
     const [lastError, setLastError] = useState(null);
+    
+    // Promo code states
+    const [promoCode, setPromoCode] = useState('');
+    const [appliedPromo, setAppliedPromo] = useState(null);
+    const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+    const [promoError, setPromoError] = useState('');
 
     useEffect(() => {
         // Check for items in location state
@@ -73,7 +81,53 @@ export default function Checkout() {
         return null;
     }
     const items = location.state.items;
-    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    
+    // Tính toán discount amount từ percentage
+    const discountAmount = appliedPromo ? Math.round(subtotal * (appliedPromo.discount / 100)) : 0;
+    const total = subtotal - discountAmount;
+
+    // Handle promo code validation
+    const handleApplyPromo = async () => {
+        if (!promoCode.trim()) {
+            setPromoError('Vui lòng nhập mã promo');
+            return;
+        }
+
+        setIsValidatingPromo(true);
+        setPromoError('');
+
+        try {
+            const response = await validatePromo(promoCode.trim(), subtotal);
+            
+            if (response.errCode === 0) {
+                // Tính toán discountAmount từ discount percentage
+                const calculatedDiscountAmount = Math.round(subtotal * (response.data.discount / 100));
+                
+                setAppliedPromo({
+                    ...response.data,
+                    discountAmount: calculatedDiscountAmount,
+                    finalAmount: subtotal - calculatedDiscountAmount
+                });
+                toast.success(`Áp dụng thành công! Giảm ${response.data.discount}%`);
+                setPromoCode('');
+            } else {
+                setPromoError(response.message);
+            }
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Không thể áp dụng mã promo';
+            setPromoError(errorMessage);
+        } finally {
+            setIsValidatingPromo(false);
+        }
+    };
+
+    // Handle remove promo
+    const handleRemovePromo = () => {
+        setAppliedPromo(null);
+        setPromoError('');
+        toast.success('Đã hủy mã giảm giá');
+    };
 
     const handlePlaceOrder = async () => {
         if (isPlacingOrder) {
@@ -95,10 +149,7 @@ export default function Checkout() {
             // Show processing message for better UX
             const toastId = toast.loading('Đang xử lý đơn hàng...');
 
-            const result = await createOrderWithProtection(items, {
-                maxRetries: 3,
-                enableRetry: true
-            });
+            const result = await createOrderWithProtection(items, appliedPromo?.code, {});
             
             toast.dismiss(toastId);
             
@@ -154,7 +205,7 @@ export default function Checkout() {
             <div className="min-h-screen bg-gray-50">
                 {/* Header Section */}
                 <div className="bg-white border-b border-gray-100">
-                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                         <div className="flex items-center space-x-4">
                             <button
                                 onClick={() => navigate(path.CART)}
@@ -171,7 +222,7 @@ export default function Checkout() {
                     </div>
                 </div>
 
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                         {/* Order Items - 2/3 width */}
                         <div className="lg:col-span-3">
@@ -244,8 +295,6 @@ export default function Checkout() {
                                     })}
                                 </div>
                             </div>
-
-                            
                         </div>
 
                         {/* Order Summary - 1/3 width */}
@@ -254,6 +303,64 @@ export default function Checkout() {
                                 <div className="p-6">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Tóm tắt đơn hàng</h3>
                                     
+                                    {/* Promo Code Section */}
+                                    <div className="mb-6 p-4 bg-blue-50 rounded-xl">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <FiPercent className="w-4 h-4 text-blue-600" />
+                                            <span className="font-medium text-blue-900">Mã giảm giá</span>
+                                        </div>
+                                        
+                                        {!appliedPromo ? (
+                                            <div className="space-y-2">
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={promoCode}
+                                                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                                        placeholder="Nhập mã giảm giá"
+                                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                        onKeyPress={(e) => e.key === 'Enter' && handleApplyPromo()}
+                                                    />
+                                                    <button
+                                                        onClick={handleApplyPromo}
+                                                        disabled={isValidatingPromo || !promoCode.trim()}
+                                                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    >
+                                                        {isValidatingPromo ? 'Đang kiểm tra...' : 'Áp dụng'}
+                                                    </button>
+                                                </div>
+                                                {promoError && (
+                                                    <p className="text-red-600 text-sm">{promoError}</p>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-medium text-green-900">{appliedPromo.code}</span>
+                                                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                                                -{appliedPromo.discount}%
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-green-700 text-sm">
+                                                            Giảm {formatCurrency(discountAmount)}₫
+                                                        </p>
+                                                        <p className="text-green-600 text-xs">
+                                                            Còn lại {appliedPromo.remainingUsage} lượt sử dụng
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        onClick={handleRemovePromo}
+                                                        className="p-1 text-green-600 hover:text-green-800 hover:bg-green-100 rounded-full"
+                                                    >
+                                                        <FiX className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     {/* Balance Info */}
                                     <div className="mb-6 p-4 bg-gray-50 rounded-xl">
                                         <div className="mb-2">
@@ -271,8 +378,14 @@ export default function Checkout() {
                                     <div className="space-y-3 mb-6">
                                         <div className="flex justify-between text-gray-600">
                                             <span>Tạm tính:</span>
-                                            <span>{formatCurrency(total)}₫</span>
+                                            <span>{formatCurrency(subtotal)}₫</span>
                                         </div>
+                                        {appliedPromo && (
+                                            <div className="flex justify-between text-green-600">
+                                                <span>Giảm giá ({appliedPromo.discount}%):</span>
+                                                <span>-{formatCurrency(discountAmount)}₫</span>
+                                            </div>
+                                        )}
                                         <div className="flex justify-between text-gray-600">
                                             <span>Phí xử lý:</span>
                                             <span>Miễn phí</span>

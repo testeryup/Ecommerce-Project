@@ -224,6 +224,9 @@ export default function NewProductModal({ isOpen, onClose, categoriesList, mode 
                                     <label htmlFor="name">Tên sản phẩm</label>
                                     <input id="name" value={formData.name} onChange={(e) => updateField('name', e.target.value)}></input>
                                 </div>
+                            </div>
+                            <div className="form-row">
+
                                 <div className="form-group">
                                     <label htmlFor="category">Danh mục</label>
                                     <select

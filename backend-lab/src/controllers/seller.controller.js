@@ -152,8 +152,24 @@ export const getProductById = async (req, res) => {
             {
                 $lookup: {
                     from: 'skus',
-                    localField: '_id',
-                    foreignField: 'product',
+                    let: { productId: '$_id' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ['$product', '$$productId'] },
+                                status: 'available',
+                                isDeleted: false
+                            }
+                        },
+                        {
+                            $project: {
+                                name: 1,
+                                price: 1,
+                                stock: 1,
+                                status: 1,
+                            }
+                        }
+                    ],
                     as: 'skus'
                 }
             },
@@ -1149,7 +1165,7 @@ export const createWithdrawalRequest = async (req, res) => {
         if (!user || user.status !== 'active') {
             throw new Error("User not found or suspended")
         }
-        const amount = req.body.amount;
+        const {amount, bankAccount} = req.body;
         if (!amount) {
             return res.status(401).json({
                 errCode: 1,
@@ -1165,6 +1181,7 @@ export const createWithdrawalRequest = async (req, res) => {
         const transaction = await Transaction.create({
             user: new mongoose.Types.ObjectId(userId),
             amount: amount,
+            bankAccount: bankAccount,
             type: 'withdrawal',
             status: 'pending'
         });
@@ -1229,6 +1246,7 @@ export const getWidthdrawlRequests = async (req, res) => {
                     _id: 1,
                     amount: 1,
                     status: 1,
+                    bankAccount: 1,
                     createdAt: 1,
                     createdAtDate: 1,
                     'metadata.rejectionReason': 1

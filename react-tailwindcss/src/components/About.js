@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FiShield, 
-  FiUsers, 
-  FiAward, 
-  FiTrendingUp, 
-  FiHeart, 
-  FiTarget, 
-  FiGlobe, 
+import {
+  FiShield,
+  FiUsers,
+  FiAward,
+  FiTrendingUp,
+  FiHeart,
+  FiTarget,
+  FiGlobe,
   FiArrowRight,
   FiCheckCircle,
   FiStar,
@@ -79,13 +79,13 @@ const About = () => {
       <div className="min-h-screen bg-white">
         {/* Hero Section */}
         <section className="relative bg-white pt-24 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold text-gray-900 mb-8 tracking-tight leading-none">
                 Về chúng tôi
               </h1>
               <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
-                Hành trình xây dựng nền tảng cung cấp tài khoản subscription và key bản quyền 
+                Hành trình xây dựng nền tảng cung cấp tài khoản subscription và key bản quyền
                 chính hãng hàng đầu tại Việt Nam.
               </p>
             </div>
@@ -103,13 +103,13 @@ const About = () => {
               Sứ mệnh của chúng tôi
             </h2>
             <p className="text-xl text-gray-600 leading-relaxed font-light mb-8">
-              Democratizing access to premium digital services by providing authentic subscription accounts 
-              and software licenses at affordable prices, while maintaining the highest standards of 
+              Democratizing access to premium digital services by providing authentic subscription accounts
+              and software licenses at affordable prices, while maintaining the highest standards of
               security and customer service.
             </p>
             <p className="text-lg text-gray-500 leading-relaxed font-light">
-              "Dân chủ hóa việc tiếp cận các dịch vụ số premium bằng cách cung cấp tài khoản subscription 
-              và key bản quyền chính hãng với giá cả phải chăng, đồng thời duy trì tiêu chuẩn bảo mật 
+              "Dân chủ hóa việc tiếp cận các dịch vụ số premium bằng cách cung cấp tài khoản subscription
+              và key bản quyền chính hãng với giá cả phải chăng, đồng thời duy trì tiêu chuẩn bảo mật
               và dịch vụ khách hàng cao nhất."
             </p>
           </div>
@@ -117,7 +117,7 @@ const About = () => {
 
         {/* Stats Section */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-6 tracking-tight">
                 Con số ấn tượng
@@ -126,7 +126,7 @@ const About = () => {
                 Những thành tựu chúng tôi đạt được nhờ sự tin tưởng của khách hàng
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center group">
@@ -145,7 +145,7 @@ const About = () => {
 
         {/* Values Section */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50/30">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-6 tracking-tight">
                 Giá trị cốt lõi
@@ -154,7 +154,7 @@ const About = () => {
                 Những nguyên tắc định hướng mọi hoạt động và quyết định của chúng tôi
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {values.map((value, index) => (
                 <div key={index} className="group bg-white rounded-3xl p-8 hover:shadow-xl transition-all duration-500 border border-gray-100">
@@ -188,7 +188,7 @@ const About = () => {
                 Từ khởi đầu khiêm tốn đến vị thế hàng đầu
               </p>
             </div>
-            
+
             <div className="relative">
               <div className="absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-gray-200"></div>
               {milestones.map((milestone, index) => (
@@ -209,7 +209,7 @@ const About = () => {
 
         {/* Team Section */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50/30">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-6 tracking-tight">
                 Đội ngũ lãnh đạo
@@ -218,7 +218,7 @@ const About = () => {
                 Những con người tạo nên sự khác biệt
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {team.map((member, index) => (
                 <div key={index} className="group text-center bg-white rounded-3xl p-8 hover:shadow-xl transition-all duration-500 border border-gray-100">
@@ -239,18 +239,18 @@ const About = () => {
               Gia nhập cộng đồng của chúng tôi
             </h2>
             <p className="text-lg text-gray-600 mb-10 font-light leading-relaxed max-w-3xl mx-auto">
-              Trở thành một phần trong hành trình số hóa dịch vụ premium. Khám phá ngay 
+              Trở thành một phần trong hành trình số hóa dịch vụ premium. Khám phá ngay
               hàng nghìn tài khoản subscription chính hãng với giá tốt nhất thị trường.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button 
+              <button
                 onClick={() => navigate('/products')}
                 className="group bg-black hover:bg-gray-800 text-white px-10 py-4 rounded-full font-medium transition-all duration-300 text-lg flex items-center gap-3 shadow-xl"
               >
                 Khám phá sản phẩm
                 <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
-              <button 
+              <button
                 onClick={() => navigate('/support')}
                 className="text-blue-600 hover:text-blue-700 px-10 py-4 rounded-full font-medium transition-all duration-300 text-lg"
               >

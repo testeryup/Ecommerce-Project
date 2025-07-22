@@ -7,7 +7,7 @@ const Footer = () => {
 
       {/* Main Footer Content */}
       <div className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             {/* Company Info */}
             <div className="col-span-1 md:col-span-2">
@@ -18,7 +18,7 @@ const Footer = () => {
                 <h3 className="text-2xl font-semibold text-gray-900">Octopus Store</h3>
               </div>
               <p className="text-gray-600 mb-8 max-w-md leading-relaxed">
-                Điểm đến hàng đầu cho những sản phẩm chất lượng với giá cả hợp lý. 
+                Điểm đến hàng đầu cho những sản phẩm chất lượng với giá cả hợp lý.
                 Chúng tôi cam kết mang đến trải nghiệm mua sắm tuyệt vời với dịch vụ giao hàng nhanh chóng và hỗ trợ khách hàng xuất sắc.
               </p>
               <div className="flex space-x-6">
@@ -139,7 +139,7 @@ const Footer = () => {
 
       {/* Bottom Footer */}
       <div className="border-t border-gray-100 py-8 px-4 sm:px-6 lg:px-8 bg-gray-50/30">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-gray-600 text-sm">
               © 2025 Octopus Store. Tất cả quyền được bảo lưu.

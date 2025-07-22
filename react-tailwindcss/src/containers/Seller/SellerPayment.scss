@@ -35,55 +35,55 @@
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 1.5rem;
         margin-bottom: 2rem;
-    
+
         .stat-card {
             background: white;
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             transition: transform 0.2s;
-    
+
             &:hover {
                 transform: translateY(-2px);
             }
-    
+
             h3 {
                 color: #64748b;
                 font-size: 0.875rem;
                 margin-bottom: 0.5rem;
             }
-    
+
             p {
                 color: #2c3e50;
                 font-size: 1.5rem;
                 font-weight: 600;
                 margin-bottom: 0.25rem;
             }
-    
+
             span {
                 color: #64748b;
                 font-size: 0.875rem;
             }
-    
+
             // Color variants for different status cards
             &:nth-child(1) {
                 border-top: 4px solid #3498db;
             }
-    
+
             &:nth-child(2) {
                 border-top: 4px solid #f1c40f;
             }
-    
+
             &:nth-child(3) {
                 border-top: 4px solid #2ecc71;
             }
-    
+
             &:nth-child(4) {
                 border-top: 4px solid #e74c3c;
             }
         }
     }
-    
+
     @media (max-width: 768px) {
         .stats-cards {
             grid-template-columns: 1fr;
@@ -125,7 +125,8 @@
             width: 100%;
             border-collapse: collapse;
 
-            th, td {
+            th,
+            td {
                 padding: 1rem;
                 text-align: left;
                 border-bottom: 1px solid #e2e8f0;
@@ -225,8 +226,15 @@
 
                 label {
                     display: block;
+                    margin-top: 0.5rem;
                     margin-bottom: 0.5rem;
                     color: #4a5568;
+                }
+
+                text {
+                    font-size: 0.8rem;
+                    color: red;
+                    margin: 1rem 0;
                 }
 
                 input {

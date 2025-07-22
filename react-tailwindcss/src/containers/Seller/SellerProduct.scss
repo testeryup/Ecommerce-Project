@@ -106,10 +106,14 @@
                                             opacity: 0.9;
                                         }
 
+                                        &.sku{
+                                            color: #6807ef;
+                                            border: 1px solid #6807ef;
+                                        }
+
                                         &.publish {
                                             color: #0a59cc;
                                             border: 1px solid #0a59cc;
-
                                         }
 
                                         &.edit {

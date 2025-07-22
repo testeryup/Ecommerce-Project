@@ -5,6 +5,8 @@ import Order from "../models/order.js";
 import Transaction from "../models/transaction.js";
 import Inventory from "../models/inventory.js";
 import Promo from "../models/promo.js";
+import { sendOrderConfirmationEmail } from '../service/email.service.js';
+
 //
 // Be careful with this controller because we already changed the structure of sku and product!
 //
@@ -160,8 +162,8 @@ import Promo from "../models/promo.js";
 // };
 
 export const createOrderWithOptimisticLocking = async (req, res) => {
-    console.log("check var order:", req.body);
-    // return;
+
+
     const MAX_RETRIES = 3;
     let retryCount = 0;
     while (retryCount < MAX_RETRIES) {
@@ -169,15 +171,16 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
         session.startTransaction();
         try {
             const { items, promoCode } = req.body;
-            console.log("check items:", items);
+            console.log("check order input:", items, promoCode);
+
             if (!items || !Array.isArray(items) || items.length === 0) {
                 throw new Error("Items array is required and cannot be empty");
             }
             const userId = req.user.id;
             const skuIds = items.map(item => item.skuId);
-            console.log("check skuIds:", skuIds);
             let discount = 1;
             let promo = null;
+            let saved = 0;
             if (promoCode) {
                 if (!/^[A-Z0-9]{3,20}$/.test(promoCode.toUpperCase())) {
                     throw new Error("Mã promo chỉ được chứa chữ cái và số, độ dài 3-20 ký tự");
@@ -227,6 +230,7 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
                 }
                 const itemTotal = sku.price * item.quantity * discount;
                 total += itemTotal;
+                saved = total / discount - total;
                 orderItems.push({
                     sku: sku._id,
                     quantity: item.quantity,
@@ -262,7 +266,6 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
 
             const failedUpdates = updateResults.filter(result => result.modifiedCount === 0);
             if (failedUpdates.length > 0) {
-                console.log("failedUpdates", failedUpdates);
                 throw new Error("OPTIMISTIC_LOCK_CONFLICT");
             }
 
@@ -270,6 +273,7 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
                 buyer: new mongoose.Types.ObjectId(userId),
                 items: orderItems,
                 total,
+                saved,
                 status: 'processing',
                 paymentStatus: 'completed'
             }], { session });
@@ -288,7 +292,6 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
                     status: 'available',
                     isDeleted: false
                 }).limit(item.quantity).session(session);
-                console.log("check inventories:", inventories);
                 if (inventories.length < item.quantity) {
                     throw new Error(`Not enough inventory for SKU: ${item.sku}`);
                 }
@@ -319,7 +322,6 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
             );
 
             await Promise.all(sellerUpdatePromises);
-            console.log("check order._id:", order._id);
             await Order.findByIdAndUpdate(order._id, {
                 status: 'completed'
             }).session(session);
@@ -346,7 +348,20 @@ export const createOrderWithOptimisticLocking = async (req, res) => {
             }], { session });
 
             await session.commitTransaction();
-
+            try {
+                const emailResult = await sendOrderConfirmationEmail({
+                    receiverEmail: user.email,
+                    buyerName: user.username,
+                    orderId: order._id,
+                    total: total,
+                    saved: saved,
+                    promoCode: promo ? promo.code : null,
+                    credentials: credentialsList
+                });
+                console.log("check email result:", emailResult);
+            } catch (error) {
+                console.log("Error when send email:", error);
+            }
             return res.status(200).json({
                 errCode: 0,
                 message: 'Order created successfully',
@@ -484,6 +499,7 @@ export const getOrderById = async (req, res) => {
                     orderId: '$_id',
                     transactionId: { $arrayElemAt: ['$transaction._id', 0] },
                     total: 1,
+                    saved: 1,
                     paymentMethod: 1,
                     status: 1,
                     paymentStatus: 1,

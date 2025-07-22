@@ -11,7 +11,7 @@ import { formatCurrency } from '../../ultils';
 const ModalTypes = {
     NONE: 'NONE',
     NEW_PRODUCT: 'NEW_PRODUCT',
-    INVENTORY: 'INVENTORY'
+    INVENTORY: 'INVENTORY',
 };
 
 export default function SellerProducts() {
@@ -135,6 +135,11 @@ export default function SellerProducts() {
                                                     <td className='pd-revenue'>{`${formatCurrency(product?.totalSales?.revenue) ?? ''} đ`}</td>
                                                     <td className='pd-stock'>{product.totalStock ?? ''}</td>
                                                     <td className='pd-action'>
+                                                        {/* <div className='btn sku' onClick={() => openInventoryModal(product._id)}>
+                                                            <span class="material-symbols-outlined">
+                                                                add_box
+                                                            </span>
+                                                        </div> */}
                                                         <div className='btn publish' onClick={() => openInventoryModal(product._id)}>
                                                             <span className="material-symbols-outlined">publish</span>
                                                         </div>

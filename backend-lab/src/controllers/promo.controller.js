@@ -76,24 +76,27 @@ export const createNewPromo = async (req, res) => {
 
 }
 
-export const getUserPromos = async (req, res) => {
+export const getPromos = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const { page = 1, limit = 10, includeExpired = false } = req.query;
+        // const userId = req.user.id;
+        const { page = 1, limit = 10, includeExpired = false, search = '' } = req.query;
         const query = {
-            seller: userId,
-            isDeleted: false
+            // seller: userId,
+            // isDeleted: false
         }
         if (!includeExpired) {
             query.expiresAt = { $gt: new Date() };
         }
-
+        if(search){
+            query.code = search.toString().toUpperCase();
+        }
         const promos = await Promo.find(query)
             .select('-seller')
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip((page - 1) * limit);
 
+        console.log("check var promos:", promos);
         const totalPromos = await Promo.countDocuments(query);
 
         return res.status(200).json({
@@ -122,14 +125,14 @@ export const getUserPromos = async (req, res) => {
 export const removePromo = async (req, res) => {
     try {
         const userId = req.user.id;
-        const code = req.body.code;
+        const code = req.params?.code?.toUpperCase() || '';
         if (!code) {
             return res.status(400).json({
                 errCode: 1,
                 message: "Mã promo là bắt buộc"
             });
         }
-
+        console.log("check code:", code, typeof code);
         const promo = await Promo.findOne({ code: code, isDeleted: false });
         if (!promo) {
             return res.status(404).json({
@@ -164,13 +167,13 @@ export const removePromo = async (req, res) => {
 
 export const validatePromo = async (req, res) => {
     try {
-        const { code, orderTotal } = req.body;
+        const { code } = req.params;
         const userId = req.user.id;
 
-        if (!code || !orderTotal) {
+        if (!code) {
             return res.status(400).json({
                 errCode: 1,
-                message: "Mã promo và tổng tiền đơn hàng là bắt buộc"
+                message: "Mã promo là bắt buộc"
             });
         }
 
@@ -188,16 +191,12 @@ export const validatePromo = async (req, res) => {
             });
         }
 
-        const discountAmount = Math.min(orderTotal * (promo.discount / 100), orderTotal);
-
         return res.status(200).json({
             errCode: 0,
             message: "Mã promo hợp lệ",
             data: {
                 code: promo.code,
                 discount: promo.discount,
-                discountAmount: Math.round(discountAmount),
-                finalAmount: Math.round(orderTotal - discountAmount),
                 remainingUsage: promo.maximumUse
             }
         });

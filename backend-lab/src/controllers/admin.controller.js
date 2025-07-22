@@ -1035,6 +1035,7 @@ export const getTransactionStats = async (req, res) => {
               $project: {
                 _id: 1,
                 amount: 1,
+                bankAccount: 1,
                 status: 1,
                 type: 1,
                 createdAt: 1,

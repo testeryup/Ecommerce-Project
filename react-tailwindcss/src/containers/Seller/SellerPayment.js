@@ -11,6 +11,8 @@ export default function SellerPayment() {
     const [loading, setLoading] = useState(true);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
     const [withdrawAmount, setWithdrawAmount] = useState('');
+    const [bankAccount, setBankAccount] = useState('');
+
     const [filters, setFilters] = useState({
         page: 1,
         limit: 10,
@@ -48,8 +50,11 @@ export default function SellerPayment() {
                 toast.error('Vui lòng nhập số tiền hợp lệ');
                 return;
             }
-
-            const response = await createWithdrawalRequest(amount);
+            if(!bankAccount){
+                toast.error('Vui lòng nhập số tài khoản hợp lệ');
+                return;
+            }
+            const response = await createWithdrawalRequest(amount, bankAccount);
             if (response.errCode === 0) {
                 toast.success('Đã tạo yêu cầu rút tiền');
                 setIsWithdrawModalOpen(false);
@@ -69,7 +74,7 @@ export default function SellerPayment() {
         <div className="seller-payment">
             <div className="payment-header">
                 <h1>Quản lý rút tiền</h1>
-                <button 
+                <button
                     className="withdraw-btn"
                     onClick={() => setIsWithdrawModalOpen(true)}
                 >
@@ -78,33 +83,33 @@ export default function SellerPayment() {
             </div>
 
             <div className="stats-cards">
-    <div className="stat-card">
-        <h3>Tổng yêu cầu</h3>
-        <p>{withdrawals.filters.status.available.all.count}</p>
-        <span>{formatCurrency(withdrawals.filters.status.available.all.amount)}₫</span>
-    </div>
-    <div className="stat-card">
-        <h3>Đang chờ xử lý</h3>
-        <p>{withdrawals.filters.status.available.pending?.count || 0}</p>
-        <span>{formatCurrency(withdrawals.filters.status.available.pending?.amount || 0)}₫</span>
-    </div>
-    <div className="stat-card">
-        <h3>Đã hoàn thành</h3>
-        <p>{withdrawals.filters.status.available.completed?.count || 0}</p>
-        <span>{formatCurrency(withdrawals.filters.status.available.completed?.amount || 0)}₫</span>
-    </div>
-    <div className="stat-card">
-        <h3>Đã từ chối</h3>
-        <p>{withdrawals.filters.status.available.failed?.count || 0}</p>
-        <span>{formatCurrency(withdrawals.filters.status.available.failed?.amount || 0)}₫</span>
-    </div>
-</div>
+                <div className="stat-card">
+                    <h3>Tổng yêu cầu</h3>
+                    <p>{withdrawals.filters.status.available.all.count}</p>
+                    <span>{formatCurrency(withdrawals.filters.status.available.all.amount)}₫</span>
+                </div>
+                <div className="stat-card">
+                    <h3>Đang chờ xử lý</h3>
+                    <p>{withdrawals.filters.status.available.pending?.count || 0}</p>
+                    <span>{formatCurrency(withdrawals.filters.status.available.pending?.amount || 0)}₫</span>
+                </div>
+                <div className="stat-card">
+                    <h3>Đã hoàn thành</h3>
+                    <p>{withdrawals.filters.status.available.completed?.count || 0}</p>
+                    <span>{formatCurrency(withdrawals.filters.status.available.completed?.amount || 0)}₫</span>
+                </div>
+                <div className="stat-card">
+                    <h3>Đã từ chối</h3>
+                    <p>{withdrawals.filters.status.available.failed?.count || 0}</p>
+                    <span>{formatCurrency(withdrawals.filters.status.available.failed?.amount || 0)}₫</span>
+                </div>
+            </div>
 
             <div className="filters-section">
                 <div className="filter-group">
                     <select
                         value={filters.status}
-                        onChange={(e) => setFilters({...filters, status: e.target.value, page: 1})}
+                        onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
                     >
                         <option value="all">Tất cả trạng thái</option>
                         <option value="pending">Chờ xử lý</option>
@@ -114,7 +119,7 @@ export default function SellerPayment() {
 
                     <select
                         value={filters.limit}
-                        onChange={(e) => setFilters({...filters, limit: Number(e.target.value), page: 1})}
+                        onChange={(e) => setFilters({ ...filters, limit: Number(e.target.value), page: 1 })}
                     >
                         <option value={10}>10 / trang</option>
                         <option value={20}>20 / trang</option>
@@ -131,7 +136,7 @@ export default function SellerPayment() {
                             <th>Số tiền</th>
                             <th>Trạng thái</th>
                             <th>Thời gian</th>
-                            <th>Ghi chú</th>
+                            <th>Tài khoản</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -142,11 +147,11 @@ export default function SellerPayment() {
                                 <td>
                                     <span className={`status-badge ${request.status}`}>
                                         {request.status === 'pending' ? 'Chờ xử lý' :
-                                         request.status === 'completed' ? 'Đã hoàn thành' : 'Đã từ chối'}
+                                            request.status === 'completed' ? 'Đã hoàn thành' : 'Đã từ chối'}
                                     </span>
                                 </td>
                                 <td>{new Date(request.createdAt).toLocaleDateString('vi-VN')}</td>
-                                <td>{request.note || '-'}</td>
+                                <td>{request.bankAccount || '-'}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -157,11 +162,11 @@ export default function SellerPayment() {
                 <button
                     className="page-btn"
                     disabled={!withdrawals.pagination.hasPrev}
-                    onClick={() => setFilters({...filters, page: filters.page - 1})}
+                    onClick={() => setFilters({ ...filters, page: filters.page - 1 })}
                 >
                     <FontAwesomeIcon icon="chevron-left" />
                 </button>
-                
+
                 <span className="page-info">
                     Trang {withdrawals.pagination.currentPage} / {withdrawals.pagination.totalPages}
                 </span>
@@ -169,7 +174,7 @@ export default function SellerPayment() {
                 <button
                     className="page-btn"
                     disabled={!withdrawals.pagination.hasNext}
-                    onClick={() => setFilters({...filters, page: filters.page + 1})}
+                    onClick={() => setFilters({ ...filters, page: filters.page + 1 })}
                 >
                     <FontAwesomeIcon icon="chevron-right" />
                 </button>
@@ -188,6 +193,17 @@ export default function SellerPayment() {
                                     onChange={(e) => setWithdrawAmount(e.target.value)}
                                     placeholder="Nhập số tiền..."
                                     min="0"
+                                    required
+                                />
+                                <text>
+                                    Nhập số tài khoản, ngân hàng, tên người thụ hưởng theo định dạng: STK|NH|HOTEN
+                                </text>
+                                <label>Tài khoản nhận tiền</label>
+                                <input
+                                    // type="s"
+                                    value={bankAccount}
+                                    onChange={(e) => setBankAccount(e.target.value)}
+                                    placeholder="Vui lòng nhập chính xác thông tin để hệ thống chuyển tiền"
                                     required
                                 />
                             </div>
