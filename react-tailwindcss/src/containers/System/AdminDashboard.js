@@ -8,7 +8,7 @@ const AdminMenu = {
     Users: React.lazy(() => import('../Admin/Users')),
     Products: React.lazy(() => import('../Admin/Products')),
     Transactions: React.lazy(() => import('../Admin/Transactions')),
-    Reports: React.lazy(() => import('../Admin/Reports')),
+    Promos: React.lazy(() => import('../Admin/Promos')),
     Settings: React.lazy(() => import('../Admin/Settings'))
 };
 
@@ -21,7 +21,7 @@ export default function AdminDashboard() {
         { id: 'users', label: 'Người dùng', icon: 'users' },
         { id: 'products', label: 'Sản phẩm', icon: 'box' },
         { id: 'transactions', label: 'Giao dịch', icon: 'money-bill-wave' },
-        { id: 'reports', label: 'Báo cáo', icon: 'flag' },
+        { id: 'promos', label: 'Khuyến mãi', icon: 'tags' },
         { id: 'settings', label: 'Cài đặt', icon: 'cog' }
     ];
 

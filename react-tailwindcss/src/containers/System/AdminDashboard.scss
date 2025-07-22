@@ -1,7 +1,7 @@
 .admin-dashboard {
     min-height: 100vh;
     background-color: #f8f9fa;
-
+    overflow-y: auto;
     .dashboard-container {
         display: flex;
         height: calc(100vh - 70px);

@@ -119,15 +119,15 @@ export default function Transactions() {
                         <LineChart data={stats.chartData}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="date" />
-                            <YAxis 
+                            <YAxis
                                 tickFormatter={(value) => {
                                     if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
                                     if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
                                     return value;
                                 }}
                             />
-                            <Tooltip 
-                                formatter={(value) => [`${formatCurrency(value)}₫`]} 
+                            <Tooltip
+                                formatter={(value) => [`${formatCurrency(value)}₫`]}
                                 labelFormatter={(label) => `Ngày: ${label}`}
                             />
                             <Legend />
@@ -173,7 +173,13 @@ export default function Transactions() {
                         <tbody>
                             {stats.recentWithdraws.map(withdraw => (
                                 <tr key={withdraw._id}>
-                                    <td>{withdraw._id}</td>
+                                    <td>
+                                        <div className='user-info'>
+                                            <span className="username">{withdraw._id}</span>
+                                            <span className="email">{withdraw.bankAccount ?? ''}</span>
+
+                                        </div>
+                                    </td>
                                     <td>
                                         <div className="user-info">
                                             <span className="username">{withdraw.userInfo.username}</span>
@@ -219,14 +225,14 @@ export default function Transactions() {
                             required
                         />
                         <div className="modal-actions">
-                            <button 
+                            <button
                                 className="confirm-btn"
                                 onClick={handleReject}
                                 disabled={!rejectReason.trim()}
                             >
                                 Xác nhận
                             </button>
-                            <button 
+                            <button
                                 className="cancel-btn"
                                 onClick={() => {
                                     setIsRejectModalOpen(false);

@@ -41,7 +41,7 @@ const TopupComponent = () => {
   }, [isAuthenticated, token, navigate]);
   
   const [payOSConfig, setPayOSConfig] = useState({
-    RETURN_URL: window.location.origin,
+    RETURN_URL: process.env.FRONT_END_URL || window.location.origin,
     ELEMENT_ID: "embedded-payment-container",
     CHECKOUT_URL: null,
     embedded: true,
@@ -226,7 +226,7 @@ const TopupComponent = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumb />
         
         {/* Header */}
@@ -373,7 +373,9 @@ const TopupComponent = () => {
 
             {/* Payment Container */}
             {isOpen && (
-              <div id="embedded-payment-container" className="rounded-5xl overflow-hidden shadow-sm h-[600px]"></div>
+              <div id="embedded-payment-container" className="rounded-5xl overflow-hidden shadow-sm h-[600px]">
+
+              </div>
             )}
           </div>
 

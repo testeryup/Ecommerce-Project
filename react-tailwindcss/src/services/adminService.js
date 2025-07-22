@@ -104,6 +104,30 @@ export const getAdminOrders = (params) => {
 export const updateOrderStatus = (orderId, status) => {
     return api.put(`/api/orders/status`, { orderId, status });
 };
+
+export const getAllPromos = (params) => {
+    const queryString = new URLSearchParams({
+        page: params.page || 1,
+        limit: params.limit || 10,
+        includeExpired: params.includeExpired || true,
+        search: params.search || ''
+    }).toString();
+    return api.get(`/api/promo?${queryString}`);
+}
+
+export const createNewPromo = (code, expiresAt, usage, discount) => {
+    return api.post('/api/promo', {
+        code,
+        expiresAt,
+        usage,
+        discount
+    });
+}
+
+export const deletePromo = (code) => {
+    return api.delete(`/api/promo/${code}`);
+}
+
 const adminService = {
     getAdminStats
 }

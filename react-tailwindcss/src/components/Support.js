@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FiMessageCircle, 
-  FiMail, 
-  FiPhone, 
-  FiClock, 
-  FiHelpCircle, 
-  FiChevronDown, 
+import {
+  FiMessageCircle,
+  FiMail,
+  FiPhone,
+  FiClock,
+  FiHelpCircle,
+  FiChevronDown,
   FiChevronUp,
   FiUser,
   FiSend,
@@ -160,13 +160,13 @@ const Support = () => {
       <div className="min-h-screen bg-white">
         {/* Hero Section */}
         <section className="relative bg-white pt-24 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold text-gray-900 mb-8 tracking-tight leading-none">
                 Hỗ trợ khách hàng
               </h1>
               <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
-                Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7. Tìm câu trả lời nhanh chóng 
+                Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7. Tìm câu trả lời nhanh chóng
                 hoặc liên hệ trực tiếp với đội ngũ chuyên nghiệp.
               </p>
             </div>
@@ -179,7 +179,7 @@ const Support = () => {
 
         {/* Support Channels */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50/30">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-6 tracking-tight">
                 Kênh hỗ trợ
@@ -188,7 +188,7 @@ const Support = () => {
                 Chọn cách thức liên hệ phù hợp nhất với bạn
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {supportChannels.map((channel, index) => (
                 <div key={index} className="group bg-white rounded-3xl p-8 hover:shadow-xl transition-all duration-500 border border-gray-100">
@@ -213,7 +213,7 @@ const Support = () => {
 
         {/* Support Tabs */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-6 tracking-tight">
                 Trung tâm trợ giúp
@@ -227,21 +227,19 @@ const Support = () => {
             <div className="flex flex-wrap justify-center mb-12 bg-gray-50 rounded-2xl p-2 max-w-2xl mx-auto">
               <button
                 onClick={() => setActiveTab('faq')}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                  activeTab === 'faq'
+                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${activeTab === 'faq'
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
-                }`}
+                  }`}
               >
                 Câu hỏi thường gặp
               </button>
               <button
                 onClick={() => setActiveTab('contact')}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                  activeTab === 'contact'
+                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${activeTab === 'contact'
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
-                }`}
+                  }`}
               >
                 Liên hệ với chúng tôi
               </button>
@@ -259,11 +257,10 @@ const Support = () => {
                         <button
                           key={category.id}
                           onClick={() => setExpandedFaq(category.id)}
-                          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${
-                            expandedFaq === category.id
+                          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-3 ${expandedFaq === category.id
                               ? 'bg-blue-600 text-white'
                               : 'text-gray-700 hover:bg-white hover:shadow-sm'
-                          }`}
+                            }`}
                         >
                           <category.icon className="w-5 h-5" />
                           {category.title}
@@ -348,7 +345,7 @@ const Support = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Danh mục
@@ -416,10 +413,10 @@ const Support = () => {
               Cam kết hỗ trợ
             </h2>
             <p className="text-lg text-gray-600 mb-10 font-light leading-relaxed max-w-3xl mx-auto">
-              Chúng tôi cam kết mang đến trải nghiệm hỗ trợ khách hàng tốt nhất với đội ngũ 
+              Chúng tôi cam kết mang đến trải nghiệm hỗ trợ khách hàng tốt nhất với đội ngũ
               chuyên nghiệp và thời gian phản hồi nhanh chóng.
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-50 rounded-full mb-4">
@@ -428,7 +425,7 @@ const Support = () => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Phản hồi nhanh</h3>
                 <p className="text-gray-600">Trả lời trong vòng 2 giờ</p>
               </div>
-              
+
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-green-50 rounded-full mb-4">
                   <FiCheckCircle className="w-8 h-8 text-green-600" />
@@ -436,7 +433,7 @@ const Support = () => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Giải quyết hiệu quả</h3>
                 <p className="text-gray-600">98% vấn đề được xử lý thành công</p>
               </div>
-              
+
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-50 rounded-full mb-4">
                   <FiHelpCircle className="w-8 h-8 text-purple-600" />

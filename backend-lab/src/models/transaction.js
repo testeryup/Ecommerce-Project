@@ -16,6 +16,10 @@ const transactionSchema = new mongoose.Schema({
         default: null
     },
     amount: Number,
+    bankAccount: {
+        type: String,
+        default: null
+    },
     type: {
         type: String,
         enum: ['purchase', 'refund', 'withdrawal', 'deposit'],

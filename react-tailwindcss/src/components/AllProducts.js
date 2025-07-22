@@ -195,12 +195,12 @@ const Products = () => {
             <div className="min-h-screen bg-white">
                 {/* Hero Section - Apple Style */}
                 <div className="bg-white border-b border-gray-100">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
                         <h1 className="text-4xl md:text-6xl font-semibold text-gray-900 mb-6 tracking-tight">
                             Khám phá sản phẩm
                         </h1>
                         <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto font-light">
-                            Tìm thấy {filteredProducts.length} sản phẩm chất lượng cao với thiết kế hiện đại
+                            Tìm thấy {filteredProducts.length} sản phẩm chất lượng
                         </p>
 
                         {/* Search Bar - Apple Style */}
@@ -223,7 +223,7 @@ const Products = () => {
                 </div>
 
                 {/* Main Content */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="flex flex-col lg:flex-row gap-8">
                         {/* Sidebar Filters - Apple Style */}
                         <div className="lg:w-80 flex-shrink-0">
@@ -344,7 +344,7 @@ const Products = () => {
                             </div>
 
                             {filteredProducts.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                                     {filteredProducts.map((product) => (
                                         <div
                                             key={product._id}
@@ -455,7 +455,7 @@ const Products = () => {
                                                 {/* Stock Status */}
                                                 <div className="mb-6">
                                                     {
-                                                        product.skus && product.skus.length > 0 ? (
+                                                        product.skus && product.skus.length > 0 && product.skus.reduce((stock, sku) => stock + sku.stock, 0)? (
                                                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
                                                                 ✅ Còn hàng
                                                             </span>

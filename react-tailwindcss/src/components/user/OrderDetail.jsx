@@ -96,7 +96,7 @@ const OrderDetailComponent = ({
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded-lg w-1/4"></div>
             <div className="h-64 bg-gray-200 rounded-2xl"></div>
@@ -142,7 +142,7 @@ const OrderDetailComponent = ({
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumb items={[
           { label: 'Trang chủ', href: '/' },
           { label: 'Đơn hàng của tôi', href: '/orders' },
@@ -398,15 +398,15 @@ const OrderDetailComponent = ({
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tạm tính</span>
                     <span className="font-medium text-gray-900">
-                      {formatCurrency(orderData.subtotal || orderData.total)}
+                      {formatCurrency(orderData.total + (orderData.saved ?? 0))}
                     </span>
                   </div>
                   
-                  {orderData.discount > 0 && (
+                  {orderData.saved > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Giảm giá</span>
                       <span className="font-medium">
-                        -{formatCurrency(orderData.discount)}
+                        -{formatCurrency(orderData.saved)}
                       </span>
                     </div>
                   )}

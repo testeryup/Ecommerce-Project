@@ -11,7 +11,7 @@ import { retryWithBackoff, parseRaceConditionError } from '../ultils/raceConditi
  * @param {Object} options - Additional options {maxRetries, enableRetry}
  * @returns {Promise} - Order creation result
  */
-export const createOrderWithProtection = async (items, options = {}) => {
+export const createOrderWithProtection = async (items, promoCode = null, options = {}) => {
     const { maxRetries = 3, enableRetry = true } = options;
     
     const transformedItems = items.map(item => ({
@@ -19,7 +19,7 @@ export const createOrderWithProtection = async (items, options = {}) => {
         quantity: item.quantity
     }));
 
-    const apiCall = () => api.post('/api/orders', { items: transformedItems });
+    const apiCall = () => api.post('/api/orders', { items: transformedItems, promoCode: promoCode });
 
     if (enableRetry) {
         return await retryWithBackoff(apiCall, maxRetries);

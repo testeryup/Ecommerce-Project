@@ -1,5 +1,6 @@
 import Product from '../models/product.js';
 import SKU from '../models/sku.js';
+import Inventory from '../models/inventory.js';
 
 import mongoose from 'mongoose';
 
@@ -7,11 +8,10 @@ import mongoose from 'mongoose';
 export const upsertProduct = async (req, res) => {
     try {
         // remove sku from req.body
-        const { name, images, description, category, subcategory} = req.body;
-        // console.log("check req:", name,  category, subcategory, skus);
-        // return;
+        const { name, images, description, category, subcategory, skus } = req.body;
+
         let id = req.body.id;
-        console.log("check update:", id);
+
         // Validate image size
         const MAX_SIZE = 5 * 1024 * 1024;
         if (images?.some(img => {
@@ -46,39 +46,136 @@ export const upsertProduct = async (req, res) => {
         );
 
         // Handle SKUs
-        // if (existingProduct) {
-        //     // Update: Remove old SKUs first
-        //     await SKU.deleteMany({ product: product._id });
-        // }
+        if (!existingProduct && skus && skus.length > 0) {
+            // Validate new SKUs
+            const skuValidationPromises = skus.map(sku => {
+                const newSku = new SKU({
+                    name: sku.name,
+                    price: sku.price,
+                    stock: sku.stock || 0,
+                    product: product._id
+                });
+                return newSku.validate();
+            });
+            await Promise.all(skuValidationPromises);
 
-        // // Validate new SKUs
-        // const skuValidationPromises = skus.map(sku => {
-        //     const newSku = new SKU({
-        //         ...sku,
-        //         product: product._id
-        //     });
-        //     return newSku.validate();
-        // });
-        // await Promise.all(skuValidationPromises);
+            const skusCreated = await SKU.insertMany(
+                skus.map(sku => ({
+                    name: sku.name,
+                    price: sku.price,
+                    stock: sku.stock || 0,
+                    product: product._id
+                }))
+            );
+        }
+        else if (existingProduct && skus) {
+            const session = await mongoose.startSession();
+            session.startTransaction();
+            try {
+                const existingSkus = await SKU.find({
+                    product: product._id,
+                    isDeleted: false
+                }).session(session);
+                // create a set of sku ids from client request body
+                const skuIdsFromClient = new Set(
+                    skus.filter(sku => sku._id && mongoose.Types.ObjectId.isValid(sku._id))
+                        .map(sku => sku._id.toString())
+                );
+                // chia nhỏ các thao tác của sku
+                const newSkus = skus.filter(sku => !sku._id || !mongoose.Types.ObjectId.isValid(sku._id));
+                const updateSkus = skus.filter(sku => sku._id && mongoose.Types.ObjectId.isValid(sku._id));
+                const skusToDelete = existingSkus.filter(sku => !skuIdsFromClient.has(sku._id.toString()));
 
-        // // Create new SKUs
-        // const skusCreated = await SKU.insertMany(
-        //     skus.map(sku => ({
-        //         ...sku,
-        //         product: product._id
-        //     }))
-        // );
+                // handle create new skus
+                if (newSkus && newSkus.length > 0) {
+                    const skuValidationPromises = newSkus.map(sku => {
+                        const newSku = new SKU({
+                            name: sku.name,
+                            price: sku.price,
+                            stock: sku.stock || 0,
+                            product: product._id
+                        });
+                        return newSku.validate();
+                    });
+                    await Promise.all(skuValidationPromises);
+
+                    await SKU.insertMany(
+                        newSkus.map(sku => ({
+                            name: sku.name,
+                            price: sku.price,
+                            stock: sku.stock || 0,
+                            product: product._id
+                        })),
+                        { session }
+                    );
+                }
+
+                // handle update skus
+                if (updateSkus.length > 0) {
+                    const updatePromises = updateSkus.map(sku =>
+                        SKU.findOneAndUpdate(
+                            {
+                                _id: sku._id,
+                                product: product._id,
+                                isDeleted: false
+                            },
+                            {
+                                name: sku.name,
+                                price: sku.price,
+                            },
+                            {
+                                session,
+                                runValidators: true,
+                                new: true
+                            }
+                        )
+                    );
+                    await Promise.all(updatePromises);
+                }
+                // handle delete skus
+                if (skusToDelete.length > 0) {
+                    const deletePromises = skusToDelete.map(sku =>
+                        SKU.findByIdAndUpdate(
+                            sku._id,
+                            { isDeleted: true },
+                            { session }
+                        )
+                    );
+
+                    // ✅ Soft delete related inventories
+                    await Inventory.updateMany(
+                        {
+                            sku: { $in: skusToDelete.map(sku => sku._id) },
+                            isDeleted: false
+                        },
+                        { isDeleted: true },
+                        { session }
+                    );
+
+                    await Promise.all(deletePromises);
+                }
+                await session.commitTransaction();
+            } catch (error) {
+                await session.abortStransaction();
+                throw error;
+            }
+            finally {
+                await session.endSession();
+            }
+        }
+
 
         return res.status(existingProduct ? 200 : 201).json({
             errCode: 0,
             message: `Successfully ${existingProduct ? 'updated' : 'created'} product with SKUs`,
             data: {
                 product,
-                // skus: skusCreated
+
             }
         });
 
     } catch (error) {
+        console.error('upsertProduct error:', error);
         return res.status(500).json({
             errCode: 1,
             message: error.message
@@ -217,14 +314,14 @@ export const getProductById = async (req, res) => {
                     // localField: '_id',
                     // foreignField: 'product',
                     // as: 'skus'
-                    let: {productId: "$_id"},
+                    let: { productId: "$_id" },
                     pipeline: [
                         {
-                            $match: { 
-                                $expr: { 
+                            $match: {
+                                $expr: {
                                     $and: [
-                                        {$eq: ["$product", "$$productId"]},
-                                        {$eq: ["$isDeleted", false]}
+                                        { $eq: ["$product", "$$productId"] },
+                                        { $eq: ["$isDeleted", false] }
                                     ]
                                 },
                             }

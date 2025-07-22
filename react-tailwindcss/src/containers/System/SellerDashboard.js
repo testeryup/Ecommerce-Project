@@ -14,8 +14,8 @@ export default function SellerDashboard() {
         { id: 'monitor', label: 'Tổng quan', icon: 'chart-line', component: Menu.SellerMonitor },
         { id: 'products', label: 'Quản lý gian hàng', icon: 'box', component: Menu.SellerProducts },
         { id: 'orders', label: 'Đơn hàng', icon: 'shopping-bag', component: Menu.SellerOrders },
-        { id: 'message', label: 'Tin nhắn', icon: 'envelope', component: Menu.SellerMessage },
-        { id: 'coupon', label: 'Khuyến mãi', icon: 'gift', component: Menu.SellerCoupon },
+        // { id: 'message', label: 'Tin nhắn', icon: 'envelope', component: Menu.SellerMessage },
+        // { id: 'coupon', label: 'Khuyến mãi', icon: 'gift', component: Menu.SellerCoupon },
         { id: 'payment', label: 'Thanh toán', icon: 'credit-card', component: Menu.SellerPayment }
     ];
 
