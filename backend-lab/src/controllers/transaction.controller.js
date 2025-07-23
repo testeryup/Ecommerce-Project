@@ -112,7 +112,7 @@ export const createPaymentLink = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        const YOUR_DOMAIN = `http://localhost:3000`;
+        const YOUR_DOMAIN = process.env.FRONTEND_URL || `http://localhost:3000`;
 
         const userIdPart = userId.getTimestamp().getTime() % 10000;
         const randomPart = Math.floor(Math.random() * 1000); // từ 0 đến 999
