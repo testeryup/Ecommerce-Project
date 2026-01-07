@@ -146,8 +146,9 @@ const TopupComponent = () => {
       exit();
       
       const result = await createPaymentLink(amount);
-      
       let checkoutUrl = result.checkoutUrl || result.data?.checkoutUrl;
+      console.log("check checkoutUrl:", checkoutUrl);
+      console.log("FRONT_END_URL, window.location.origin:", process.env.FRONT_END_URL, window.location.origin);
       
       setPayOSConfig((oldConfig) => ({
         ...oldConfig,
