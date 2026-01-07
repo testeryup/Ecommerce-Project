@@ -110,7 +110,8 @@ app.get('/', (req, res) => {
       hostname: req.hostname,
       secure: req.secure,
       userAgent: req.get('User-Agent')
-    }
+    },
+    frontend: process.env.FRONTEND_URL || ''
   });
 });
 
