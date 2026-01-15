@@ -35,7 +35,7 @@ const cartSlice = createSlice({
                 skuName: sku.name,
                 price: sku.price,
                 quantity: Number(quantity),
-                image: product.images && product.images.length > 0 ? product.images[0] : '/default-product.jpg'
+                image: product.images && product.images.length > 0 ? product.images[0] : product.thumbnail
             };
 
             console.log('Adding item to cart:', newItem);
