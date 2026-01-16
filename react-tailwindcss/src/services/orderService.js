@@ -43,12 +43,15 @@ export const initOrderWithProtection = async (items) => {
         return await api.post('/api/orders/init', { items: transformedItems });
     } catch (error) {
         const errorInfo = parseRaceConditionError(error);
-        throw {
-            ...error,
+        // Khởi tạo Error object thực tế
+        const finalError = new Error(errorInfo.message);
+        // Sao chép các thuộc tính từ error cũ và thêm thông tin mới
+        Object.assign(finalError, error, {
             userMessage: errorInfo.message,
             shouldRetry: errorInfo.shouldRetry,
             retryDelay: errorInfo.retryDelay
-        };
+        });
+        throw finalError;
     }
 };
 
@@ -70,11 +73,15 @@ export const getOrderById = async (orderId) => {
         return response.data;
     } catch (error) {
         const errorInfo = parseRaceConditionError(error);
-        console.error('Error fetching order:', error);
-        throw {
-            ...error,
-            userMessage: errorInfo.message
-        };
+        // Khởi tạo Error object thực tế
+        const finalError = new Error(errorInfo.message);
+        // Sao chép các thuộc tính từ error cũ và thêm thông tin mới
+        Object.assign(finalError, error, {
+            userMessage: errorInfo.message,
+            shouldRetry: errorInfo.shouldRetry,
+            retryDelay: errorInfo.retryDelay
+        });
+        throw finalError;
     }
 };
 
@@ -86,18 +93,24 @@ export const updateOrderStatus = async (orderId, status) => {
         return response.data;
     } catch (error) {
         const errorInfo = parseRaceConditionError(error);
-        console.error('Error updating order status:', error);
-        throw {
-            ...error,
-            userMessage: errorInfo.message
-        };
+        // Khởi tạo Error object thực tế
+        const finalError = new Error(errorInfo.message);
+        // Sao chép các thuộc tính từ error cũ và thêm thông tin mới
+        Object.assign(finalError, error, {
+            userMessage: errorInfo.message,
+            shouldRetry: errorInfo.shouldRetry,
+            retryDelay: errorInfo.retryDelay
+        });
+        throw finalError;
     }
 };
 
-export default {
+const orderService = {
     getAllOrder,
     getOrderById,
     updateOrderStatus,
     createOrderWithProtection,
     initOrderWithProtection
 };
+
+export default orderService;
