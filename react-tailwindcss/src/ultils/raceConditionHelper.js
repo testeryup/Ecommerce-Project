@@ -56,6 +56,12 @@ export const parseRaceConditionError = (error) => {
                 };
             }
             break;
+        default:
+            return {
+                message: 'Có lỗi xảy ra',
+                shouldRetry: true,
+                retryDelay: 1500 // 1.5 seconds
+            }
     }
     
     return {
